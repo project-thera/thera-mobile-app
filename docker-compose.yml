@@ -1,0 +1,27 @@
+version: '3'
+services:
+  react-native:
+    build:
+      context: .
+    #command: npx react-native run-android
+    command: npx react-native start
+    volumes:
+      - .:/app
+      - /dev/bus/usb:/dev/bus/usb
+    working_dir: /app/tesis
+    network_mode: host
+    #   - ~/.ssh:/root/.ssh
+    ports:
+      - "8081:8081"
+      - "5037:5037"
+      - "19000:19000"
+      - "19001:19001"
+    privileged: true
+
+    # depends_on:
+    #   - db
+
+# volumes:
+#   db_data:
+#   gems:
+
