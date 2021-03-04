@@ -14,74 +14,81 @@ import {
   View,
   Text,
   StatusBar,
+  Fragment,
 } from 'react-native';
 
-import {
-  Header,
-  LearnMoreLinks,
-  Colors,
-  DebugInstructions,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+import * as tf from '@tensorflow/tfjs';
+import '@tensorflow/tfjs-react-native';
 
-const App: () => React$Node = () => {
-  return (
-    <>
-      <StatusBar barStyle="dark-content" />
-      <SafeAreaView>
-        <ScrollView
-          contentInsetAdjustmentBehavior="automatic"
-          style={styles.scrollView}>
-          <Header />
-          {global.HermesInternal == null ? null : (
-            <View style={styles.engine}>
-              <Text style={styles.footer}>Engine: Hermes</Text>
-            </View>
-          )}
-          <View style={styles.body}>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>Step One</Text>
-              <Text style={styles.sectionDescription}>
-                Edit <Text style={styles.highlight}>App.js</Text> to change this
-                screen and then come back to see your edits.
-              </Text>
-            </View>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>See Your Changes</Text>
-              <Text style={styles.sectionDescription}>
-                <ReloadInstructions />
-              </Text>
-            </View>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>Debug</Text>
-              <Text style={styles.sectionDescription}>
-                <DebugInstructions />
-              </Text>
-            </View>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>Learn More</Text>
-              <Text style={styles.sectionDescription}>
-                Read the docs to discover what to do next:
-              </Text>
-            </View>
-            <LearnMoreLinks />
-          </View>
-        </ScrollView>
-      </SafeAreaView>
-    </>
-  );
-};
+import RealTime from './components/RealTime';
+
+const BACKEND_TO_USE = 'rn-webgl';
+
+export default class App extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      isTfReady: false,
+    };
+  }
+
+  async componentDidMount() {
+    await tf.setBackend(BACKEND_TO_USE);
+    await tf.ready();
+    console.log('ready');
+
+    this.setState({
+      currentScreen: 'realtime',
+      isTfReady: true,
+    });
+  }
+
+  renderRealTime() {
+    return <RealTime />;
+  }
+
+  renderLoadingTF() {
+    return (
+      <View style={styles.sectionContainer}>
+        <Text style={styles.sectionTitle}>Loading TF</Text>
+      </View>
+    );
+  }
+
+  renderContent() {
+    const {isTfReady, currentScreen} = this.state;
+
+    if (isTfReady) {
+      switch (currentScreen) {
+        case 'realtime':
+          return this.renderRealTime();
+        default:
+          return this.renderRealTime();
+      }
+    } else {
+      return this.renderLoadingTF();
+    }
+  }
+
+  render() {
+    return (
+      <View>
+        <Text>Hello</Text>
+        <SafeAreaView>
+          <View style={styles.body}>{this.renderContent()}</View>
+        </SafeAreaView>
+      </View>
+    );
+  }
+}
 
 const styles = StyleSheet.create({
   scrollView: {
-    backgroundColor: Colors.lighter,
-  },
-  engine: {
-    position: 'absolute',
-    right: 0,
+    backgroundColor: 'white',
   },
   body: {
-    backgroundColor: Colors.white,
+    backgroundColor: 'white',
   },
   sectionContainer: {
     marginTop: 32,
@@ -90,25 +97,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 24,
     fontWeight: '600',
-    color: Colors.black,
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-    color: Colors.dark,
-  },
-  highlight: {
-    fontWeight: '700',
-  },
-  footer: {
-    color: Colors.dark,
-    fontSize: 12,
-    fontWeight: '600',
-    padding: 4,
-    paddingRight: 12,
-    textAlign: 'right',
+    color: 'black',
+    marginBottom: 6,
   },
 });
-
-export default App;

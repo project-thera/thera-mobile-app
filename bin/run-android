@@ -1,0 +1,5 @@
+#!/bin/bash
+# Wrapper for execute rails commands in docker context
+rm -rf android/app/build/
+
+docker-compose exec react-native npx react-native run-android
