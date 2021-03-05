@@ -5,19 +5,19 @@ import {
   StyleSheet,
   View,
   Platform,
+  Text,
 } from 'react-native';
-import Svg, {Circle, Rect, G} from 'react-native-svg';
 
 import * as Permissions from 'expo-permissions';
 import {Camera} from 'expo-camera';
 // import {ExpoWebGLRenderingContext} from 'expo-gl';
 
 import * as tf from '@tensorflow/tfjs';
-import * as blazeface from '@tensorflow-models/blazeface';
+import * as cocoSsd from '@tensorflow-models/coco-ssd';
 import {cameraWithTensors} from '@tensorflow/tfjs-react-native';
 
-const inputTensorWidth = 152;
-const inputTensorHeight = 200;
+const inputTensorWidth = 224;
+const inputTensorHeight = 224;
 
 const AUTORENDER = true;
 
@@ -47,27 +47,22 @@ export default class RealTime extends React.Component {
   async componentDidMount() {
     const {status} = await Permissions.askAsync(Permissions.CAMERA);
 
-    const [blazefaceModel] = await Promise.all([this.loadBlazefaceModel()]);
+    const model = await cocoSsd.load();
 
     this.setState({
       hasCameraPermission: status === 'granted',
       isLoading: false,
-      faceDetector: blazefaceModel,
+      model,
+      prediction: '',
+      imageTensor: '',
     });
   }
 
-  async loadBlazefaceModel() {
-    const model = await blazeface.load();
-
-    return model;
-  }
-
   async setTextureDims() {
-    //console.warn(Object.getOwnPropertyNames(this.cameraRef.camera));
     const pictureSizes = await this.cameraRef.camera.getAvailablePictureSizesAsync(
       '4:3',
     );
-    console.warn(pictureSizes);
+    // console.warn(pictureSizes);
   }
 
   async handleImageTensorReady(images, updatePreview, gl) {
@@ -76,15 +71,15 @@ export default class RealTime extends React.Component {
         updatePreview();
       }
 
-      if (this.state.faceDetector != null) {
+      if (this.state.model != null) {
         const imageTensor = images.next().value;
-        const returnTensors = false;
-        const faces = await this.state.faceDetector.estimateFaces(
-          imageTensor,
-          returnTensors,
-        );
 
-        this.setState({faces});
+        const prediction = await this.state.model.detect(imageTensor);
+
+        this.setState({
+          prediction: JSON.stringify(prediction),
+        });
+
         tf.dispose(imageTensor);
       }
 
@@ -95,56 +90,6 @@ export default class RealTime extends React.Component {
     };
 
     loop();
-  }
-
-  renderFaces() {
-    const {faces} = this.state;
-    if (faces != null) {
-      const faceBoxes = faces.map((f, fIndex) => {
-        const topLeft = f.topLeft;
-        const bottomRight = f.bottomRight;
-
-        const landmarks = f.landmarks.map((l, lIndex) => {
-          return (
-            <Circle
-              key={`landmark_${fIndex}_${lIndex}`}
-              cx={l[0]}
-              cy={l[1]}
-              r="2"
-              strokeWidth="0"
-              fill="blue"
-            />
-          );
-        });
-
-        return (
-          <G key={`facebox_${fIndex}`}>
-            <Rect
-              x={topLeft[0]}
-              y={topLeft[1]}
-              fill={'red'}
-              fillOpacity={0.2}
-              width={bottomRight[0] - topLeft[0]}
-              height={bottomRight[1] - topLeft[1]}
-            />
-            {landmarks}
-          </G>
-        );
-      });
-
-      const flipHorizontal = Platform.OS === 'ios' ? 1 : -1;
-      return (
-        <Svg
-          height="100%"
-          width="100%"
-          viewBox={`0 0 ${inputTensorWidth} ${inputTensorHeight}`}
-          scaleX={flipHorizontal}>
-          {faceBoxes}
-        </Svg>
-      );
-    } else {
-      return null;
-    }
   }
 
   render() {
@@ -160,7 +105,7 @@ export default class RealTime extends React.Component {
       };
     } else {
       // Test values
-      // Original 800x1200
+      // Original 1200x1600
       textureDims = {
         height: 480,
         width: 640,
@@ -171,6 +116,8 @@ export default class RealTime extends React.Component {
       <View style={{width: '100%'}}>
         <View style={styles.sectionContainer}>
           <Button onPress={'this.props.returnToMain'} title="Back" />
+          <Text>{this.state.prediction}</Text>
+          <Text>{this.state.imageTensor}</Text>
         </View>
         {isLoading ? (
           <View style={[styles.loadingIndicator]}>
@@ -196,7 +143,7 @@ export default class RealTime extends React.Component {
               onReady={this.handleImageTensorReady}
               autorender={AUTORENDER}
             />
-            <View style={styles.modelResults}>{this.renderFaces()}</View>
+            <View style={styles.modelResults} />
           </View>
         )}
       </View>

@@ -20,7 +20,7 @@ import {
 import * as tf from '@tensorflow/tfjs';
 import '@tensorflow/tfjs-react-native';
 
-import RealTime from './components/RealTime';
+import RealTime from './components/RealTime2';
 
 const BACKEND_TO_USE = 'rn-webgl';
 
@@ -74,7 +74,7 @@ export default class App extends React.Component {
   render() {
     return (
       <View>
-        <Text>Hello</Text>
+        <Text>App</Text>
         <SafeAreaView>
           <View style={styles.body}>{this.renderContent()}</View>
         </SafeAreaView>
