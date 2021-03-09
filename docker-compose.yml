@@ -10,7 +10,7 @@ services:
       - /dev/bus/usb:/dev/bus/usb
       - gradle:/root/.gradle # Avoid download gradle everytime
     working_dir: /app
-    network_mode: host
+    # network_mode: host
     ports:
       - "8081:8081"
       - "5037:5037"

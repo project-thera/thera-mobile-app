@@ -6,6 +6,7 @@ import {
   View,
   Platform,
   Text,
+  Image,
 } from 'react-native';
 
 import * as Permissions from 'expo-permissions';
@@ -13,13 +14,51 @@ import {Camera} from 'expo-camera';
 // import {ExpoWebGLRenderingContext} from 'expo-gl';
 
 import * as tf from '@tensorflow/tfjs';
-import * as mobilenet from '@tensorflow-models/mobilenet';
-import {cameraWithTensors} from '@tensorflow/tfjs-react-native';
+// import * as mobilenet from '@tensorflow-models/mobilenet';
+import * as mobilenet from './mobilenet';
+
+import tensor_to_image_url from './tensor_to_image_url';
+import encodeJpeg from './encodeJpeg';
+
+import {
+  cameraWithTensors,
+  bundleResourceIO,
+} from '@tensorflow/tfjs-react-native';
 
 const inputTensorWidth = 448;
 const inputTensorHeight = 448;
 
+// const y1 = 0.3,
+//   x1 = 0.05,
+//   y2 = 0.7,
+//   x2 = 0.7;
+
+const y1 = 0.2,
+  x1 = 0.25,
+  y2 = 0.8,
+  x2 = 0.85;
+
+const cropHeight = Math.floor((y2 - y1) * (inputTensorHeight - 1));
+const cropWidth = Math.floor((x2 - x1) * (inputTensorWidth - 1));
+
+console.log(cropHeight, cropWidth);
+
+// ["320x240", "640x480", "800x600", "1280x960", "1440x1080", "2048x1536", "2592x1944"]
+const textureDims = {
+  height: 1080,
+  width: 1440,
+};
+
 const AUTORENDER = true;
+
+const modelJson = require('../models/model.json');
+const modelWeights = [
+  require('../models/group1-shard1of3.bin'),
+  require('../models/group1-shard2of3.bin'),
+  require('../models/group1-shard3of3.bin'),
+];
+
+let t1, t0;
 
 // tslint:disable-next-line: variable-name
 const TensorCamera = cameraWithTensors(Camera);
@@ -32,6 +71,7 @@ export default class RealTime extends React.Component {
       isLoading: true,
       cameraType: Camera.Constants.Type.front,
       cameraRef: null,
+      encodedData: '',
     };
 
     this.handleImageTensorReady = this.handleImageTensorReady.bind(this);
@@ -47,8 +87,13 @@ export default class RealTime extends React.Component {
   async componentDidMount() {
     const {status} = await Permissions.askAsync(Permissions.CAMERA);
 
-    const model = await mobilenet.load();
-    await model.classify(tf.zeros([1, inputTensorWidth, inputTensorHeight, 3]));
+    const model = await mobilenet.load({
+      modelUrl: await bundleResourceIO(modelJson, modelWeights),
+      version: 2.0,
+      alpha: 1.0,
+      inputRange: [0, 1],
+    });
+    // await model.classify(tf.zeros([1, inputTensorWidth, inputTensorHeight, 3]));
 
     this.setState({
       hasCameraPermission: status === 'granted',
@@ -63,7 +108,8 @@ export default class RealTime extends React.Component {
     const pictureSizes = await this.cameraRef.camera.getAvailablePictureSizesAsync(
       '4:3',
     );
-    // console.warn(pictureSizes);
+    // ["320x240", "640x480", "800x600", "1280x960", "1440x1080", "2048x1536", "2592x1944"]
+    //console.log(pictureSizes);
   }
 
   async handleImageTensorReady(images, updatePreview, gl) {
@@ -72,18 +118,36 @@ export default class RealTime extends React.Component {
         updatePreview();
       }
 
+      // console.log(
+      //   'Call to doSomething took ' +
+      //     (t0 - performance.now()) +
+      //     ' milliseconds.',
+      // );
+      // let t0 = performance.now();
+
       if (this.state.model != null) {
         const imageTensor = images.next().value;
-
+        //   // const converted = tf.image
+        //   //   .cropAndResize(
+        //   //     imageTensor.reshape([1, inputTensorWidth, inputTensorHeight, 3]),
+        //   //     [[y1, x1, y2, x2]],
+        //   //     [0],
+        //   //     [cropHeight, cropWidth],
+        //   //   )
+        //   //   .reshape([cropHeight, cropWidth, 3]);
+        //   // this.setState({
+        //   //   encodedData: await encodeJpeg(imageTensor),
+        //   // });
         const prediction = await this.state.model.classify(imageTensor);
 
         this.setState({
           prediction: JSON.stringify(prediction),
-          //          imageTensor: Object.getOwnPropertyNames(imageTensor),
-          // imageTensor: JSON.stringify(await normalized.array()[0]),
         });
 
         tf.dispose(imageTensor);
+        //   //tf.dispose(converted);
+        //   let t1 = performance.now();
+        //   console.log('Call to doSomething took ' + (t1 - t0) + ' milliseconds.');
       }
 
       if (!AUTORENDER) {
@@ -97,23 +161,6 @@ export default class RealTime extends React.Component {
 
   render() {
     const {isLoading} = this.state;
-
-    // Caller will still need to account for orientation/phone rotation changes
-    let textureDims = {};
-
-    if (Platform.OS === 'ios') {
-      textureDims = {
-        height: 1920,
-        width: 1080,
-      };
-    } else {
-      // Test values
-      // Original 1200x1600
-      textureDims = {
-        height: 1200,
-        width: 1600,
-      };
-    }
 
     return (
       <View style={{width: '100%'}}>
@@ -146,7 +193,14 @@ export default class RealTime extends React.Component {
               onReady={this.handleImageTensorReady}
               autorender={AUTORENDER}
             />
-            <View style={styles.modelResults} />
+            <View style={styles.modelResults}>
+              <Image
+                style={styles.camera}
+                source={{
+                  uri: `data:image/jpeg;base64,${this.state.encodedData}`,
+                }}
+              />
+            </View>
           </View>
         )}
       </View>
