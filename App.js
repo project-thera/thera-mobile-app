@@ -20,7 +20,7 @@ import {
 import * as tf from '@tensorflow/tfjs';
 import '@tensorflow/tfjs-react-native';
 
-import RealTime from './components/RealTime2';
+import RealTime from './components/RealTimeBlazeface';
 
 const BACKEND_TO_USE = 'rn-webgl';
 

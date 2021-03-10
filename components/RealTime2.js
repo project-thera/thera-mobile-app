@@ -4,7 +4,6 @@ import {
   Button,
   StyleSheet,
   View,
-  Platform,
   Text,
   Image,
 } from 'react-native';
@@ -15,18 +14,17 @@ import {Camera} from 'expo-camera';
 
 import * as tf from '@tensorflow/tfjs';
 // import * as mobilenet from '@tensorflow-models/mobilenet';
-import * as mobilenet from './mobilenet';
+import * as mobilenet from './utils/Mobilenet';
 
-import tensor_to_image_url from './tensor_to_image_url';
-import encodeJpeg from './encodeJpeg';
+import encodeJpeg from './utils/encodeJpeg';
 
 import {
   cameraWithTensors,
   bundleResourceIO,
 } from '@tensorflow/tfjs-react-native';
 
-const inputTensorWidth = 448;
-const inputTensorHeight = 448;
+const inputTensorWidth = 160;
+const inputTensorHeight = 160;
 
 // const y1 = 0.3,
 //   x1 = 0.05,
@@ -53,9 +51,9 @@ const AUTORENDER = true;
 
 const modelJson = require('../models/model.json');
 const modelWeights = [
-  require('../models/group1-shard1of3.bin'),
-  require('../models/group1-shard2of3.bin'),
-  require('../models/group1-shard3of3.bin'),
+  require('../models/group1-shard1of1.bin'),
+  // require('../models/group1-shard2of3.bin'),
+  // require('../models/group1-shard3of3.bin'),
 ];
 
 let t1, t0;
@@ -118,27 +116,41 @@ export default class RealTime extends React.Component {
         updatePreview();
       }
 
-      // console.log(
-      //   'Call to doSomething took ' +
-      //     (t0 - performance.now()) +
-      //     ' milliseconds.',
-      // );
-      // let t0 = performance.now();
+      console.log(
+        'Call to doSomething took ' +
+          (t0 - performance.now()) +
+          ' milliseconds.',
+      );
+      t0 = performance.now();
 
       if (this.state.model != null) {
         const imageTensor = images.next().value;
-        //   // const converted = tf.image
-        //   //   .cropAndResize(
-        //   //     imageTensor.reshape([1, inputTensorWidth, inputTensorHeight, 3]),
-        //   //     [[y1, x1, y2, x2]],
-        //   //     [0],
-        //   //     [cropHeight, cropWidth],
-        //   //   )
-        //   //   .reshape([cropHeight, cropWidth, 3]);
-        //   // this.setState({
-        //   //   encodedData: await encodeJpeg(imageTensor),
-        //   // });
+
+        const cropTime = performance.now();
+
+        // const converted = tf.image
+        //   .cropAndResize(
+        //     imageTensor.reshape([1, inputTensorWidth, inputTensorHeight, 3]),
+        //     [[y1, x1, y2, x2]],
+        //     [0],
+        //     [cropHeight, cropWidth],
+        //   )
+        //   .reshape([cropHeight, cropWidth, 3]);
+
+        // console.log(
+        //   'Detection took ' + (cropTime - performance.now()) + ' milliseconds.',
+        // );
+        this.setState({
+          encodedData: await encodeJpeg(imageTensor),
+        });
+
+        const detectionTime = performance.now();
         const prediction = await this.state.model.classify(imageTensor);
+        // console.log(
+        //   'Detection took ' +
+        //     (detectionTime - performance.now()) +
+        //     ' milliseconds.',
+        // );
 
         this.setState({
           prediction: JSON.stringify(prediction),
