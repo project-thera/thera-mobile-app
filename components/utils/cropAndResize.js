@@ -1,5 +1,14 @@
 import * as tf from '@tensorflow/tfjs';
 
+/*
+  imageTensor,
+  inputTensorWidth,
+  inputTensorHeight,
+  topLeft[1] / inputTensorHeight + 0.08,
+  topLeft[0] / inputTensorWidth,
+  bottomRight[1] / inputTensorHeight + 0.07,
+  bottomRight[0] / inputTensorWidth,
+*/
 export function cropAndResize(
   imageTensor,
   inputTensorWidth,
@@ -28,19 +37,15 @@ export function cropAndResize2(
   inputTensorHeight,
   topLeft,
   bottomRight,
-  displacementTop = 0.08,
-  displacementBottom = 0.07,
+  displacementTop = 0.0029,
+  displacementBottom = 0.0025,
 ) {
-  // topLeft[1] / inputTensorHeight + 0.08,
-  // topLeft[0] / inputTensorWidth,
-  // bottomRight[1] / inputTensorHeight + 0.07,
-  // bottomRight[0] / inputTensorWidth,
+  const boxHeight = ((bottomRight[1] - topLeft[1]) * 100) / inputTensorHeight;
 
-  console.log(bottomRight[1] - topLeft[1]);
-  const y1 = topLeft[1] / inputTensorHeight + displacementTop; // FIXME change with size
+  const y1 = topLeft[1] / inputTensorHeight + boxHeight * displacementTop;
 
-  const y2 = bottomRight[1] / inputTensorHeight + displacementBottom;
-  // ((bottomRight[1] - topLeft[1]) / inputTensorHeight) * displacementBottom;
+  const y2 =
+    bottomRight[1] / inputTensorHeight + boxHeight * displacementBottom;
 
   const x1 = topLeft[0] / inputTensorWidth;
   const x2 = bottomRight[0] / inputTensorWidth;

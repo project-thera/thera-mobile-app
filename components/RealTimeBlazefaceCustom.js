@@ -22,7 +22,7 @@ import {
 } from '@tensorflow/tfjs-react-native';
 
 import * as mobilenet from './utils/Mobilenet';
-import {cropAndResize} from './utils/cropAndResize';
+import {cropAndResize2} from './utils/cropAndResize';
 import encodeJpeg from './utils/encodeJpeg';
 
 const modelJson = require('../models/model.json');
@@ -45,6 +45,9 @@ export default class RealTime extends React.Component {
       cameraType: Camera.Constants.Type.front,
       cameraRef: null,
     };
+
+    this.faceDetectionCount = 0;
+    this.processing = false;
 
     this.handleImageTensorReady = this.handleImageTensorReady.bind(this);
     this.setTextureDims = this.setTextureDims.bind(this);
@@ -112,12 +115,15 @@ export default class RealTime extends React.Component {
 
         let detectionTime = performance.now();
 
+        // const SKIP_FACES = 2; // TODO move
+        // if (this.faceDetectionCount > SKIP_FACES) {
         const faces = await this.state.faceDetector.estimateFaces(
           imageTensor,
           false, // returnTensors
           false, // flip horizontal
           false, // annotateBoxes
         );
+        // }
 
         console.log(
           'Detection took ' +
@@ -125,20 +131,16 @@ export default class RealTime extends React.Component {
             ' milliseconds.',
         );
 
-        detectionTime = performance.now();
-
         // console.log(faces);
         if (faces.length > 0) {
-          const {topLeft, bottomRight} = faces[0];
+          detectionTime = performance.now();
 
-          const cropped = cropAndResize(
+          const cropped = cropAndResize2(
             imageTensor,
             inputTensorWidth,
             inputTensorHeight,
-            topLeft[1] / inputTensorHeight + 0.08,
-            topLeft[0] / inputTensorWidth,
-            bottomRight[1] / inputTensorHeight + 0.07,
-            bottomRight[0] / inputTensorWidth,
+            faces[0].topLeft,
+            faces[0].bottomRight,
           );
 
           const prediction = await this.state.mobilenetDetector.classify(
@@ -146,7 +148,7 @@ export default class RealTime extends React.Component {
           );
 
           console.log(
-            'Detection took ' +
+            'Prediction took ' +
               (performance.now() - detectionTime) +
               ' milliseconds.',
           );

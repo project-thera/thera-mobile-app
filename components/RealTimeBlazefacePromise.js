@@ -93,37 +93,44 @@ export default class RealTime extends React.Component {
 
         let detectionTime = performance.now();
 
-        const faces = await this.state.faceDetector.estimateFaces(
-          imageTensor,
-          false, // returnTensors
-          false, // Flip horizontal
-          false, // annotateBoxes
-        );
+        console.log('start count');
+        this.state.faceDetector
+          .estimateFaces(
+            imageTensor,
+            false, // returnTensors
+            false, // Flip horizontal
+            false, // annotateBoxes
+          )
+          .then(function (faces) {
+            console.log(
+              'Promise took ' +
+                (performance.now() - detectionTime) +
+                ' milliseconds.',
+            );
+          });
 
         console.log(
-          'Detection took ' +
+          'Out promise took ' +
             (performance.now() - detectionTime) +
             ' milliseconds.',
         );
 
         // console.log(faces);
-        if (faces.length > 0) {
-          const {topLeft, bottomRight} = faces[0];
+        // if (faces.length > 0) {
+        //   const {topLeft, bottomRight} = faces[0];
 
-          console.log(topLeft, bottomRight);
+        //   const cropped = cropAndResize2(
+        //     imageTensor,
+        //     inputTensorWidth,
+        //     inputTensorHeight,
+        //     topLeft,
+        //     bottomRight,
+        //   );
 
-          const cropped = cropAndResize2(
-            imageTensor,
-            inputTensorWidth,
-            inputTensorHeight,
-            topLeft,
-            bottomRight,
-          );
-
-          this.setState({
-            encodedData: await encodeJpeg(cropped),
-          });
-        }
+        //   // this.setState({
+        //   //   encodedData: await encodeJpeg(cropped),
+        //   // });
+        // }
 
         // this.setState({faces});
         tf.dispose(imageTensor);
