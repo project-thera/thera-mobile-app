@@ -19,8 +19,6 @@
 import * as tf from '@tensorflow/tfjs-core';
 import * as tfjs from '@tensorflow/tfjs';
 
-const IMAGE_SIZE = 160;
-
 /**
  * Mobilenet model loading configuration
  *
@@ -36,6 +34,13 @@ const IMAGE_SIZE = 160;
  * @param inputRange The input range expected by the trained
  * model hosted at the modelUrl. This is typically [0, 1] or [-1, 1].
  */
+
+// TODO LOAD FROM LABEL FILE
+const CUSTOM_CLASSES = {
+  0: 'Boca cerrada',
+  1: 'Ruido',
+  2: 'Lengua arriba',
+};
 
 const MODEL_INFO = {
   '1.00': {
@@ -81,6 +86,8 @@ const MODEL_INFO = {
     },
   },
 };
+
+export const IMAGE_SIZE = 160;
 
 // See ModelConfig documentation for expectations of provided fields.
 export async function load(
@@ -200,6 +207,7 @@ class MobileNetImpl {
       let resized = normalized;
 
       if (img.shape[0] !== IMAGE_SIZE || img.shape[1] !== IMAGE_SIZE) {
+        console.log('RESIZE');
         const alignCorners = true;
         resized = tf.image.resizeBilinear(
           normalized,
@@ -263,7 +271,7 @@ async function getTopKClasses(logits, topK) {
   const topClassesAndProbs = [];
   for (let i = 0; i < topkIndices.length; i++) {
     topClassesAndProbs.push({
-      className: topkIndices[i], // IMAGENET_CLASSES[topkIndices[i]],
+      className: CUSTOM_CLASSES[topkIndices[i]],
       probability: topkValues[i],
     });
   }

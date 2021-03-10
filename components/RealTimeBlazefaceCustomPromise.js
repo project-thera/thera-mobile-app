@@ -22,7 +22,7 @@ import {
 } from '@tensorflow/tfjs-react-native';
 
 import * as mobilenet from './utils/Mobilenet';
-import {cropAndResizeForDetector} from './utils/cropAndResize';
+import {cropAndResize2} from './utils/cropAndResize';
 import encodeJpeg from './utils/encodeJpeg';
 
 const modelJson = require('../models/model.json');
@@ -31,7 +31,7 @@ const modelWeights = [require('../models/group1-shard1of1.bin')];
 const inputTensorWidth = 224;
 const inputTensorHeight = 224;
 
-const AUTORENDER = true;
+const AUTORENDER = false;
 
 // tslint:disable-next-line: variable-name
 const TensorCamera = cameraWithTensors(Camera);
@@ -103,8 +103,9 @@ export default class RealTime extends React.Component {
 
   async handleImageTensorReady(images, updatePreview, gl) {
     const loop = async () => {
-      updatePreview();
-      gl.endFrameEXP();
+      if (!AUTORENDER) {
+        updatePreview();
+      }
 
       if (
         this.state.faceDetector != null &&
@@ -112,7 +113,7 @@ export default class RealTime extends React.Component {
       ) {
         const imageTensor = images.next().value;
 
-        let detectionTime = performance.now();
+        // let detectionTime = performance.now();
 
         const that = this;
         // const SKIP_FACES = 2; // TODO move
@@ -129,14 +130,9 @@ export default class RealTime extends React.Component {
               updatePreview();
               gl.endFrameEXP();
 
-              console.log(
-                'Detection took ' +
-                  (performance.now() - detectionTime) +
-                  ' milliseconds.',
-              );
-              detectionTime = performance.now();
+              // detectionTime = performance.now();
 
-              const cropped = cropAndResizeForDetector(
+              const cropped = cropAndResize2(
                 imageTensor,
                 inputTensorWidth,
                 inputTensorHeight,
@@ -147,18 +143,9 @@ export default class RealTime extends React.Component {
               that.state.mobilenetDetector
                 .classify(cropped)
                 .then(function (prediction) {
-                  updatePreview();
-                  gl.endFrameEXP();
-
                   that.setState({
                     prediction: JSON.stringify(prediction),
                   });
-
-                  console.log(
-                    'Prediction took ' +
-                      (performance.now() - detectionTime) +
-                      ' milliseconds.',
-                  );
                 });
 
               tf.dispose(imageTensor);
@@ -169,11 +156,19 @@ export default class RealTime extends React.Component {
 
         updatePreview();
         gl.endFrameEXP();
+
+        // console.log(
+        //   'Detection took ' +
+        //     (performance.now() - detectionTime) +
+        //     ' milliseconds.',
+        // );
+
+        // console.log(faces);
       }
 
-      updatePreview();
-      gl.endFrameEXP();
-
+      if (!AUTORENDER) {
+        gl.endFrameEXP();
+      }
       this.rafID = requestAnimationFrame(loop);
     };
 

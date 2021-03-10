@@ -103,8 +103,9 @@ export default class RealTime extends React.Component {
 
   async handleImageTensorReady(images, updatePreview, gl) {
     const loop = async () => {
-      updatePreview();
-      gl.endFrameEXP();
+      if (!AUTORENDER) {
+        updatePreview();
+      }
 
       if (
         this.state.faceDetector != null &&
@@ -114,66 +115,55 @@ export default class RealTime extends React.Component {
 
         let detectionTime = performance.now();
 
-        const that = this;
         // const SKIP_FACES = 2; // TODO move
         // if (this.faceDetectionCount > SKIP_FACES) {
-        this.state.faceDetector
-          .estimateFaces(
+        const faces = await this.state.faceDetector.estimateFaces(
+          imageTensor,
+          false, // returnTensors
+          false, // flip horizontal
+          false, // annotateBoxes
+        );
+        // }
+
+        console.log(
+          'Detection took ' +
+            (performance.now() - detectionTime) +
+            ' milliseconds.',
+        );
+
+        // console.log(faces);
+        if (faces.length > 0) {
+          detectionTime = performance.now();
+
+          const cropped = cropAndResizeForDetector(
             imageTensor,
-            false, // returnTensors
-            false, // flip horizontal
-            false, // annotateBoxes
-          )
-          .then(function (faces) {
-            if (faces.length > 0) {
-              updatePreview();
-              gl.endFrameEXP();
+            inputTensorWidth,
+            inputTensorHeight,
+            faces[0].topLeft,
+            faces[0].bottomRight,
+          );
 
-              console.log(
-                'Detection took ' +
-                  (performance.now() - detectionTime) +
-                  ' milliseconds.',
-              );
-              detectionTime = performance.now();
+          const prediction = await this.state.mobilenetDetector.classify(
+            cropped,
+          );
 
-              const cropped = cropAndResizeForDetector(
-                imageTensor,
-                inputTensorWidth,
-                inputTensorHeight,
-                faces[0].topLeft,
-                faces[0].bottomRight,
-              );
+          console.log(
+            'Prediction took ' +
+              (performance.now() - detectionTime) +
+              ' milliseconds.',
+          );
 
-              that.state.mobilenetDetector
-                .classify(cropped)
-                .then(function (prediction) {
-                  updatePreview();
-                  gl.endFrameEXP();
-
-                  that.setState({
-                    prediction: JSON.stringify(prediction),
-                  });
-
-                  console.log(
-                    'Prediction took ' +
-                      (performance.now() - detectionTime) +
-                      ' milliseconds.',
-                  );
-                });
-
-              tf.dispose(imageTensor);
-            } else {
-              tf.dispose(imageTensor);
-            }
+          this.setState({
+            prediction: JSON.stringify(prediction),
           });
+        }
 
-        updatePreview();
-        gl.endFrameEXP();
+        tf.dispose(imageTensor);
       }
 
-      updatePreview();
-      gl.endFrameEXP();
-
+      if (!AUTORENDER) {
+        gl.endFrameEXP();
+      }
       this.rafID = requestAnimationFrame(loop);
     };
 

@@ -24,7 +24,7 @@ import {cropAndResize, cropAndResize2} from './utils/cropAndResize';
 const inputTensorWidth = 224;
 const inputTensorHeight = 224;
 
-const AUTORENDER = true;
+const AUTORENDER = false;
 
 // tslint:disable-next-line: variable-name
 const TensorCamera = cameraWithTensors(Camera);
@@ -82,10 +82,20 @@ export default class RealTime extends React.Component {
     // console.warn(pictureSizes);
   }
 
+  tick(updatePreview, gl) {
+    console.log('tick');
+    updatePreview();
+    gl.endFrameEXP();
+  }
+
   async handleImageTensorReady(images, updatePreview, gl) {
     const loop = async () => {
       if (!AUTORENDER) {
         updatePreview();
+      }
+
+      if (!AUTORENDER) {
+        gl.endFrameEXP();
       }
 
       if (this.state.faceDetector != null) {
@@ -94,6 +104,9 @@ export default class RealTime extends React.Component {
         let detectionTime = performance.now();
 
         console.log('start count');
+
+        // let interval = setInterval(this.tick(updatePreview, gl), 10); // 60 frames per second
+
         this.state.faceDetector
           .estimateFaces(
             imageTensor,
@@ -108,6 +121,13 @@ export default class RealTime extends React.Component {
                 ' milliseconds.',
             );
           });
+
+        // clearInterval(interval);
+
+        if (!AUTORENDER) {
+          updatePreview();
+          gl.endFrameEXP();
+        }
 
         console.log(
           'Out promise took ' +
@@ -136,9 +156,6 @@ export default class RealTime extends React.Component {
         tf.dispose(imageTensor);
       }
 
-      if (!AUTORENDER) {
-        gl.endFrameEXP();
-      }
       this.rafID = requestAnimationFrame(loop);
     };
 
