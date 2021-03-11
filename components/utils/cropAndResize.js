@@ -59,7 +59,7 @@ export function cropAndResize2(
 
   return tf.image
     .cropAndResize(
-      imageTensor.reshape([1, inputTensorWidth, inputTensorHeight, 3]),
+      imageTensor.reshape([1, inputTensorHeight, inputTensorWidth, 3]),
       [[y1, x1, y2, x2]],
       [0],
       [cropHeight, cropWidth],
@@ -87,10 +87,10 @@ export function cropAndResizeForDetector(
   const x1 = topLeft[0] / inputTensorWidth;
   const x2 = bottomRight[0] / inputTensorWidth;
 
-  // const cropHeight = Math.floor((y2 - y1) * (inputTensorHeight - 1));
-  // const cropWidth = Math.floor((x2 - x1) * (inputTensorWidth - 1));
+  const cropHeight = Math.floor((y2 - y1) * (inputTensorHeight - 1));
+  const cropWidth = Math.floor((x2 - x1) * (inputTensorWidth - 1));
 
-  // console.log(cropHeight, cropWidth);
+  console.log(cropHeight, cropWidth);
 
   return tf.image
     .cropAndResize(
