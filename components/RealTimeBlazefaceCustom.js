@@ -4,12 +4,9 @@ import {
   Button,
   StyleSheet,
   View,
-  Platform,
   Text,
   Image,
-  PixelRatio,
 } from 'react-native';
-import Svg, {Circle, Rect, G} from 'react-native-svg';
 
 // import * as FaceDetector from 'expo-face-detector';
 
