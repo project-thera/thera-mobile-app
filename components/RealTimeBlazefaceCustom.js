@@ -28,8 +28,8 @@ import encodeJpeg from './utils/encodeJpeg';
 const modelJson = require('../models/model.json');
 const modelWeights = [require('../models/group1-shard1of1.bin')];
 
-const inputTensorWidth = 180;
-const inputTensorHeight = 320;
+const inputTensorWidth = 180; // 180 144 120
+const inputTensorHeight = 320; // 320 256 214
 
 const AUTORENDER = true;
 
