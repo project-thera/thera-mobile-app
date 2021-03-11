@@ -7,6 +7,7 @@ import {
   Platform,
   Text,
   Image,
+  PixelRatio,
 } from 'react-native';
 import Svg, {Circle, Rect, G} from 'react-native-svg';
 
@@ -23,13 +24,12 @@ import {
 
 import * as mobilenet from './utils/Mobilenet';
 import {cropAndResizeForDetector} from './utils/cropAndResize';
-import encodeJpeg from './utils/encodeJpeg';
 
 const modelJson = require('../models/model.json');
 const modelWeights = [require('../models/group1-shard1of1.bin')];
 
-const inputTensorWidth = 224;
-const inputTensorHeight = 224;
+const inputTensorWidth = 180;
+const inputTensorHeight = 320;
 
 const AUTORENDER = true;
 
@@ -87,12 +87,6 @@ export default class RealTime extends React.Component {
     });
   }
 
-  async loadBlazefaceModel() {
-    const model = await blazeface.load();
-
-    return model;
-  }
-
   async setTextureDims() {
     //console.warn(Object.getOwnPropertyNames(this.cameraRef.camera));
     const pictureSizes = await this.cameraRef.camera.getAvailablePictureSizesAsync(
@@ -102,6 +96,7 @@ export default class RealTime extends React.Component {
   }
 
   async handleImageTensorReady(images, updatePreview, gl) {
+    //console.log(gl);
     const loop = async () => {
       updatePreview();
       gl.endFrameEXP();
@@ -233,22 +228,12 @@ export default class RealTime extends React.Component {
   render() {
     const {isLoading} = this.state;
 
-    // Caller will still need to account for orientation/phone rotation changes
-    let textureDims = {};
+    const ratio = '16:9';
 
-    if (Platform.OS === 'ios') {
-      textureDims = {
-        height: 1920,
-        width: 1080,
-      };
-    } else {
-      // Test values
-      // Original 800x1200
-      textureDims = {
-        height: 1200,
-        width: 1600,
-      };
-    }
+    const textureDims = {
+      height: 720,
+      width: 1280,
+    };
 
     return (
       <View style={{width: '100%'}}>
@@ -270,6 +255,7 @@ export default class RealTime extends React.Component {
               style={styles.camera}
               type={this.state.cameraType}
               zoom={0}
+              ratio={ratio}
               onCameraReady={this.setTextureDims}
               // tensor related props
               cameraTextureHeight={textureDims.height}

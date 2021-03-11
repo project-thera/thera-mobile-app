@@ -16,15 +16,22 @@ import {Camera} from 'expo-camera';
 
 import * as tf from '@tensorflow/tfjs';
 import * as blazeface from '@tensorflow-models/blazeface';
-import {cameraWithTensors} from '@tensorflow/tfjs-react-native';
+import {
+  cameraWithTensors,
+  bundleResourceIO,
+} from '@tensorflow/tfjs-react-native';
 
+import * as mobilenet from './utils/Mobilenet';
+import {cropAndResizeForDetector} from './utils/cropAndResize';
 import encodeJpeg from './utils/encodeJpeg';
-import {cropAndResize, cropAndResize2} from './utils/cropAndResize';
+
+const modelJson = require('../models/model.json');
+const modelWeights = [require('../models/group1-shard1of1.bin')];
 
 const inputTensorWidth = 224;
 const inputTensorHeight = 224;
 
-const AUTORENDER = false;
+const AUTORENDER = true;
 
 // tslint:disable-next-line: variable-name
 const TensorCamera = cameraWithTensors(Camera);
@@ -39,6 +46,9 @@ export default class RealTime extends React.Component {
       cameraRef: null,
     };
 
+    this.faceDetectionCount = 0;
+    this.processing = false;
+
     this.handleImageTensorReady = this.handleImageTensorReady.bind(this);
     this.setTextureDims = this.setTextureDims.bind(this);
   }
@@ -52,27 +62,36 @@ export default class RealTime extends React.Component {
   async componentDidMount() {
     const {status} = await Permissions.askAsync(Permissions.CAMERA);
 
-    const blazefaceModel = await blazeface.load({
-      maxFaces: 1,
-      inputWidth: 128,
-      inputHeight: 128,
-      iouThreshold: 0.3,
-      scoreThreshold: 0.75,
-    });
+    const [faceDetector, mobilenetDetector] = await Promise.all([
+      blazeface.load({
+        maxFaces: 1,
+        inputWidth: 128,
+        inputHeight: 128,
+        iouThreshold: 0.3,
+        scoreThreshold: 0.75,
+      }),
+      mobilenet.load({
+        modelUrl: await bundleResourceIO(modelJson, modelWeights),
+        version: 2.0,
+        alpha: 1.0,
+        inputRange: [0, 1],
+      }),
+    ]);
 
     this.setState({
       hasCameraPermission: status === 'granted',
       isLoading: false,
-      faceDetector: blazefaceModel,
+      faceDetector,
+      mobilenetDetector,
       encodedData: '',
     });
   }
 
-  // async loadBlazefaceModel() {
-  //   const model = await );
+  async loadBlazefaceModel() {
+    const model = await blazeface.load();
 
-  //   return model;
-  // }
+    return model;
+  }
 
   async setTextureDims() {
     //console.warn(Object.getOwnPropertyNames(this.cameraRef.camera));
@@ -82,80 +101,67 @@ export default class RealTime extends React.Component {
     // console.warn(pictureSizes);
   }
 
-  tick(updatePreview, gl) {
-    console.log('tick');
-    updatePreview();
-    gl.endFrameEXP();
-  }
-
   async handleImageTensorReady(images, updatePreview, gl) {
     const loop = async () => {
       if (!AUTORENDER) {
         updatePreview();
       }
 
-      if (!AUTORENDER) {
-        gl.endFrameEXP();
-      }
-
-      if (this.state.faceDetector != null) {
+      if (
+        this.state.faceDetector != null &&
+        this.state.mobilenetDetector != null
+      ) {
         const imageTensor = images.next().value;
 
         let detectionTime = performance.now();
 
-        console.log('start count');
-
-        // let interval = setInterval(this.tick(updatePreview, gl), 10); // 60 frames per second
-
-        this.state.faceDetector
-          .estimateFaces(
-            imageTensor,
-            false, // returnTensors
-            false, // Flip horizontal
-            false, // annotateBoxes
-          )
-          .then(function (faces) {
-            console.log(
-              'Promise took ' +
-                (performance.now() - detectionTime) +
-                ' milliseconds.',
-            );
-          });
-
-        // clearInterval(interval);
-
-        if (!AUTORENDER) {
-          updatePreview();
-          gl.endFrameEXP();
-        }
+        const faces = await this.state.faceDetector.estimateFaces(
+          imageTensor,
+          false, // returnTensors
+          false, // flip horizontal
+          false, // annotateBoxes
+        );
+        // }
 
         console.log(
-          'Out promise took ' +
+          'Detection took ' +
             (performance.now() - detectionTime) +
             ' milliseconds.',
         );
 
         // console.log(faces);
-        // if (faces.length > 0) {
-        //   const {topLeft, bottomRight} = faces[0];
+        if (faces.length > 0) {
+          detectionTime = performance.now();
 
-        //   const cropped = cropAndResize2(
-        //     imageTensor,
-        //     inputTensorWidth,
-        //     inputTensorHeight,
-        //     topLeft,
-        //     bottomRight,
-        //   );
+          const cropped = cropAndResizeForDetector(
+            imageTensor,
+            inputTensorWidth,
+            inputTensorHeight,
+            faces[0].topLeft,
+            faces[0].bottomRight,
+          );
 
-        //   // this.setState({
-        //   //   encodedData: await encodeJpeg(cropped),
-        //   // });
-        // }
+          const prediction = await this.state.mobilenetDetector.classify(
+            cropped,
+          );
 
-        // this.setState({faces});
+          console.log(
+            'Prediction took ' +
+              (performance.now() - detectionTime) +
+              ' milliseconds.',
+          );
+
+          this.setState({
+            prediction: JSON.stringify(prediction),
+          });
+        }
+
         tf.dispose(imageTensor);
       }
 
+      if (!AUTORENDER) {
+        gl.endFrameEXP();
+      }
       this.rafID = requestAnimationFrame(loop);
     };
 

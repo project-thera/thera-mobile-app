@@ -87,7 +87,7 @@ const MODEL_INFO = {
   },
 };
 
-export const IMAGE_SIZE = 160;
+export const IMAGE_SIZE = 96;
 
 // See ModelConfig documentation for expectations of provided fields.
 export async function load(
@@ -96,7 +96,6 @@ export async function load(
     alpha: 1.0,
   },
 ) {
-  console.log(modelConfig);
   if (tf == null) {
     throw new Error(
       'Cannot find TensorFlow.js. If you are using a <script> tag, please ' +
@@ -145,8 +144,6 @@ export async function load(
 }
 
 class MobileNetImpl {
-  //model;  : tfconv.GraphModel;
-
   // Values read from images are in the range [0.0, 255.0], but they must
   // be normalized to [min, max] before passing to the mobilenet classifier.
   // Different implementations of mobilenet have different values of [min, max].
@@ -191,7 +188,7 @@ class MobileNetImpl {
    * @param embedding If true, it returns the embedding. Otherwise it returns
    *     the 1000-dim logits.
    */
-  infer(img, embedding = false) {
+  infer(img) {
     return tf.tidy(() => {
       if (!(img instanceof tf.Tensor)) {
         img = tf.browser.fromPixels(img);
@@ -203,30 +200,9 @@ class MobileNetImpl {
         this.inputMin,
       );
 
-      // Resize the image to
-      let resized = normalized;
+      const batched = tf.reshape(normalized, [-1, IMAGE_SIZE, IMAGE_SIZE, 3]);
 
-      if (img.shape[0] !== IMAGE_SIZE || img.shape[1] !== IMAGE_SIZE) {
-        console.log('RESIZE');
-        const alignCorners = true;
-        resized = tf.image.resizeBilinear(
-          normalized,
-          [IMAGE_SIZE, IMAGE_SIZE],
-          alignCorners,
-        );
-      }
-
-      // Reshape so we can pass it to predict.
-
-      const batched = tf.reshape(resized, [-1, IMAGE_SIZE, IMAGE_SIZE, 3]);
-
-      let result;
-
-      const logits1001 = this.model.predict(batched);
-      // Remove the very first logit (background noise).
-      // result = tf.slice(logits1001, [0, 1], [-1, 3]);
-
-      return logits1001;
+      return this.model.predict(batched);
     });
   }
 

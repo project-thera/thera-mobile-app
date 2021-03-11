@@ -4,34 +4,59 @@ import {
   Button,
   StyleSheet,
   View,
-  Platform,
   Text,
   Image,
 } from 'react-native';
-import Svg, {Circle, Rect, G} from 'react-native-svg';
 
 import * as Permissions from 'expo-permissions';
 import {Camera} from 'expo-camera';
 // import {ExpoWebGLRenderingContext} from 'expo-gl';
 
 import * as tf from '@tensorflow/tfjs';
-import * as blazeface from '@tensorflow-models/blazeface';
+// import * as mobilenet from '@tensorflow-models/mobilenet';
+import * as mobilenet from '../utils/Mobilenet';
+
+import encodeJpeg from '../utils/encodeJpeg';
+
 import {
   cameraWithTensors,
   bundleResourceIO,
 } from '@tensorflow/tfjs-react-native';
 
-import * as mobilenet from './utils/Mobilenet';
-import {cropAndResize2} from './utils/cropAndResize';
-import encodeJpeg from './utils/encodeJpeg';
+const inputTensorWidth = 160;
+const inputTensorHeight = 160;
 
-const modelJson = require('../models/model.json');
-const modelWeights = [require('../models/group1-shard1of1.bin')];
+// const y1 = 0.3,
+//   x1 = 0.05,
+//   y2 = 0.7,
+//   x2 = 0.7;
 
-const inputTensorWidth = 224;
-const inputTensorHeight = 224;
+const y1 = 0.2,
+  x1 = 0.25,
+  y2 = 0.8,
+  x2 = 0.85;
+
+const cropHeight = Math.floor((y2 - y1) * (inputTensorHeight - 1));
+const cropWidth = Math.floor((x2 - x1) * (inputTensorWidth - 1));
+
+console.log(cropHeight, cropWidth);
+
+// ["320x240", "640x480", "800x600", "1280x960", "1440x1080", "2048x1536", "2592x1944"]
+const textureDims = {
+  height: 1080,
+  width: 1440,
+};
 
 const AUTORENDER = true;
+
+const modelJson = require('../../models/model.json');
+const modelWeights = [
+  require('../models/group1-shard1of1.bin'),
+  // require('../models/group1-shard2of3.bin'),
+  // require('../models/group1-shard3of3.bin'),
+];
+
+let t1, t0;
 
 // tslint:disable-next-line: variable-name
 const TensorCamera = cameraWithTensors(Camera);
@@ -44,6 +69,7 @@ export default class RealTime extends React.Component {
       isLoading: true,
       cameraType: Camera.Constants.Type.front,
       cameraRef: null,
+      encodedData: '',
     };
 
     this.handleImageTensorReady = this.handleImageTensorReady.bind(this);
@@ -59,43 +85,29 @@ export default class RealTime extends React.Component {
   async componentDidMount() {
     const {status} = await Permissions.askAsync(Permissions.CAMERA);
 
-    const [faceDetector, mobilenetDetector] = await Promise.all([
-      blazeface.load({
-        maxFaces: 1,
-        inputWidth: 128,
-        inputHeight: 128,
-        iouThreshold: 0.3,
-        scoreThreshold: 0.75,
-      }),
-      mobilenet.load({
-        modelUrl: await bundleResourceIO(modelJson, modelWeights),
-        version: 2.0,
-        alpha: 1.0,
-        inputRange: [0, 1],
-      }),
-    ]);
+    const model = await mobilenet.load({
+      modelUrl: await bundleResourceIO(modelJson, modelWeights),
+      version: 2.0,
+      alpha: 1.0,
+      inputRange: [0, 1],
+    });
+    // await model.classify(tf.zeros([1, inputTensorWidth, inputTensorHeight, 3]));
 
     this.setState({
       hasCameraPermission: status === 'granted',
       isLoading: false,
-      faceDetector,
-      mobilenetDetector,
-      encodedData: '',
+      model,
+      prediction: '',
+      imageTensor: '',
     });
   }
 
-  async loadBlazefaceModel() {
-    const model = await blazeface.load();
-
-    return model;
-  }
-
   async setTextureDims() {
-    //console.warn(Object.getOwnPropertyNames(this.cameraRef.camera));
     const pictureSizes = await this.cameraRef.camera.getAvailablePictureSizesAsync(
       '4:3',
     );
-    // console.warn(pictureSizes);
+    // ["320x240", "640x480", "800x600", "1280x960", "1440x1080", "2048x1536", "2592x1944"]
+    //console.log(pictureSizes);
   }
 
   async handleImageTensorReady(images, updatePreview, gl) {
@@ -104,55 +116,50 @@ export default class RealTime extends React.Component {
         updatePreview();
       }
 
-      if (
-        this.state.faceDetector != null &&
-        this.state.mobilenetDetector != null
-      ) {
+      console.log(
+        'Call to doSomething took ' +
+          (t0 - performance.now()) +
+          ' milliseconds.',
+      );
+      t0 = performance.now();
+
+      if (this.state.model != null) {
         const imageTensor = images.next().value;
 
-        let detectionTime = performance.now();
+        const cropTime = performance.now();
 
-        const faces = await this.state.faceDetector.estimateFaces(
-          imageTensor,
-          false, // returnTensors
-          false, // flip horizontal
-          false, // annotateBoxes
-        );
+        // const converted = tf.image
+        //   .cropAndResize(
+        //     imageTensor.reshape([1, inputTensorWidth, inputTensorHeight, 3]),
+        //     [[y1, x1, y2, x2]],
+        //     [0],
+        //     [cropHeight, cropWidth],
+        //   )
+        //   .reshape([cropHeight, cropWidth, 3]);
 
-        console.log(
-          'Detection took ' +
-            (performance.now() - detectionTime) +
-            ' milliseconds.',
-        );
+        // console.log(
+        //   'Detection took ' + (cropTime - performance.now()) + ' milliseconds.',
+        // );
+        this.setState({
+          encodedData: await encodeJpeg(imageTensor),
+        });
 
-        // console.log(faces);
-        if (faces.length > 0) {
-          detectionTime = performance.now();
+        const detectionTime = performance.now();
+        const prediction = await this.state.model.classify(imageTensor);
+        // console.log(
+        //   'Detection took ' +
+        //     (detectionTime - performance.now()) +
+        //     ' milliseconds.',
+        // );
 
-          const cropped = cropAndResize2(
-            imageTensor,
-            inputTensorWidth,
-            inputTensorHeight,
-            faces[0].topLeft,
-            faces[0].bottomRight,
-          );
-
-          const prediction = await this.state.mobilenetDetector.classify(
-            cropped,
-          );
-
-          console.log(
-            'Prediction took ' +
-              (performance.now() - detectionTime) +
-              ' milliseconds.',
-          );
-
-          this.setState({
-            prediction: JSON.stringify(prediction),
-          });
-        }
+        this.setState({
+          prediction: JSON.stringify(prediction),
+        });
 
         tf.dispose(imageTensor);
+        //   //tf.dispose(converted);
+        //   let t1 = performance.now();
+        //   console.log('Call to doSomething took ' + (t1 - t0) + ' milliseconds.');
       }
 
       if (!AUTORENDER) {
@@ -164,81 +171,15 @@ export default class RealTime extends React.Component {
     loop();
   }
 
-  renderFaces() {
-    const {faces} = this.state;
-    if (faces != null) {
-      const faceBoxes = faces.map((f, fIndex) => {
-        const topLeft = f.topLeft;
-        const bottomRight = f.bottomRight;
-
-        const landmarks = f.landmarks.map((l, lIndex) => {
-          return (
-            <Circle
-              key={`landmark_${fIndex}_${lIndex}`}
-              cx={l[0]}
-              cy={l[1]}
-              r="2"
-              strokeWidth="0"
-              fill="blue"
-            />
-          );
-        });
-
-        return (
-          <G key={`facebox_${fIndex}`}>
-            <Rect
-              x={topLeft[0]}
-              y={topLeft[1]}
-              fill={'red'}
-              fillOpacity={0.2}
-              width={bottomRight[0] - topLeft[0]}
-              height={bottomRight[1] - topLeft[1]}
-            />
-            {landmarks}
-          </G>
-        );
-      });
-
-      const flipHorizontal = Platform.OS === 'ios' ? 1 : -1;
-      return (
-        <Svg
-          height="100%"
-          width="100%"
-          viewBox={`0 0 ${inputTensorWidth} ${inputTensorHeight}`}
-          scaleX={flipHorizontal}>
-          {faceBoxes}
-        </Svg>
-      );
-    } else {
-      return null;
-    }
-  }
-
   render() {
     const {isLoading} = this.state;
-
-    // Caller will still need to account for orientation/phone rotation changes
-    let textureDims = {};
-
-    if (Platform.OS === 'ios') {
-      textureDims = {
-        height: 1920,
-        width: 1080,
-      };
-    } else {
-      // Test values
-      // Original 800x1200
-      textureDims = {
-        height: 1200,
-        width: 1600,
-      };
-    }
 
     return (
       <View style={{width: '100%'}}>
         <View style={styles.sectionContainer}>
           <Button onPress={'this.props.returnToMain'} title="Back" />
           <Text>{this.state.prediction}</Text>
+          <Text>{this.state.imageTensor}</Text>
         </View>
         {isLoading ? (
           <View style={[styles.loadingIndicator]}>
@@ -264,7 +205,6 @@ export default class RealTime extends React.Component {
               onReady={this.handleImageTensorReady}
               autorender={AUTORENDER}
             />
-            {/* <View style={styles.modelResults}>{this.renderFaces()}</View> */}
             <View style={styles.modelResults}>
               <Image
                 style={styles.camera}

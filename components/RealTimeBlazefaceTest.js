@@ -25,9 +25,6 @@ import {cropAndResize, cropAndResize2} from './utils/cropAndResize';
 // const inputTensorWidth = 4 * 2 * 10;
 // const inputTensorHeight = 4 * 3 * 10;
 
-const inputTensorWidth = 224;
-const inputTensorHeight = 224;
-
 const AUTORENDER = true;
 
 // tslint:disable-next-line: variable-name
@@ -56,38 +53,31 @@ export default class RealTime extends React.Component {
   async componentDidMount() {
     const {status} = await Permissions.askAsync(Permissions.CAMERA);
 
-    const blazefaceModel = await blazeface.load({
-      maxFaces: 1,
-      inputWidth: 128,
-      inputHeight: 128,
-      iouThreshold: 0.3,
-      scoreThreshold: 0.75,
-    });
+    // const blazefaceModel = await blazeface.load({
+    //   maxFaces: 1,
+    //   inputWidth: 128,
+    //   inputHeight: 128,
+    //   iouThreshold: 0.3,
+    //   scoreThreshold: 0.75,
+    // });
 
     this.setState({
       hasCameraPermission: status === 'granted',
       isLoading: false,
-      faceDetector: blazefaceModel,
+      faceDetector: true,
       encodedData: '',
     });
   }
 
-  // async loadBlazefaceModel() {
-  //   const model = await );
-
-  //   return model;
-  // }
-
   async setTextureDims() {
-    // ["320x240", "640x480", "800x600", "1280x960", "1440x1080", "2048x1536", "2592x1944"]
-    // ["2:1", "3:2", "4:3", "11:9", "16:9"]
-    const ratios = await this.cameraRef.camera.getSupportedRatiosAsync();
-
-    console.log(ratios);
-    const pictureSizes = await this.cameraRef.camera.getAvailablePictureSizesAsync(
-      '4:3',
-    );
-    console.log(pictureSizes);
+    // const ratios = await this.cameraRef.camera.getSupportedRatiosAsync();
+    // for (let ratio of ratios) {
+    //   console.log('RATIO');
+    //   console.log(ratio);
+    //   console.log(
+    //     await this.cameraRef.camera.getAvailablePictureSizesAsync(ratio),
+    //   );
+    // }
   }
 
   async handleImageTensorReady(images, updatePreview, gl) {
@@ -96,40 +86,40 @@ export default class RealTime extends React.Component {
         updatePreview();
       }
 
-      if (this.state.faceDetector != null) {
+      if (true) {
         const imageTensor = images.next().value;
-
+        console.log(imageTensor.shape);
         let detectionTime = performance.now();
 
-        const faces = await this.state.faceDetector.estimateFaces(
-          imageTensor,
-          false, // returnTensors
-          false, // Flip horizontal
-          false, // annotateBoxes
-        );
+        // const faces = await this.state.faceDetector.estimateFaces(
+        //   imageTensor,
+        //   false, // returnTensors
+        //   false, // Flip horizontal
+        //   false, // annotateBoxes
+        // );
 
-        console.log(
-          'Detection took ' +
-            (performance.now() - detectionTime) +
-            ' milliseconds.',
-        );
+        // console.log(
+        //   'Detection took ' +
+        //     (performance.now() - detectionTime) +
+        //     ' milliseconds.',
+        // );
 
         // console.log(faces);
-        if (faces.length > 0) {
-          const {topLeft, bottomRight} = faces[0];
+        // if (faces.length > 0) {
+        // const {topLeft, bottomRight} = faces[0];
 
-          // const cropped = cropAndResize2(
-          //   imageTensor,
-          //   inputTensorWidth,
-          //   inputTensorHeight,
-          //   topLeft,
-          //   bottomRight,
-          // );
+        // const cropped = cropAndResize2(
+        //   imageTensor,
+        //   inputTensorWidth,
+        //   inputTensorHeight,
+        //   topLeft,
+        //   bottomRight,
+        // );
 
-          this.setState({
-            encodedData: await encodeJpeg(imageTensor),
-          });
-        }
+        this.setState({
+          encodedData: await encodeJpeg(imageTensor),
+        });
+        // }
 
         // this.setState({faces});
         tf.dispose(imageTensor);
@@ -144,75 +134,37 @@ export default class RealTime extends React.Component {
     loop();
   }
 
-  renderFaces() {
-    const {faces} = this.state;
-    if (faces != null) {
-      const faceBoxes = faces.map((f, fIndex) => {
-        const topLeft = f.topLeft;
-        const bottomRight = f.bottomRight;
-
-        const landmarks = f.landmarks.map((l, lIndex) => {
-          return (
-            <Circle
-              key={`landmark_${fIndex}_${lIndex}`}
-              cx={l[0]}
-              cy={l[1]}
-              r="2"
-              strokeWidth="0"
-              fill="blue"
-            />
-          );
-        });
-
-        return (
-          <G key={`facebox_${fIndex}`}>
-            <Rect
-              x={topLeft[0]}
-              y={topLeft[1]}
-              fill={'red'}
-              fillOpacity={0.2}
-              width={bottomRight[0] - topLeft[0]}
-              height={bottomRight[1] - topLeft[1]}
-            />
-            {landmarks}
-          </G>
-        );
-      });
-
-      const flipHorizontal = Platform.OS === 'ios' ? 1 : -1;
-      return (
-        <Svg
-          height="100%"
-          width="100%"
-          viewBox={`0 0 ${inputTensorWidth} ${inputTensorHeight}`}
-          scaleX={flipHorizontal}>
-          {faceBoxes}
-        </Svg>
-      );
-    } else {
-      return null;
-    }
-  }
-
   render() {
     const {isLoading} = this.state;
 
-    // Caller will still need to account for orientation/phone rotation changes
-    let textureDims = {};
+    const inputTensorWidth = 180; // 360
+    const inputTensorHeight = 320; // 203
 
-    if (Platform.OS === 'ios') {
-      textureDims = {
-        height: 1920,
-        width: 1080,
-      };
-    } else {
-      // Test values
-      // Original 800x1200
-      textureDims = {
-        height: 1200,
-        width: 1600,
-      };
-    }
+    // 2:1
+    // ["1280x640", "2592x1296"]
+    // 3:2
+    // ["720x480"]
+    // 4:3
+    // ["320x240", "640x480", "800x600", "1280x960", "1440x1080", "2048x1536", "2592x1944"]
+    // 11:9
+    // ["176x144", "352x288"]
+    // 16:9
+    // ["320x180", "640x360", "1280x720", "1920x1080", "2592x1458"]
+
+    // 4:3 800x600 w160xh200
+    // 16:9 1280x720 w180xh320
+
+    const ratio = '16:9';
+
+    let textureDims = {
+      height: 720,
+      width: 1280,
+    };
+
+    // textureDims = {
+    //   height: PixelRatio.getPixelSizeForLayoutSize(textureDims.height),
+    //   width: PixelRatio.getPixelSizeForLayoutSize(textureDims.width),
+    // };
 
     console.log(textureDims);
 
@@ -236,6 +188,7 @@ export default class RealTime extends React.Component {
               style={styles.camera}
               type={this.state.cameraType}
               zoom={0}
+              ratio={ratio}
               onCameraReady={this.setTextureDims}
               // tensor related props
               cameraTextureHeight={textureDims.height}
@@ -246,7 +199,6 @@ export default class RealTime extends React.Component {
               onReady={this.handleImageTensorReady}
               autorender={AUTORENDER}
             />
-            {/* <View style={styles.modelResults}>{this.renderFaces()}</View> */}
             <View style={styles.modelResults}>
               <Image
                 style={styles.camera}
