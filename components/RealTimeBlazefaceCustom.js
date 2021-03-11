@@ -25,10 +25,7 @@ import {
 } from '@tensorflow/tfjs-react-native';
 
 import * as mobilenet from './utils/Mobilenet';
-import {
-  cropAndResize2,
-  cropAndResizeForDetectorSquare,
-} from './utils/cropAndResize';
+import {cropAndResizeSquareForDetector} from './utils/cropAndResize';
 import encodeJpeg from './utils/encodeJpeg';
 
 const modelJson = require('../models/model.json');
@@ -144,7 +141,7 @@ export default class RealTime extends React.Component {
               );
               detectionTime = performance.now();
 
-              const cropped = cropAndResizeForDetectorSquare(
+              const cropped = cropAndResizeSquareForDetector(
                 imageTensor,
                 inputTensorWidth,
                 inputTensorHeight,

@@ -20,7 +20,7 @@ import * as blazeface from '@tensorflow-models/blazeface';
 import {cameraWithTensors} from '@tensorflow/tfjs-react-native';
 
 import encodeJpeg from './utils/encodeJpeg';
-import {cropAndResize, cropAndResize2} from './utils/cropAndResize';
+import {cropAndResizeSquareForDetector} from './utils/cropAndResize';
 
 // const inputTensorWidth = 4 * 2 * 10;
 // const inputTensorHeight = 4 * 3 * 10;
@@ -108,7 +108,7 @@ export default class RealTime extends React.Component {
         // if (faces.length > 0) {
         // const {topLeft, bottomRight} = faces[0];
 
-        // const cropped = cropAndResize2(
+        // const cropped = cropAndResizeSquareForDetector(
         //   imageTensor,
         //   inputTensorWidth,
         //   inputTensorHeight,

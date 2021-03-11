@@ -1,12 +1,39 @@
 import * as tf from '@tensorflow/tfjs';
 import {IMAGE_SIZE} from './Mobilenet';
 
-/**
- * Crops image between topLeft and bottomRight and preserve aspect ratio.
- *
- * @deprecated
- */
-export function cropAndResizePreserveRatio(
+/*
+  imageTensor,
+  inputTensorWidth,
+  inputTensorHeight,
+  topLeft[1] / inputTensorHeight + 0.08,
+  topLeft[0] / inputTensorWidth,
+  bottomRight[1] / inputTensorHeight + 0.07,
+  bottomRight[0] / inputTensorWidth,
+*/
+export function cropAndResize(
+  imageTensor,
+  inputTensorWidth,
+  inputTensorHeight,
+  y1,
+  x1,
+  y2,
+  x2,
+) {
+  const cropHeight = Math.floor((y2 - y1) * (inputTensorHeight - 1));
+  const cropWidth = Math.floor((x2 - x1) * (inputTensorWidth - 1));
+
+  return tf.image
+    .cropAndResize(
+      imageTensor.reshape([1, inputTensorHeight, inputTensorWidth, 3]),
+      [[y1, x1, y2, x2]],
+      [0],
+      [cropHeight, cropWidth],
+    )
+    .reshape([cropHeight, cropWidth, 3]);
+}
+
+// Preserve crop size
+export function cropAndResize2(
   imageTensor,
   inputTensorWidth,
   inputTensorHeight,
@@ -40,12 +67,7 @@ export function cropAndResizePreserveRatio(
     .reshape([cropHeight, cropWidth, 3]);
 }
 
-/**
- * Transform image to detector size declared in Mobilenet, dont preserve aspect ratio.
- * Doing this avoids to resize the image again in the detector.
- *
- * @deprecated
- */
+// Transform to detector size avoiding resize in Mobilenet file
 export function cropAndResizeForDetector(
   imageTensor,
   inputTensorWidth,
@@ -65,10 +87,10 @@ export function cropAndResizeForDetector(
   const x1 = topLeft[0] / inputTensorWidth;
   const x2 = bottomRight[0] / inputTensorWidth;
 
-  //const cropHeight = Math.floor((y2 - y1) * (inputTensorHeight - 1));
-  //const cropWidth = Math.floor((x2 - x1) * (inputTensorWidth - 1));
+  const cropHeight = Math.floor((y2 - y1) * (inputTensorHeight - 1));
+  const cropWidth = Math.floor((x2 - x1) * (inputTensorWidth - 1));
 
-  // console.log(cropHeight, cropWidth);
+  console.log(cropHeight, cropWidth);
 
   return tf.image
     .cropAndResize(
@@ -80,11 +102,7 @@ export function cropAndResizeForDetector(
     .reshape([IMAGE_SIZE, IMAGE_SIZE, 3]);
 }
 
-/**
- * Transform image to detector size declared in Mobilenet preserves aspect ratio.
- * Doing this avoids to resize the image again in the detector.
- */
-export function cropAndResizeSquareForDetector(
+export function cropAndResizeForDetectorSquare(
   imageTensor,
   inputTensorWidth,
   inputTensorHeight,

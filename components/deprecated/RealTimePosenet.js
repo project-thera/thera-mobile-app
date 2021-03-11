@@ -18,8 +18,8 @@ import * as tf from '@tensorflow/tfjs';
 import * as posenet from '@tensorflow-models/posenet';
 import {cameraWithTensors} from '@tensorflow/tfjs-react-native';
 
-import {cropAndResize} from './utils/cropAndResize';
-import encodeJpeg from './utils/encodeJpeg';
+import {cropAndResize} from '../utils/cropAndResize';
+import encodeJpeg from '../utils/encodeJpeg';
 
 const inputTensorWidth = 160;
 const inputTensorHeight = 160;
