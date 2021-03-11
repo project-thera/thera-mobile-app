@@ -11,6 +11,8 @@ import {
 } from 'react-native';
 import Svg, {Circle, Rect, G} from 'react-native-svg';
 
+// import * as FaceDetector from 'expo-face-detector';
+
 import * as Permissions from 'expo-permissions';
 import {Camera} from 'expo-camera';
 // import {ExpoWebGLRenderingContext} from 'expo-gl';
@@ -23,7 +25,11 @@ import {
 } from '@tensorflow/tfjs-react-native';
 
 import * as mobilenet from './utils/Mobilenet';
-import {cropAndResizeForDetector} from './utils/cropAndResize';
+import {
+  cropAndResize2,
+  cropAndResizeForDetectorSquare,
+} from './utils/cropAndResize';
+import encodeJpeg from './utils/encodeJpeg';
 
 const modelJson = require('../models/model.json');
 const modelWeights = [require('../models/group1-shard1of1.bin')];
@@ -51,6 +57,7 @@ export default class RealTime extends React.Component {
 
     this.handleImageTensorReady = this.handleImageTensorReady.bind(this);
     this.setTextureDims = this.setTextureDims.bind(this);
+    this.handleFacesDetected = this.handleFacesDetected.bind(this);
   }
 
   componentWillUnmount() {
@@ -95,6 +102,10 @@ export default class RealTime extends React.Component {
     // console.warn(pictureSizes);
   }
 
+  handleFacesDetected(faces) {
+    console.log(faces[0]);
+  }
+
   async handleImageTensorReady(images, updatePreview, gl) {
     //console.log(gl);
     const loop = async () => {
@@ -107,6 +118,7 @@ export default class RealTime extends React.Component {
       ) {
         const imageTensor = images.next().value;
 
+        console.log(imageTensor.shape);
         let detectionTime = performance.now();
 
         const that = this;
@@ -119,11 +131,12 @@ export default class RealTime extends React.Component {
             false, // flip horizontal
             false, // annotateBoxes
           )
-          .then(function (faces) {
+          .then(async function (faces) {
             if (faces.length > 0) {
               updatePreview();
               gl.endFrameEXP();
 
+              console.log(faces[0]);
               console.log(
                 'Detection took ' +
                   (performance.now() - detectionTime) +
@@ -131,13 +144,17 @@ export default class RealTime extends React.Component {
               );
               detectionTime = performance.now();
 
-              const cropped = cropAndResizeForDetector(
+              const cropped = cropAndResizeForDetectorSquare(
                 imageTensor,
                 inputTensorWidth,
                 inputTensorHeight,
                 faces[0].topLeft,
                 faces[0].bottomRight,
               );
+
+              // that.setState({
+              //   encodedData: await encodeJpeg(cropped),
+              // });
 
               that.state.mobilenetDetector
                 .classify(cropped)
@@ -175,56 +192,6 @@ export default class RealTime extends React.Component {
     loop();
   }
 
-  renderFaces() {
-    const {faces} = this.state;
-    if (faces != null) {
-      const faceBoxes = faces.map((f, fIndex) => {
-        const topLeft = f.topLeft;
-        const bottomRight = f.bottomRight;
-
-        const landmarks = f.landmarks.map((l, lIndex) => {
-          return (
-            <Circle
-              key={`landmark_${fIndex}_${lIndex}`}
-              cx={l[0]}
-              cy={l[1]}
-              r="2"
-              strokeWidth="0"
-              fill="blue"
-            />
-          );
-        });
-
-        return (
-          <G key={`facebox_${fIndex}`}>
-            <Rect
-              x={topLeft[0]}
-              y={topLeft[1]}
-              fill={'red'}
-              fillOpacity={0.2}
-              width={bottomRight[0] - topLeft[0]}
-              height={bottomRight[1] - topLeft[1]}
-            />
-            {landmarks}
-          </G>
-        );
-      });
-
-      const flipHorizontal = Platform.OS === 'ios' ? 1 : -1;
-      return (
-        <Svg
-          height="100%"
-          width="100%"
-          viewBox={`0 0 ${inputTensorWidth} ${inputTensorHeight}`}
-          scaleX={flipHorizontal}>
-          {faceBoxes}
-        </Svg>
-      );
-    } else {
-      return null;
-    }
-  }
-
   render() {
     const {isLoading} = this.state;
 
@@ -256,7 +223,7 @@ export default class RealTime extends React.Component {
               type={this.state.cameraType}
               zoom={0}
               ratio={ratio}
-              onCameraReady={this.setTextureDims}
+              // onCameraReady={this.setTextureDims}
               // tensor related props
               cameraTextureHeight={textureDims.height}
               cameraTextureWidth={textureDims.width}
@@ -266,7 +233,6 @@ export default class RealTime extends React.Component {
               onReady={this.handleImageTensorReady}
               autorender={AUTORENDER}
             />
-            {/* <View style={styles.modelResults}>{this.renderFaces()}</View> */}
             <View style={styles.modelResults}>
               <Image
                 style={styles.camera}
@@ -315,10 +281,8 @@ const styles = StyleSheet.create({
   },
   modelResults: {
     position: 'absolute',
-    left: 50,
-    top: 100,
-    width: 600 / 2,
-    height: 800 / 2,
+    left: 0,
+    top: 0,
     zIndex: 20,
     borderWidth: 1,
     borderColor: 'black',

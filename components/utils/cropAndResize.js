@@ -112,7 +112,8 @@ export function cropAndResizeForDetectorSquare(
   displacement = 0.0028,
 ) {
   const boxWidthRaw = (bottomRight[0] - topLeft[0]) * (1 + growRatio * 2);
-  const boxHeight = ((bottomRight[1] - topLeft[1]) * 100) / inputTensorHeight;
+  //const boxHeight = ((bottomRight[1] - topLeft[1]) * 100) / inputTensorHeight;
+  const boxHeight = (boxWidthRaw * 100) / inputTensorHeight;
 
   const y1 = topLeft[1] / inputTensorHeight + boxHeight * displacement;
 
