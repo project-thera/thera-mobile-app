@@ -24,7 +24,7 @@ export function cropAndResize(
 
   return tf.image
     .cropAndResize(
-      imageTensor.reshape([1, inputTensorWidth, inputTensorHeight, 3]),
+      imageTensor.reshape([1, inputTensorHeight, inputTensorWidth, 3]),
       [[y1, x1, y2, x2]],
       [0],
       [cropHeight, cropWidth],
@@ -94,7 +94,7 @@ export function cropAndResizeForDetector(
 
   return tf.image
     .cropAndResize(
-      imageTensor.reshape([1, inputTensorWidth, inputTensorHeight, 3]),
+      imageTensor.reshape([1, inputTensorHeight, inputTensorWidth, 3]),
       [[y1, x1, y2, x2]],
       [0],
       [IMAGE_SIZE, IMAGE_SIZE],
