@@ -1,7 +1,7 @@
 import * as tf from '@tensorflow/tfjs';
 import * as jpeg from 'jpeg-js';
 
-export default async function encodeJpeg(tensor) {
+export default async function encodeJpeg(tensor, debug = false) {
   const height = tensor.shape[0];
   const width = tensor.shape[1];
   const data = new Buffer(
@@ -17,6 +17,9 @@ export default async function encodeJpeg(tensor) {
 
   const imgBase64 = tf.util.decodeString(jpegImageData.data, 'base64');
 
-  console.log(imgBase64);
+  if (debug) {
+    console.log(imgBase64);
+  }
+
   return imgBase64;
 }
