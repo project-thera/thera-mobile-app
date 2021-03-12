@@ -35,12 +35,13 @@ import * as tfjs from '@tensorflow/tfjs';
  * model hosted at the modelUrl. This is typically [0, 1] or [-1, 1].
  */
 
-// TODO LOAD FROM LABEL FILE
-const CUSTOM_CLASSES = {
-  0: 'Boca cerrada',
-  1: 'Ruido',
-  2: 'Lengua arriba',
-};
+import labels from './../../models/labels';
+
+let CUSTOM_CLASSES = {};
+
+for (const [i, label] of labels.entries()) {
+  CUSTOM_CLASSES[i] = label;
+}
 
 const MODEL_INFO = {
   '1.00': {
