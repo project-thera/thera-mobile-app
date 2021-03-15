@@ -20,9 +20,12 @@
     "expo-camera": "^10.0.0",
     "expo-gl": "^10.1.0",
     "expo-gl-cpp": "^10.0.0",
+    "fft.js": "^4.0.4",
+    "fftjs-supplements": "^1.4.2",
     "react": "16.13.1",
     "react-native": "0.63.4",
     "react-native-fs": "^2.16.6",
+    "react-native-recording": "^0.5.1",
     "react-native-svg": "^12.1.0",
     "react-native-unimodules": "^0.12.0"
   },

@@ -4062,6 +4062,20 @@ fbjs@1.0.0, fbjs@^1.0.0:
     setimmediate "^1.0.5"
     ua-parser-js "^0.7.18"
 
+fft.js@^4.0.3, fft.js@^4.0.4:
+  version "4.0.4"
+  resolved "https://registry.yarnpkg.com/fft.js/-/fft.js-4.0.4.tgz#ffed83a397e58039141c804c1dbe1910dced8e6e"
+  integrity sha512-f9c00hphOgeQTlDyavwTtu6RiK8AIFjD6+jvXkNkpeQ7rirK3uFWVpalkoS4LAwbdX7mfZ8aoBfFVQX1Re/8aw==
+
+fftjs-supplements@^1.4.2:
+  version "1.4.2"
+  resolved "https://registry.yarnpkg.com/fftjs-supplements/-/fftjs-supplements-1.4.2.tgz#24abfc8695b8f8868980e44bd0ff25f518cfb311"
+  integrity sha512-poHTVtcP6rXCHd9iylunsIBN5vDcbd7Cu+su7fS0lS9jMH2NAqIsNUrihb3T2CYZXs31ahji1GGV2H6xY4WP/A==
+  dependencies:
+    fft.js "^4.0.3"
+    oscillator-samples "^0.1.0"
+    ramda "^0.27.1"
+
 figures@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/figures/-/figures-2.0.0.tgz#3ab1a2d2a62c8bfb431a0c94cb797a2fce27c962"
@@ -6536,6 +6550,11 @@ os-tmpdir@^1.0.0, os-tmpdir@~1.0.2:
   resolved "https://registry.yarnpkg.com/os-tmpdir/-/os-tmpdir-1.0.2.tgz#bbe67406c79aa85c5cfec766fe5734555dfa1274"
   integrity sha1-u+Z0BseaqFxc/sdm/lc0VV36EnQ=
 
+oscillator-samples@^0.1.0:
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/oscillator-samples/-/oscillator-samples-0.1.0.tgz#19ae82f870e5fafde596cdb61cbf8dd5b0f5e0bd"
+  integrity sha512-yqgbcn/cRhgtj3Dm9EdJuYddF0DyOmbfaPfrfFoOSuz2RdmPVMx6sVCzQQF5n5rI+tqOVJqbjYUQfvPpUXK5zQ==
+
 p-each-series@^2.1.0:
   version "2.2.0"
   resolved "https://registry.yarnpkg.com/p-each-series/-/p-each-series-2.2.0.tgz#105ab0357ce72b202a8a8b94933672657b5e2a9a"
@@ -6910,6 +6929,11 @@ querystringify@^2.1.1:
   resolved "https://registry.yarnpkg.com/querystringify/-/querystringify-2.2.0.tgz#3345941b4153cb9d082d8eee4cda2016a9aef7f6"
   integrity sha512-FIqgj2EUvTa7R50u0rGsyTftzjYmv/a3hO345bZNrqabNqjtgiDMgmo4mkUjd+nzU5oF3dClKqFIPUKybUyqoQ==
 
+ramda@^0.27.1:
+  version "0.27.1"
+  resolved "https://registry.yarnpkg.com/ramda/-/ramda-0.27.1.tgz#66fc2df3ef873874ffc2da6aa8984658abacf5c9"
+  integrity sha512-PgIdVpn5y5Yns8vqb8FzBUEYn98V3xcPgawAkkgj0YJ0qDsnHCiNmZYfOGMgOvoB0eWFLpYbhxUR3mxfDIMvpw==
+
 range-parser@~1.2.1:
   version "1.2.1"
   resolved "https://registry.yarnpkg.com/range-parser/-/range-parser-1.2.1.tgz#3cf37023d199e1c24d1a55b84800c2f3e6468031"
@@ -6935,6 +6959,11 @@ react-native-fs@^2.16.6:
   dependencies:
     base-64 "^0.1.0"
     utf8 "^3.0.0"
+
+react-native-recording@^0.5.1:
+  version "0.5.1"
+  resolved "https://registry.yarnpkg.com/react-native-recording/-/react-native-recording-0.5.1.tgz#80adb9940921389c68a32b30d45c2acbece5d887"
+  integrity sha512-rn7hgFs/2wlLDIMuvytYFofv53yQT/1CfhFqeSkFBO051UmnW5IF5B1stqpbRuABu+eimPV53bOiQmf6G0O1vg==
 
 react-native-svg@^12.1.0:
   version "12.1.0"

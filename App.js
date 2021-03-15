@@ -21,7 +21,8 @@ import * as tf from '@tensorflow/tfjs';
 import '@tensorflow/tfjs-react-native';
 
 // import RealTime from './components/RealTimeBlazefaceTest';
-import RealTime from './components/RealTimeBlazefaceCustom';
+// import RealTime from './components/RealTimeBlazefaceCustom';
+import RealTime from './components/BlowDetector';
 
 const BACKEND_TO_USE = 'rn-webgl';
 
