@@ -27,9 +27,7 @@ export default class BlowDetector extends React.Component {
   constructor(props) {
     super(props);
 
-    this.state = {
-      prediction: '',
-    };
+    this.state = {};
 
     this.recordingEventHandler = this.recordingEventHandler.bind(this);
     this.detectorConfidence = new DetectorConfidence({
@@ -37,7 +35,6 @@ export default class BlowDetector extends React.Component {
       penalizeStep: 2,
       maxConfidence: 5,
     });
-    console.log(this.detectorConfidence);
   }
 
   updateDetectionTime() {
