@@ -4,6 +4,8 @@ import {StyleSheet, Text, View, Button} from 'react-native';
 import Voice from '@react-native-voice/voice';
 
 const LOCALE = 'es-AR';
+
+// See options in https://github.com/react-native-voice/voice/blob/582027a906d1d908ce8cf88d8b827894dca5ea81/android/src/main/java/com/wenkesj/voice/VoiceModule.java#L81
 const configuration = {
   EXTRA_MAX_RESULTS: 5,
 };
