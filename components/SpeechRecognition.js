@@ -1,18 +1,7 @@
-import React, {Component} from 'react';
-import {
-  StyleSheet,
-  Text,
-  View,
-  Image,
-  TouchableHighlight,
-  Button,
-} from 'react-native';
+import React from 'react';
+import {StyleSheet, Text, View, Button} from 'react-native';
 
-import Voice, {
-  SpeechRecognizedEvent,
-  SpeechResultsEvent,
-  SpeechErrorEvent,
-} from '@react-native-voice/voice';
+import Voice from '@react-native-voice/voice';
 
 const LOCALE = 'es-AR';
 const configuration = {
