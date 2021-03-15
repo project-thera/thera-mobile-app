@@ -20,7 +20,6 @@
     "expo-camera": "^10.0.0",
     "expo-gl": "^10.1.0",
     "expo-gl-cpp": "^10.0.0",
-    "fft.js": "^4.0.4",
     "fftjs-supplements": "^1.4.2",
     "react": "16.13.1",
     "react-native": "0.63.4",
