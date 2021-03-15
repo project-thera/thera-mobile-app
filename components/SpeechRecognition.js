@@ -14,6 +14,11 @@ import Voice, {
   SpeechErrorEvent,
 } from '@react-native-voice/voice';
 
+const LOCALE = 'es-AR';
+const configuration = {
+  EXTRA_MAX_RESULTS: 5,
+};
+
 export default class SpeechRecognition extends React.Component {
   state = {
     recognized: '',
@@ -27,8 +32,7 @@ export default class SpeechRecognition extends React.Component {
 
   constructor(props) {
     super(props);
-    console.log('HOLAAAAa');
-    console.log(this.onSpeechStart);
+
     Voice.onSpeechStart = this.onSpeechStart.bind(this);
     Voice.onSpeechRecognized = this.onSpeechRecognized.bind(this);
     Voice.onSpeechEnd = this.onSpeechEnd.bind(this);
@@ -103,7 +107,7 @@ export default class SpeechRecognition extends React.Component {
     });
 
     try {
-      await Voice.start('es-AR');
+      await Voice.start('es-AR', configuration);
     } catch (e) {
       console.error(e);
     }
@@ -191,7 +195,7 @@ export default class SpeechRecognition extends React.Component {
         />
         <Button
           onPress={this._destroyRecognizer}
-          title="Cancelar"
+          title="Destruir"
           accessibilityLabel="Learn more about this purple button"
         />
         {/* <TouchableHighlight onPress={this._stopRecognizing}>
