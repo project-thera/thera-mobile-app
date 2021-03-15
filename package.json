@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@react-native-community/async-storage": "^1.12.1",
+    "@react-native-voice/voice": "^3.1.0",
     "@tensorflow-models/blazeface": "^0.0.7",
     "@tensorflow-models/coco-ssd": "^2.2.1",
     "@tensorflow-models/mobilenet": "^2.1.0",

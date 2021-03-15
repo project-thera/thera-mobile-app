@@ -8,6 +8,8 @@ target 'tesis' do
 
   use_react_native!(:path => config["reactNativePath"])
 
+  pod 'react-native-voice', :path => '../node_modules/@react-native-voice/voice'
+
   target 'tesisTests' do
     inherit! :complete
     # Pods for testing
