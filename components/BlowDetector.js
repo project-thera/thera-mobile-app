@@ -6,6 +6,8 @@ import Recording from 'react-native-recording';
 
 import {amplitudeSpectrum} from 'fftjs-supplements';
 
+import DetectorConfidence from './detector/DetectorConfidence';
+
 function frequencyToIndex(frequency, bufferSize, sampleRate) {
   return Math.ceil((frequency * bufferSize) / sampleRate);
 }
@@ -15,7 +17,7 @@ const MIN_FREQ = 1;
 const MAX_FREQ = 600;
 const AMPLITUDE_THRESHOLD = 2000;
 const ENERGY_AVERAGE_THRESHOLD = 700;
-const REQUIRED_INTEGRAL = 7;
+const REQUIRED_INTEGRAL = 8;
 // const FFT_SIZE = BUFFER_SIZE / 2;
 const SAMPLE_RATE = 8000;
 const MIN_FREQ_INDEX = frequencyToIndex(MIN_FREQ, BUFFER_SIZE, SAMPLE_RATE);
@@ -30,7 +32,12 @@ export default class BlowDetector extends React.Component {
     };
 
     this.recordingEventHandler = this.recordingEventHandler.bind(this);
-    // this.setTextureDims = this.setTextureDims.bind(this);
+    this.detectorConfidence = new DetectorConfidence({
+      requiredConfidence: 2,
+      penalizeStep: 2,
+      maxConfidence: 5,
+    });
+    console.log(this.detectorConfidence);
   }
 
   updateDetectionTime() {
@@ -74,7 +81,7 @@ export default class BlowDetector extends React.Component {
     this.updateDetectionTime();
 
     this.setState({
-      detected,
+      detected: this.detectorConfidence.update(detected),
       energy,
       energyAverage,
       energyNeeded,
