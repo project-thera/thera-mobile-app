@@ -6,8 +6,6 @@ import Recording from 'react-native-recording';
 
 import {amplitudeSpectrum} from 'fftjs-supplements';
 
-import handleAppStateChange from './utils/handleAppStateChange';
-
 import DetectorConfidence from './detector/DetectorConfidence';
 
 function frequencyToIndex(frequency, bufferSize, sampleRate) {
@@ -34,7 +32,7 @@ export default class BlowDetector extends React.Component {
     super(props);
 
     this.handleRecordingEvent = this.handleRecordingEvent.bind(this);
-    this.handleAppStateChange = handleAppStateChange.bind(this);
+    this.handleAppStateChange = this.handleAppStateChange.bind(this);
     this.detectorConfidence = new DetectorConfidence({
       requiredConfidence: 2,
       penalizeStep: 2,
@@ -42,9 +40,18 @@ export default class BlowDetector extends React.Component {
     });
   }
 
-  onBackground() {}
+  handleAppStateChange = (nextAppState) => {
+    if (
+      this.state.appState.match(/inactive|background/) &&
+      nextAppState === 'active'
+    ) {
+      console.log('App has come to the foreground!');
+    } else {
+      console.log('background!');
+    }
 
-  onForeground() {}
+    this.setState({appState: nextAppState});
+  };
 
   updateDetectionTime() {
     const lastDetectionTimestamp = this.state.detectionTimestamp;
