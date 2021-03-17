@@ -2,33 +2,27 @@ import DetectorConfidence from './DetectorConfidence';
 import DetectorTimer from './DetectorTimer';
 
 export default class DetectorTimerConfidence {
-  constructor({
-    detectorTimerParams,
-    detectorConfidenceParams,
-    detectorStrategy,
-  }) {
-    this.detectorTimer = new DetectorTimer(detectorTimerParams);
-    this.detectorConfidence = new DetectorConfidence(detectorConfidenceParams);
-    // mDetectorTimeStatistic = detectorTimeStatistic;
-    this.detectorStrategy = detectorStrategy;
+  constructor({params, onCompleted, onProgress, onStoppedDetection}) {
+    this.detectorTimer = new DetectorTimer(params);
+    this.detectorConfidence = new DetectorConfidence(params);
+
+    this.onCompleted = onCompleted;
+    this.onProgress = onProgress;
+    this.onStoppedDetection = onStoppedDetection;
   }
 
   update(detected) {
-    // long detectionTime = mDetectorTimeStatistic.update();
-
     if (this.detectorConfidence.update(detected)) {
       if (this.detectorTimer.detected()) {
-        this.detectorStrategy.complete();
+        this.onCompleted();
       } else {
-        this.detectorStrategy.detectionUpdated(
-          this.detectorTimer.getProgress(),
-        );
+        this.onProgress(this.detectorTimer.getProgress());
       }
 
       return true;
     } else {
-      this.detectorTimer.reset();
-      this.detectorStrategy.detectionStopped();
+      this.detectorTimer.reset(); // Should we reset the timer?
+      this.onStoppedDetection();
     }
 
     return false;

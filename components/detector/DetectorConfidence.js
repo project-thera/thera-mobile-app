@@ -1,8 +1,8 @@
 const MIN_CONFIDENCE = 0;
-const MAX_CONFIDENCE = 10;
+const MAX_CONFIDENCE = 2;
 const UPDATE_STEP = 1;
-const PENALIZE_STEP = 2;
-const REQUIRED_CONFIDENCE = 3;
+const PENALIZE_STEP = 1;
+const REQUIRED_CONFIDENCE = 1;
 
 export default class DetectorConfidence {
   constructor({

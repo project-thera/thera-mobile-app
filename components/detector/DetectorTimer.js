@@ -1,12 +1,12 @@
 export default class DetectorTimer {
-  constructor({requiredTime} = {}) {
-    this.requiredTime = requiredTime;
+  constructor({time} = {}) {
+    this.time = time;
 
     this.reset();
   }
 
   detected() {
-    if (this.elapsedTime >= this.requiredTime) {
+    if (this.elapsedTime >= this.time) {
       return true;
     }
     if (this.startTime == null) {
@@ -25,10 +25,13 @@ export default class DetectorTimer {
 
   updateCounter() {
     this.elapsedTime += performance.now() - this.startTime;
+
+    console.log(this.elapsedTime);
+
     this.startTime = performance.now();
   }
 
   getProgress() {
-    return (100.0 / this.requiredTime) * this.elapsedTime;
+    return Math.min((100.0 / this.time) * this.elapsedTime, 100.0);
   }
 }
