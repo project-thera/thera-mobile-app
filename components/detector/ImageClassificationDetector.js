@@ -20,6 +20,7 @@ const textureDims = {
 };
 
 const AUTORENDER = true;
+const MAX_INCLINATION = 2.8; // in radians
 
 // tslint:disable-next-line: variable-name
 const TensorCamera = cameraWithTensors(Camera);
@@ -40,6 +41,16 @@ export default class ImageClassificationDetector extends React.Component {
     }
   }
 
+  isFrontFace = (face) => {
+    let rightEye = face.landmarks[0];
+    let leftEye = face.landmarks[1];
+
+    return (
+      Math.abs(Math.atan2(rightEye[1] - leftEye[1], rightEye[0] - leftEye[0])) >
+      MAX_INCLINATION
+    );
+  };
+
   setDetectorTimerConfidence = () => {
     this.detectorTimerConfidence = new DetectorTimerConfidence({
       params: this.props.currentStep,
@@ -53,6 +64,7 @@ export default class ImageClassificationDetector extends React.Component {
     this.setDetectorTimerConfidence();
   }
 
+  // Needed because access to props to set instance variable
   componentDidUpdate(prevProps) {
     if (prevProps.currentStep !== this.props.currentStep) {
       this.setDetectorTimerConfidence();
@@ -113,10 +125,10 @@ export default class ImageClassificationDetector extends React.Component {
             imageTensor,
             false, // returnTensors
             false, // flip horizontal
-            false, // annotateBoxes
+            true, // annotateBoxes
           )
           .then(async function (faces) {
-            if (faces.length > 0) {
+            if (faces.length > 0 && that.isFrontFace(faces[0])) {
               updatePreview();
               gl.endFrameEXP();
 

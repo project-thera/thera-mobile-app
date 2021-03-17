@@ -4,6 +4,8 @@ import {View, Text} from 'react-native';
 import ImageClassificationDetector from './detector/ImageClassificationDetector';
 import BlowDetector from './detector/BlowDetector';
 
+import DetectorTimerConfidence from './detector/DetectorTimerConfidence';
+
 export default class Exercise extends React.Component {
   constructor(props) {
     super(props);

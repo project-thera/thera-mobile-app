@@ -20,10 +20,15 @@ import * as blazeface from '@tensorflow-models/blazeface';
 import {cameraWithTensors} from '@tensorflow/tfjs-react-native';
 
 import encodeJpeg from './utils/encodeJpeg';
-import {cropAndResizeSquareForDetector} from './utils/cropAndResize';
+import {
+  cropAndResizeSquareForDetector2,
+  cropAndResizeSquareForDetector3,
+} from './utils/cropAndResize';
 
 // const inputTensorWidth = 4 * 2 * 10;
 // const inputTensorHeight = 4 * 3 * 10;
+const inputTensorWidth = 180; // 360
+const inputTensorHeight = 320; // 203
 
 const AUTORENDER = true;
 
@@ -53,18 +58,18 @@ export default class RealTime extends React.Component {
   async componentDidMount() {
     const {status} = await Permissions.askAsync(Permissions.CAMERA);
 
-    // const blazefaceModel = await blazeface.load({
-    //   maxFaces: 1,
-    //   inputWidth: 128,
-    //   inputHeight: 128,
-    //   iouThreshold: 0.3,
-    //   scoreThreshold: 0.75,
-    // });
+    const blazefaceModel = await blazeface.load({
+      maxFaces: 1,
+      inputWidth: 128,
+      inputHeight: 128,
+      iouThreshold: 0.3,
+      scoreThreshold: 0.75,
+    });
 
     this.setState({
       hasCameraPermission: status === 'granted',
       isLoading: false,
-      faceDetector: true,
+      faceDetector: blazefaceModel,
       encodedData: '',
     });
   }
@@ -88,15 +93,15 @@ export default class RealTime extends React.Component {
 
       if (true) {
         const imageTensor = images.next().value;
-        console.log(imageTensor.shape);
+
         let detectionTime = performance.now();
 
-        // const faces = await this.state.faceDetector.estimateFaces(
-        //   imageTensor,
-        //   false, // returnTensors
-        //   false, // Flip horizontal
-        //   false, // annotateBoxes
-        // );
+        const faces = await this.state.faceDetector.estimateFaces(
+          imageTensor,
+          false, // returnTensors
+          false, // Flip horizontal
+          true, // annotateBoxes
+        );
 
         // console.log(
         //   'Detection took ' +
@@ -105,21 +110,20 @@ export default class RealTime extends React.Component {
         // );
 
         // console.log(faces);
-        // if (faces.length > 0) {
-        // const {topLeft, bottomRight} = faces[0];
+        if (faces.length > 0) {
+          const {topLeft, bottomRight} = faces[0];
 
-        // const cropped = cropAndResizeSquareForDetector(
-        //   imageTensor,
-        //   inputTensorWidth,
-        //   inputTensorHeight,
-        //   topLeft,
-        //   bottomRight,
-        // );
+          const cropped = cropAndResizeSquareForDetector2(
+            imageTensor,
+            inputTensorWidth,
+            inputTensorHeight,
+            faces[0],
+          );
 
-        this.setState({
-          encodedData: await encodeJpeg(imageTensor),
-        });
-        // }
+          this.setState({
+            encodedData: await encodeJpeg(cropped, true),
+          });
+        }
 
         // this.setState({faces});
         tf.dispose(imageTensor);
@@ -136,9 +140,6 @@ export default class RealTime extends React.Component {
 
   render() {
     const {isLoading} = this.state;
-
-    const inputTensorWidth = 180; // 360
-    const inputTensorHeight = 320; // 203
 
     // 2:1
     // ["1280x640", "2592x1296"]
@@ -165,8 +166,6 @@ export default class RealTime extends React.Component {
     //   height: PixelRatio.getPixelSizeForLayoutSize(textureDims.height),
     //   width: PixelRatio.getPixelSizeForLayoutSize(textureDims.width),
     // };
-
-    console.log(textureDims);
 
     return (
       <View style={{width: '100%'}}>
