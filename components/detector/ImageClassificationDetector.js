@@ -41,9 +41,14 @@ export default class ImageClassificationDetector extends React.Component {
     }
   }
 
+  // TODO enhance this
+  // Add brightness?
   isFrontFace = (face) => {
     let rightEye = face.landmarks[0];
     let leftEye = face.landmarks[1];
+
+    // 28 ms on moto-e5 brightness between 0 and 255
+    // imageTensor.sum().dataSync() / (inputTensorHeight * inputTensorWidth * 3),
 
     return (
       Math.abs(Math.atan2(rightEye[1] - leftEye[1], rightEye[0] - leftEye[0])) >

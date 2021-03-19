@@ -140,9 +140,6 @@ export function cropRotateAndResizeSquareForDetector(
   const inputTensorWidth = imageTensor.shape[1];
   const channelNumbers = imageTensor.shape[2];
 
-  // 28 ms on moto-e5 luminosity between 0 and 255
-  // imageTensor.sum().dataSync() / (inputTensorHeight * inputTensorWidth * 3),
-
   const right_eye = face.landmarks[RIGHT_EYE];
   const left_eye = face.landmarks[LEFT_EYE];
   const eyes_center = [

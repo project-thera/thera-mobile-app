@@ -3,8 +3,7 @@ import {View, Text} from 'react-native';
 
 import ImageClassificationDetector from './detector/ImageClassificationDetector';
 import BlowDetector from './detector/BlowDetector';
-
-import DetectorTimerConfidence from './detector/DetectorTimerConfidence';
+import SpeechRecognitionDetector from './detector/SpeechRecognitionDetector';
 
 export default class Exercise extends React.Component {
   constructor(props) {
@@ -66,19 +65,20 @@ export default class Exercise extends React.Component {
   };
 
   renderContent() {
+    const currentStep = this.props.steps[this.state.stepIndex];
+
     switch (this.props.type) {
       case 'classification':
-        return this.renderImageClassificationDetector();
+        return this.renderImageClassificationDetector(currentStep);
       case 'blow':
-        return this.renderBlowDetector();
-      // case 'speech':
-      //   return this.renderSpeech();
+        return this.renderBlowDetector(currentStep);
+      case 'speech':
+        return this.renderSpeechDetector(currentStep);
     }
   }
 
-  renderImageClassificationDetector() {
+  renderImageClassificationDetector(currentStep) {
     const {faceDetector, mobilenetDetector} = this.props;
-    const currentStep = this.props.steps[this.state.stepIndex];
 
     return (
       <ImageClassificationDetector
@@ -92,13 +92,27 @@ export default class Exercise extends React.Component {
     );
   }
 
-  renderBlowDetector() {
-    return <BlowDetector ref={(ref) => (this.detector = ref)} />;
+  renderBlowDetector(currentStep) {
+    return (
+      <BlowDetector
+        ref={(ref) => (this.detector = ref)}
+        currentStep={currentStep}
+        onStepCompleted={this.onStepCompleted}
+        onProgress={this.onProgress}
+        onStoppedDetection={this.onStoppedDetection}
+      />
+    );
   }
 
-  // renderSpeechDetector() {
-  //   return <SpeechRecognitionDetector ref={(ref) => (this.detector = ref)} />;
-  // }
+  renderSpeechDetector(currentStep) {
+    return (
+      <SpeechRecognitionDetector
+        ref={(ref) => (this.detector = ref)}
+        currentStep={currentStep}
+        onStepCompleted={this.onStepCompleted}
+      />
+    );
+  }
 
   render() {
     return (

@@ -33,10 +33,10 @@ const modelWeights = [
 import * as blazeface from '@tensorflow-models/blazeface';
 
 // import Exercises from './components/RealTimeBlazefaceTest';
-import Exercises from './components/RealTimeBlazefaceCustom';
+// import Exercises from './components/RealTimeBlazefaceCustom';
 // import RealTime from './components/BlowDetector';
 // import RealTime from './components/SpeechRecognition';
-// import Exercises from './components/Exercises';
+import Exercises from './components/Exercises';
 
 const BACKEND_TO_USE = 'rn-webgl';
 
@@ -109,6 +109,23 @@ export default class App extends React.Component {
           {
             time: 1000, // in ms
             label: 'boca cerrada',
+          },
+        ],
+      },
+      {
+        type: 'blow',
+        steps: [
+          {
+            time: 1000, // in ms
+            detected: false,
+          },
+        ],
+      },
+      {
+        type: 'speech',
+        steps: [
+          {
+            sentence: 'perro',
           },
         ],
       },

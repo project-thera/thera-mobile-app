@@ -4,7 +4,7 @@ import {View, Text} from 'react-native';
 import Recording from 'react-native-recording';
 import {amplitudeSpectrum} from 'fftjs-supplements';
 
-// import DetectorConfidence from './DetectorConfidence';
+import DetectorTimerConfidence from './DetectorTimerConfidence';
 
 function _frequencyToIndex(frequency, bufferSize, sampleRate) {
   return Math.ceil((frequency * bufferSize) / sampleRate);
@@ -24,9 +24,58 @@ const MAX_FREQ_INDEX = _frequencyToIndex(MAX_FREQ, BUFFER_SIZE, SAMPLE_RATE);
 export default class BlowDetector extends React.Component {
   constructor(props) {
     super(props);
+
+    this.state = {
+      progress: 0,
+    };
   }
 
-  start() {
+  setDetectorTimerConfidence = () => {
+    this.detectorTimerConfidence = new DetectorTimerConfidence({
+      params: this.props.currentStep,
+      onProgress: this.onProgress,
+      onStoppedDetection: this.onStoppedDetection,
+      onCompleted: this.onCompleted,
+    });
+  };
+
+  componentDidMount() {
+    this.setDetectorTimerConfidence();
+  }
+
+  // Needed because access to props to set instance variable
+  componentDidUpdate(prevProps) {
+    if (prevProps.currentStep !== this.props.currentStep) {
+      this.setDetectorTimerConfidence();
+    }
+  }
+
+  // TODO check if do this on unmount or in stop or both
+  componentWillUnmount() {
+    // Recording.stop();
+    // this.listener.remove();
+  }
+
+  onProgress = (percentage) => {
+    this.props.onProgress(percentage);
+
+    this.setState({
+      progress: percentage,
+    });
+    console.log(`PROGRESS ${percentage}`); // TODO show something in the ui
+  };
+
+  onStoppedDetection = () => {
+    this.props.onStoppedDetection();
+    console.log('NOT DETECTING'); // TODO stop showing something in the ui
+  };
+
+  onCompleted = () => {
+    this.props.onStepCompleted();
+    console.log('COMPLETADO'); // TODO stop showing something in the ui
+  };
+
+  start = () => {
     Recording.init({
       bufferSize: BUFFER_SIZE,
       sampleRate: SAMPLE_RATE,
@@ -39,20 +88,21 @@ export default class BlowDetector extends React.Component {
     );
 
     Recording.start();
-  }
+  };
 
-  resume() {
+  resume = () => {
     Recording.start();
-  }
+  };
 
-  pause() {
+  pause = () => {
     Recording.stop();
-  }
+  };
 
-  stop() {
+  // Call stop on component did unmount?
+  stop = () => {
     Recording.stop();
-    this.state.listener.remove();
-  }
+    this.listener.remove();
+  };
 
   _handleRecordingEvent = (signal) => {
     let amplitudes = amplitudeSpectrum(signal);
@@ -69,21 +119,21 @@ export default class BlowDetector extends React.Component {
     let energyNeeded =
       ((MAX_FREQ_INDEX - MIN_FREQ_INDEX) * maxAmplitude) / REQUIRED_INTEGRAL;
 
-    let detected =
+    const detected =
       energy > energyNeeded &&
       maxAmplitude > AMPLITUDE_THRESHOLD &&
       energyAverage > ENERGY_AVERAGE_THRESHOLD;
 
-    this.setState({
-      detected,
-    });
+    this.detectorTimerConfidence.update(
+      this.props.currentStep.detected === detected,
+    );
   };
 
   render() {
     return (
       <View style={{width: '100%'}}>
         <View>
-          <Text>detected: {this.state.detected ? 'true' : 'false'}</Text>
+          <Text>detected: {this.state.progress}</Text>
         </View>
       </View>
     );

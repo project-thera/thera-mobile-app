@@ -25,7 +25,7 @@ const SAMPLE_RATE = 8000;
 const MIN_FREQ_INDEX = frequencyToIndex(MIN_FREQ, BUFFER_SIZE, SAMPLE_RATE);
 const MAX_FREQ_INDEX = frequencyToIndex(MAX_FREQ, BUFFER_SIZE, SAMPLE_RATE);
 
-export default class BlowDetector extends React.Component {
+export default class BlowDetectorStandalone extends React.Component {
   state = {
     appState: AppState.currentState,
   };
@@ -33,7 +33,6 @@ export default class BlowDetector extends React.Component {
   constructor(props) {
     super(props);
 
-    this.handleRecordingEvent = this.handleRecordingEvent.bind(this);
     this.handleAppStateChange = handleAppStateChange.bind(this);
     this.detectorConfidence = new DetectorConfidence({
       requiredConfidence: 2,
@@ -63,7 +62,7 @@ export default class BlowDetector extends React.Component {
     this.state.listener.remove();
   }
 
-  handleRecordingEvent(signal) {
+  handleRecordingEvent = (signal) => {
     // Recording.stop();
     // listener.remove();
 
@@ -96,7 +95,7 @@ export default class BlowDetector extends React.Component {
       energyOk: energy > energyNeeded,
       maxAmplitude,
     });
-  }
+  };
 
   // AS stands for amplitude spectrum
   // fs stands for frequency of sampling
