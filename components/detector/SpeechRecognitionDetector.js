@@ -122,7 +122,7 @@ export default class SpeechRecognition extends React.Component {
     });
 
     try {
-      await Voice.start('es-AR', configuration);
+      await Voice.start(LOCALE, configuration);
     } catch (e) {
       console.error(e);
     }
