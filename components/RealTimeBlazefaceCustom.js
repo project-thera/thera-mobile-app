@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 
 // import * as FaceDetector from 'expo-face-detector';
+import {activateKeepAwake} from 'expo-keep-awake';
 
 import * as Permissions from 'expo-permissions';
 import {Camera} from 'expo-camera';
@@ -22,11 +23,17 @@ import {
 } from '@tensorflow/tfjs-react-native';
 
 import * as mobilenet from './utils/Mobilenet';
-import {cropAndResizeSquareForDetector} from './utils/cropAndResize';
+import {
+  cropAndResizeSquareForDetector,
+  cropRotateAndResizeSquareForDetector,
+} from './utils/cropAndResize';
 import encodeJpeg from './utils/encodeJpeg';
 
 const modelJson = require('../models/model.json');
-const modelWeights = [require('../models/group1-shard1of1.bin')];
+const modelWeights = [
+  require('../models/group1-shard1of1.bin'),
+  //  require('../models/group1-shard2of2.bin'),
+];
 
 const inputTensorWidth = 180; // 180 144 120
 const inputTensorHeight = 320; // 320 256 214
@@ -61,6 +68,9 @@ export default class RealTime extends React.Component {
   }
 
   async componentDidMount() {
+    activateKeepAwake();
+    //const inputImage = webcam.capture();
+
     const {status} = await Permissions.askAsync(Permissions.CAMERA);
 
     const [faceDetector, mobilenetDetector] = await Promise.all([
@@ -123,7 +133,7 @@ export default class RealTime extends React.Component {
             imageTensor,
             false, // returnTensors
             false, // flip horizontal
-            false, // annotateBoxes
+            true, // annotateBoxes
           )
           .then(async function (faces) {
             if (faces.length > 0) {
@@ -138,13 +148,18 @@ export default class RealTime extends React.Component {
               );
               detectionTime = performance.now();
 
-              const cropped = cropAndResizeSquareForDetector(
+              const cropped = cropRotateAndResizeSquareForDetector(
                 imageTensor,
-                inputTensorWidth,
-                inputTensorHeight,
-                faces[0].topLeft,
-                faces[0].bottomRight,
+                faces[0],
               );
+
+              // const cropped = cropAndResizeSquareForDetector(
+              //   imageTensor,
+              //   inputTensorWidth,
+              //   inputTensorHeight,
+              //   faces[0].topLeft,
+              //   faces[0].bottomRight,
+              // );
 
               // that.setState({
               //   encodedData: await encodeJpeg(cropped),

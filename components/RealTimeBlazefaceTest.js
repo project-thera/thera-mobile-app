@@ -21,7 +21,7 @@ import {cameraWithTensors} from '@tensorflow/tfjs-react-native';
 
 import encodeJpeg from './utils/encodeJpeg';
 import {
-  cropAndResizeSquareForDetector2,
+  cropRotateAndResizeSquareForDetector,
   cropAndResizeSquareForDetector3,
 } from './utils/cropAndResize';
 
@@ -111,12 +111,8 @@ export default class RealTime extends React.Component {
 
         // console.log(faces);
         if (faces.length > 0) {
-          const {topLeft, bottomRight} = faces[0];
-
-          const cropped = cropAndResizeSquareForDetector2(
+          const cropped = cropRotateAndResizeSquareForDetector(
             imageTensor,
-            inputTensorWidth,
-            inputTensorHeight,
             faces[0],
           );
 
@@ -201,6 +197,7 @@ export default class RealTime extends React.Component {
             <View style={styles.modelResults}>
               <Image
                 style={styles.camera}
+                resizeMode="contain"
                 source={{
                   uri: `data:image/jpeg;base64,${this.state.encodedData}`,
                 }}

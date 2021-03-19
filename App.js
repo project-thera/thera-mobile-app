@@ -25,15 +25,18 @@ import {bundleResourceIO} from '@tensorflow/tfjs-react-native';
 
 import * as mobilenet from './components/utils/Mobilenet';
 const modelJson = require('./models/model.json');
-const modelWeights = [require('./models/group1-shard1of1.bin')];
+const modelWeights = [
+  require('./models/group1-shard1of1.bin'),
+  //  require('./models/group1-shard2of2.bin'),
+];
 
 import * as blazeface from '@tensorflow-models/blazeface';
 
-// import RealTime from './components/RealTimeBlazefaceTest';
-// import RealTime from './components/RealTimeBlazefaceCustom';
+// import Exercises from './components/RealTimeBlazefaceTest';
+import Exercises from './components/RealTimeBlazefaceCustom';
 // import RealTime from './components/BlowDetector';
-import RealTime from './components/SpeechRecognition';
-import Exercises from './components/Exercises';
+// import RealTime from './components/SpeechRecognition';
+// import Exercises from './components/Exercises';
 
 const BACKEND_TO_USE = 'rn-webgl';
 
@@ -63,7 +66,7 @@ export default class App extends React.Component {
         inputWidth: 128,
         inputHeight: 128,
         iouThreshold: 0.3,
-        scoreThreshold: 0.75,
+        scoreThreshold: 0.99,
       }),
       mobilenet.load({
         modelUrl: await bundleResourceIO(modelJson, modelWeights),
