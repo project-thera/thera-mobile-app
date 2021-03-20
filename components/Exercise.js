@@ -50,11 +50,12 @@ export default class Exercise extends React.Component {
     if (this.state.stepIndex + 1 >= this.props.steps.length) {
       console.log('EXERCISE COMPLETE');
 
-      this.props.onExerciseCompleted();
-
+      // Do this before onExerciseCompleted otherwise currentStep could have a old value of stepIndex
       this.setState({
         stepIndex: 0,
       });
+
+      this.props.onExerciseCompleted();
     } else {
       this.setState({
         stepIndex: this.state.stepIndex + 1,

@@ -47,6 +47,15 @@ export default class SpeechRecognition extends React.Component {
     // Voice.destroy().then(Voice.removeAllListeners);
   };
 
+  detect = (prediction) => {
+    if (
+      prediction[0].toLowerCase() ===
+      this.props.currentStep.sentence.toLowerCase()
+    ) {
+      this.onCompleted();
+    }
+  };
+
   onSpeechStart = (e) => {
     console.log('onSpeechStart: ', e);
     this.setState({
@@ -81,13 +90,7 @@ export default class SpeechRecognition extends React.Component {
       results: e.value,
     });
 
-    this.onCompleted(); // TODO check
-
-    if (
-      e.value[0].toLowerCase() === this.props.currentStep.sentence.toLowerCase()
-    ) {
-      // this.onCompleted();
-    }
+    this.detect(e.value);
   };
 
   onSpeechPartialResults = (e) => {
@@ -190,9 +193,6 @@ export default class SpeechRecognition extends React.Component {
           );
         })}
         <Text style={styles.stat}>{`End: ${this.state.end}`}</Text>
-        {/* <TouchableHighlight onPress={this._startRecognizing}>
-          <Button style={styles.button} source={require('./button.png')} />
-        </TouchableHighlight> */}
         <Button
           onPress={this._startRecognizing}
           title="Empezar deteccion"
@@ -213,15 +213,6 @@ export default class SpeechRecognition extends React.Component {
           title="Destruir"
           accessibilityLabel="Learn more about this purple button"
         />
-        {/* <TouchableHighlight onPress={this._stopRecognizing}>
-          <Text style={styles.action}>Stop Recognizing</Text>
-        </TouchableHighlight>
-        <TouchableHighlight onPress={this._cancelRecognizing}>
-          <Text style={styles.action}>Cancel</Text>
-        </TouchableHighlight>
-        <TouchableHighlight onPress={this._destroyRecognizer}>
-          <Text style={styles.action}>Destroy</Text>
-        </TouchableHighlight> */}
       </View>
     );
   }

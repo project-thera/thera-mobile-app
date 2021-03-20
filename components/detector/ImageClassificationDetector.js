@@ -1,12 +1,12 @@
 import React from 'react';
-import {View, StyleSheet} from 'react-native';
+import {View, Text, StyleSheet} from 'react-native';
 
 import {Camera} from 'expo-camera';
 
 import * as tf from '@tensorflow/tfjs';
 import {cameraWithTensors} from '@tensorflow/tfjs-react-native';
 
-import {cropAndResizeSquareForDetector} from '../utils/cropAndResize';
+import {cropRotateAndResizeSquareForDetector} from '../utils/cropAndResize';
 import DetectorTimerConfidence from './DetectorTimerConfidence';
 
 const inputTensorWidth = 180; // 180 144 120
@@ -21,6 +21,8 @@ const textureDims = {
 
 const AUTORENDER = true;
 const MAX_INCLINATION = 2.8; // in radians
+
+const DETECTION_THRESHOLD = 0.09;
 
 // tslint:disable-next-line: variable-name
 const TensorCamera = cameraWithTensors(Camera);
@@ -40,21 +42,6 @@ export default class ImageClassificationDetector extends React.Component {
       cancelAnimationFrame(this.rafID);
     }
   }
-
-  // TODO enhance this
-  // Add brightness?
-  isFrontFace = (face) => {
-    let rightEye = face.landmarks[0];
-    let leftEye = face.landmarks[1];
-
-    // 28 ms on moto-e5 brightness between 0 and 255
-    // imageTensor.sum().dataSync() / (inputTensorHeight * inputTensorWidth * 3),
-
-    return (
-      Math.abs(Math.atan2(rightEye[1] - leftEye[1], rightEye[0] - leftEye[0])) >
-      MAX_INCLINATION
-    );
-  };
 
   setDetectorTimerConfidence = () => {
     this.detectorTimerConfidence = new DetectorTimerConfidence({
@@ -100,6 +87,37 @@ export default class ImageClassificationDetector extends React.Component {
     });
   };
 
+  // TODO enhance this
+  // Add brightness?
+  shouldDetect = (face, imageTensor) => {
+    return true;
+    let rightEye = face.landmarks[0];
+    let leftEye = face.landmarks[1];
+
+    // 28 ms on moto-e5 brightness between 0 and 255
+    // console.log(
+    //   imageTensor.sum().dataSync() / (inputTensorHeight * inputTensorWidth * 3),
+    // );
+
+    return (
+      Math.abs(Math.atan2(rightEye[1] - leftEye[1], rightEye[0] - leftEye[0])) >
+      MAX_INCLINATION
+    );
+  };
+
+  /**
+   * @param {Object[]} prediction - The raw prediction of the detector.
+   * @param {string} prediction[].className - The label of the class detected.
+   * @param {float} prediction[].probability - The probability of the class.
+   */
+  detect = (prediction) => {
+    console.log(prediction);
+    this.detectorTimerConfidence.update(
+      prediction[0].className === this.props.currentStep.label &&
+        prediction[0].probability > DETECTION_THRESHOLD,
+    );
+  };
+
   onProgress = (percentage) => {
     this.props.onProgress(percentage);
     console.log(`PROGRESS ${percentage}`); // TODO show something in the ui
@@ -115,6 +133,19 @@ export default class ImageClassificationDetector extends React.Component {
     console.log('COMPLETADO'); // TODO stop showing something in the ui
   };
 
+  detectFaces = (imageTensor) => {
+    return this.props.faceDetector.estimateFaces(
+      imageTensor,
+      false, // returnTensors
+      false, // flip horizontal
+      true, // annotateBoxes
+    );
+  };
+
+  classify = (cropped) => {
+    return this.props.mobilenetDetector.classify(cropped);
+  };
+
   _handleImageTensorReady = async (images, updatePreview, gl) => {
     const loop = async () => {
       if (this.state.active) {
@@ -123,46 +154,26 @@ export default class ImageClassificationDetector extends React.Component {
 
         const imageTensor = images.next().value;
 
-        const that = this;
+        this.detectFaces(imageTensor).then(async (faces) => {
+          if (faces.length > 0 && this.shouldDetect(faces[0], imageTensor)) {
+            updatePreview();
+            gl.endFrameEXP();
 
-        this.props.faceDetector
-          .estimateFaces(
-            imageTensor,
-            false, // returnTensors
-            false, // flip horizontal
-            true, // annotateBoxes
-          )
-          .then(async function (faces) {
-            if (faces.length > 0 && that.isFrontFace(faces[0])) {
+            const cropped = cropRotateAndResizeSquareForDetector(
+              imageTensor,
+              faces[0],
+            );
+
+            this.classify(cropped).then((prediction) => {
               updatePreview();
               gl.endFrameEXP();
 
-              const cropped = cropAndResizeSquareForDetector(
-                imageTensor,
-                inputTensorWidth,
-                inputTensorHeight,
-                faces[0].topLeft,
-                faces[0].bottomRight,
-              );
+              this.detect(prediction);
+            });
+          }
 
-              that.props.mobilenetDetector
-                .classify(cropped)
-                .then(function (prediction) {
-                  updatePreview();
-                  gl.endFrameEXP();
-
-                  // that.detectorTimerConfidence.update(
-                  //   prediction[0].className === that.props.currentStep.label,
-                  // );
-
-                  that.detectorTimerConfidence.update(true);
-                });
-
-              tf.dispose(imageTensor);
-            } else {
-              tf.dispose(imageTensor);
-            }
-          });
+          tf.dispose(imageTensor);
+        });
 
         updatePreview();
         gl.endFrameEXP();
@@ -176,22 +187,25 @@ export default class ImageClassificationDetector extends React.Component {
 
   render() {
     return (
-      <View style={styles.cameraContainer}>
-        <TensorCamera
-          type={CAMERA_TYPE}
-          zoom={0}
-          ratio={RATIO}
-          style={styles.camera}
-          // onCameraReady={this.setTextureDims}
-          // tensor related props
-          cameraTextureHeight={textureDims.height}
-          cameraTextureWidth={textureDims.width}
-          resizeHeight={inputTensorHeight}
-          resizeWidth={inputTensorWidth}
-          resizeDepth={3}
-          onReady={this._handleImageTensorReady}
-          autorender={AUTORENDER}
-        />
+      <View>
+        <Text>{this.props.currentStep.label}</Text>
+        <View style={styles.cameraContainer}>
+          <TensorCamera
+            type={CAMERA_TYPE}
+            zoom={0}
+            ratio={RATIO}
+            style={styles.camera}
+            // onCameraReady={this.setTextureDims}
+            // tensor related props
+            cameraTextureHeight={textureDims.height}
+            cameraTextureWidth={textureDims.width}
+            resizeHeight={inputTensorHeight}
+            resizeWidth={inputTensorWidth}
+            resizeDepth={3}
+            onReady={this._handleImageTensorReady}
+            autorender={AUTORENDER}
+          />
+        </View>
       </View>
     );
   }

@@ -104,6 +104,12 @@ export default class BlowDetector extends React.Component {
     this.listener.remove();
   };
 
+  detect = (prediction) => {
+    this.detectorTimerConfidence.update(
+      this.props.currentStep.detected === prediction,
+    );
+  };
+
   _handleRecordingEvent = (signal) => {
     let amplitudes = amplitudeSpectrum(signal);
     let energy = 0.0;
@@ -119,13 +125,10 @@ export default class BlowDetector extends React.Component {
     let energyNeeded =
       ((MAX_FREQ_INDEX - MIN_FREQ_INDEX) * maxAmplitude) / REQUIRED_INTEGRAL;
 
-    const detected =
+    this.detect(
       energy > energyNeeded &&
-      maxAmplitude > AMPLITUDE_THRESHOLD &&
-      energyAverage > ENERGY_AVERAGE_THRESHOLD;
-
-    this.detectorTimerConfidence.update(
-      this.props.currentStep.detected === detected,
+        maxAmplitude > AMPLITUDE_THRESHOLD &&
+        energyAverage > ENERGY_AVERAGE_THRESHOLD,
     );
   };
 
@@ -133,6 +136,9 @@ export default class BlowDetector extends React.Component {
     return (
       <View style={{width: '100%'}}>
         <View>
+          <Text>
+            {this.props.currentStep.detected ? 'Sin soplar' : 'Soplar'}
+          </Text>
           <Text>detected: {this.state.progress}</Text>
         </View>
       </View>
