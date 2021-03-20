@@ -100,6 +100,14 @@ export default class App extends React.Component {
 
     const exercises = [
       {
+        type: 'speech',
+        steps: [
+          {
+            sentence: 'perro',
+          },
+        ],
+      },
+      {
         type: 'classification',
         steps: [
           {
@@ -118,14 +126,6 @@ export default class App extends React.Component {
           {
             time: 1000, // in ms
             detected: false,
-          },
-        ],
-      },
-      {
-        type: 'speech',
-        steps: [
-          {
-            sentence: 'perro',
           },
         ],
       },

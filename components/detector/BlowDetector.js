@@ -104,9 +104,12 @@ export default class BlowDetector extends React.Component {
     this.listener.remove();
   };
 
-  detect = (prediction) => {
+  /**
+   * @param {boolean} isBlowing - If the users is blowing on microphone.
+   */
+  detect = (isBlowing) => {
     this.detectorTimerConfidence.update(
-      this.props.currentStep.detected === prediction,
+      this.props.currentStep.detected === isBlowing,
     );
   };
 

@@ -167,7 +167,9 @@ export default class SpeechRecognition extends React.Component {
   render() {
     return (
       <View>
-        <Text style={styles.welcome}>Welcome to React Native Voice!</Text>
+        <Text style={styles.welcome}>
+          Deci la frase: {this.props.currentStep.sentence}
+        </Text>
         <Text style={styles.instructions}>
           Press the button and start speaking.
         </Text>

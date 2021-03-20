@@ -106,15 +106,14 @@ export default class ImageClassificationDetector extends React.Component {
   };
 
   /**
-   * @param {Object[]} prediction - The raw prediction of the detector.
-   * @param {string} prediction[].className - The label of the class detected.
-   * @param {float} prediction[].probability - The probability of the class.
+   * @param {Object[]} predictions - The raw prediction of the detector.
+   * @param {string} predictions[].className - The label of the class detected.
+   * @param {float} predictions[].probability - The probability of the class.
    */
-  detect = (prediction) => {
-    console.log(prediction);
+  detect = (predictions) => {
     this.detectorTimerConfidence.update(
-      prediction[0].className === this.props.currentStep.label &&
-        prediction[0].probability > DETECTION_THRESHOLD,
+      predictions[0].className === this.props.currentStep.label &&
+        predictions[0].probability > DETECTION_THRESHOLD,
     );
   };
 
