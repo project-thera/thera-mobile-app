@@ -128,6 +128,13 @@ export default class ImageClassificationDetector extends React.Component {
     console.log('COMPLETADO'); // TODO stop showing something in the ui
   };
 
+  /**
+   * @param {Array} p1 Point 1 of the line
+   * @param {Array} p2 Point 2 of the line
+   * @param {Array} p0 Point to measure the distance between the rect
+   *
+   * @returns {number} Minimum distance between p0 and the line defined by p1 and p2
+   */
   distance(p1, p2, p0) {
     return (
       Math.abs(
@@ -180,15 +187,15 @@ export default class ImageClassificationDetector extends React.Component {
       });
     }
 
-    return true; //enough;
+    return enough;
   };
 
   detectFaces = (imageTensor) => {
     return this.props.faceDetector.estimateFaces(
       imageTensor,
-      false, // returnTensors
+      false, // return tensors
       false, // flip horizontal
-      true, // annotateBoxes
+      true, // annotate boxes
     );
   };
 
@@ -196,7 +203,7 @@ export default class ImageClassificationDetector extends React.Component {
     return this.props.mobilenetDetector.classify(cropped);
   };
 
-  _handleImageTensorReady = async (images, updatePreview, gl) => {
+  handleImageTensorReady = async (images, updatePreview, gl) => {
     const loop = async () => {
       if (this.state.active) {
         updatePreview();
@@ -252,7 +259,7 @@ export default class ImageClassificationDetector extends React.Component {
             resizeHeight={inputTensorHeight}
             resizeWidth={inputTensorWidth}
             resizeDepth={3}
-            onReady={this._handleImageTensorReady}
+            onReady={this.handleImageTensorReady}
             autorender={AUTORENDER}
           />
         </View>
