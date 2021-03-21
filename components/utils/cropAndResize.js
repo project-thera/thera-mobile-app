@@ -1,15 +1,17 @@
 import * as tf from '@tensorflow/tfjs';
 import {IMAGE_SIZE} from './Mobilenet';
 
-const POINT_X = 0;
-const POINT_Y = 1;
-const BLACK = 0;
-const RIGHT_EYE = 0;
-const LEFT_EYE = 1;
-const NOSE = 2;
-const MOUTH = 3;
-const RIGHT_EAR = 4;
-const LEFT_EAR = 5;
+import {
+  POINT_X,
+  POINT_Y,
+  BLACK,
+  RIGHT_EYE,
+  LEFT_EYE,
+  NOSE,
+  MOUTH,
+  RIGHT_EAR,
+  LEFT_EAR,
+} from './constants';
 
 /**
  * Crops image between topLeft and bottomRight and preserve aspect ratio.
@@ -129,24 +131,24 @@ export function cropAndResizeSquareForDetector(
  * Transform and rotate the image to detector size declared in Mobilenet preserves aspect ratio.
  * Doing this avoids to resize the image again in the detector.
  */
-export function cropRotateAndResizeSquareForDetector(
+export function cropMouthRotateAndResize(
   imageTensor,
   face,
-  growRatio = 0.2,
-  displacement = 0.0007,
+  growRatio = 1.4,
+  displacement = 0.001,
 ) {
   const {topLeft, bottomRight} = face;
   const inputTensorHeight = imageTensor.shape[0];
   const inputTensorWidth = imageTensor.shape[1];
   const channelNumbers = imageTensor.shape[2];
 
-  const right_eye = face.landmarks[RIGHT_EYE];
-  const left_eye = face.landmarks[LEFT_EYE];
-  const eyes_center = [
-    (right_eye[POINT_X] + left_eye[POINT_X]) / 2,
-    (right_eye[POINT_Y] + left_eye[POINT_Y]) / 2,
+  const rightEye = face.landmarks[RIGHT_EYE];
+  const leftEye = face.landmarks[LEFT_EYE];
+  const eyesCenter = [
+    (rightEye[POINT_X] + leftEye[POINT_X]) / 2,
+    (rightEye[POINT_Y] + leftEye[POINT_Y]) / 2,
   ];
-  const nose = face.landmarks[NOSE];
+  //const nose = face.landmarks[NOSE];
   const mouth = face.landmarks[MOUTH];
 
   // The mouth and the center of the eyes are more precise you can check:
@@ -154,8 +156,8 @@ export function cropRotateAndResizeSquareForDetector(
   // Math.atan2(nose[POINT_Y] - mouth[POINT_Y], nose[POINT_X] - mouth[POINT_X])
   const rotation =
     Math.atan2(
-      eyes_center[POINT_Y] - mouth[POINT_Y],
-      eyes_center[POINT_X] - mouth[POINT_X],
+      eyesCenter[POINT_Y] - mouth[POINT_Y],
+      eyesCenter[POINT_X] - mouth[POINT_X],
     ) +
     0.5 * Math.PI;
 
@@ -172,21 +174,83 @@ export function cropRotateAndResizeSquareForDetector(
     center,
   );
 
-  const boxWidthRaw = // Same as boxHeightRaw
-    (bottomRight[POINT_X] - topLeft[POINT_X]) * (1 + growRatio * 2);
-
-  // Check this
-  const boxHeight = (boxWidthRaw * 100) / inputTensorHeight;
+  const boxWidthRaw = (bottomRight[POINT_X] - topLeft[POINT_X]) * growRatio;
+  const boxHeightRaw = boxWidthRaw;
 
   const y1 =
-    (mouth[POINT_Y] - boxWidthRaw * 0.5) / inputTensorHeight +
-    boxHeight * displacement;
+    (mouth[POINT_Y] - boxWidthRaw * 0.5 + boxHeightRaw * displacement) /
+    inputTensorHeight;
   const y2 =
-    (mouth[POINT_Y] + boxWidthRaw * 0.5) / inputTensorHeight +
-    boxHeight * displacement;
+    (mouth[POINT_Y] + boxWidthRaw * 0.5 + boxHeightRaw * displacement) /
+    inputTensorHeight;
 
   const x1 = (mouth[POINT_X] - boxWidthRaw * 0.5) / inputTensorWidth;
   const x2 = (mouth[POINT_X] + boxWidthRaw * 0.5) / inputTensorWidth;
+
+  return tf.image
+    .cropAndResize(rotated, [[y1, x1, y2, x2]], [0], [IMAGE_SIZE, IMAGE_SIZE])
+    .reshape([IMAGE_SIZE, IMAGE_SIZE, channelNumbers]);
+}
+
+export function cropFaceRotateAndResize(
+  imageTensor,
+  face,
+  growRatio = 1.6,
+  displacement = 0.02,
+) {
+  const {topLeft, bottomRight} = face;
+  const inputTensorHeight = imageTensor.shape[0];
+  const inputTensorWidth = imageTensor.shape[1];
+  const channelNumbers = imageTensor.shape[2];
+
+  const rightEye = face.landmarks[RIGHT_EYE];
+  const leftEye = face.landmarks[LEFT_EYE];
+  const eyesCenter = [
+    (rightEye[POINT_X] + leftEye[POINT_X]) / 2,
+    (rightEye[POINT_Y] + leftEye[POINT_Y]) / 2,
+  ];
+  // const nose = face.landmarks[NOSE];
+  const mouth = face.landmarks[MOUTH];
+
+  // The mouth and the center of the eyes are more precise you can check:
+  // https://storage.googleapis.com/tfjs-models/demos/blazeface/index.html for experiment
+  // Math.atan2(nose[POINT_Y] - mouth[POINT_Y], nose[POINT_X] - mouth[POINT_X])
+  const rotation =
+    Math.atan2(
+      eyesCenter[POINT_Y] - mouth[POINT_Y],
+      eyesCenter[POINT_X] - mouth[POINT_X],
+    ) +
+    0.5 * Math.PI;
+
+  const centerPoint = [
+    (mouth[POINT_X] + eyesCenter[POINT_X]) * 0.5,
+    (mouth[POINT_Y] + eyesCenter[POINT_Y]) * 0.5,
+  ];
+
+  const center = [
+    centerPoint[POINT_X] / inputTensorWidth,
+    centerPoint[POINT_Y] / inputTensorHeight,
+  ];
+
+  const rotated = tf.image.rotateWithOffset(
+    tf.cast(imageTensor.reshape([1, ...imageTensor.shape]), 'float32'),
+    rotation,
+    BLACK,
+    center,
+  );
+
+  const boxWidthRaw = (bottomRight[POINT_X] - topLeft[POINT_X]) * growRatio;
+  const boxHeightRaw = boxWidthRaw;
+
+  const y1 =
+    (centerPoint[POINT_Y] - boxWidthRaw * 0.5 + boxHeightRaw * displacement) /
+    inputTensorHeight;
+  const y2 =
+    (centerPoint[POINT_Y] + boxWidthRaw * 0.5 + boxHeightRaw * displacement) /
+    inputTensorHeight;
+
+  const x1 = (centerPoint[POINT_X] - boxWidthRaw * 0.5) / inputTensorWidth;
+  const x2 = (centerPoint[POINT_X] + boxWidthRaw * 0.5) / inputTensorWidth;
 
   return tf.image
     .cropAndResize(rotated, [[y1, x1, y2, x2]], [0], [IMAGE_SIZE, IMAGE_SIZE])

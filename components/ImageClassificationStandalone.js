@@ -23,10 +23,7 @@ import {
 } from '@tensorflow/tfjs-react-native';
 
 import * as mobilenet from './utils/Mobilenet';
-import {
-  cropAndResizeSquareForDetector,
-  cropRotateAndResizeSquareForDetector,
-} from './utils/cropAndResize';
+import {cropFaceRotateAndResize} from './utils/cropAndResize';
 import encodeJpeg from './utils/encodeJpeg';
 
 const modelJson = require('../models/model.json');
@@ -39,11 +36,12 @@ const inputTensorWidth = 180; // 180 144 120
 const inputTensorHeight = 320; // 320 256 214
 
 const AUTORENDER = true;
+const MIN_BRIGHTNESS = 110;
 
 // tslint:disable-next-line: variable-name
 const TensorCamera = cameraWithTensors(Camera);
 
-export default class RealTime extends React.Component {
+export default class ImageClassificationStandalone extends React.Component {
   constructor(props) {
     super(props);
 
@@ -95,6 +93,7 @@ export default class RealTime extends React.Component {
       faceDetector,
       mobilenetDetector,
       encodedData: '',
+      message: '',
     });
   }
 
@@ -110,6 +109,19 @@ export default class RealTime extends React.Component {
     console.log(faces[0]);
   }
 
+  detectFaces = (imageTensor) => {
+    return this.state.faceDetector.estimateFaces(
+      imageTensor,
+      false, // returnTensors
+      false, // flip horizontal
+      true, // annotateBoxes
+    );
+  };
+
+  classify = (cropped) => {
+    return this.state.mobilenetDetector.classify(cropped);
+  };
+
   async handleImageTensorReady(images, updatePreview, gl) {
     //console.log(gl);
     const loop = async () => {
@@ -122,71 +134,57 @@ export default class RealTime extends React.Component {
       ) {
         const imageTensor = images.next().value;
 
-        console.log(imageTensor.shape);
         let detectionTime = performance.now();
 
-        const that = this;
         // const SKIP_FACES = 2; // TODO move
         // if (this.faceDetectionCount > SKIP_FACES) {
-        this.state.faceDetector
-          .estimateFaces(
-            imageTensor,
-            false, // returnTensors
-            false, // flip horizontal
-            true, // annotateBoxes
-          )
-          .then(async function (faces) {
-            if (faces.length > 0) {
+        this.detectFaces(imageTensor).then(async (faces) => {
+          if (faces.length > 0) {
+            updatePreview();
+            gl.endFrameEXP();
+
+            // console.log(
+            //   'Detection took ' +
+            //     (performance.now() - detectionTime) +
+            //     ' milliseconds.',
+            // );
+            detectionTime = performance.now();
+
+            const cropped = cropFaceRotateAndResize(imageTensor, faces[0]);
+
+            const brightness =
+              cropped.sum().dataSync() /
+              (cropped.shape[0] * cropped.shape[1] * 3);
+
+            if (brightness > MIN_BRIGHTNESS) {
               updatePreview();
               gl.endFrameEXP();
 
-              console.log(faces[0]);
-              console.log(
-                'Detection took ' +
-                  (performance.now() - detectionTime) +
-                  ' milliseconds.',
-              );
-              detectionTime = performance.now();
+              this.classify(cropped).then((prediction) => {
+                updatePreview();
+                gl.endFrameEXP();
 
-              const cropped = cropRotateAndResizeSquareForDetector(
-                imageTensor,
-                faces[0],
-              );
-
-              // const cropped = cropAndResizeSquareForDetector(
-              //   imageTensor,
-              //   inputTensorWidth,
-              //   inputTensorHeight,
-              //   faces[0].topLeft,
-              //   faces[0].bottomRight,
-              // );
-
-              // that.setState({
-              //   encodedData: await encodeJpeg(cropped),
-              // });
-
-              that.state.mobilenetDetector
-                .classify(cropped)
-                .then(function (prediction) {
-                  updatePreview();
-                  gl.endFrameEXP();
-
-                  that.setState({
-                    prediction: JSON.stringify(prediction),
-                  });
-
-                  console.log(
-                    'Prediction took ' +
-                      (performance.now() - detectionTime) +
-                      ' milliseconds.',
-                  );
+                this.setState({
+                  message: 'Detecting',
+                  prediction: JSON.stringify(prediction),
                 });
 
-              tf.dispose(imageTensor);
+                console.log(
+                  'Prediction took ' +
+                    (performance.now() - detectionTime) +
+                    ' milliseconds.',
+                );
+              });
             } else {
-              tf.dispose(imageTensor);
+              this.setState({
+                message: 'Not enough light',
+                prediction: '',
+              });
             }
-          });
+          }
+
+          tf.dispose(imageTensor);
+        });
 
         updatePreview();
         gl.endFrameEXP();
@@ -215,6 +213,7 @@ export default class RealTime extends React.Component {
       <View style={{width: '100%'}}>
         <View style={styles.sectionContainer}>
           <Button onPress={'this.props.returnToMain'} title="Back" />
+          <Text>{this.state.message}</Text>
           <Text>{this.state.prediction}</Text>
         </View>
         {isLoading ? (

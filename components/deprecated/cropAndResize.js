@@ -132,3 +132,24 @@ export function cropAndResizeForDetectorSquare(
     )
     .reshape([IMAGE_SIZE, IMAGE_SIZE, 3]);
 }
+
+// const leftEye = face.landmarks[LEFT_EYE];
+//const rightEar = face.landmarks[RIGHT_EAR];
+//const leftEar = face.landmarks[LEFT_EAR];
+// const {topLeft, bottomRight} = face;
+
+// const rightValue =
+//   (rightEye[POINT_X] - rightEar[POINT_X]) /
+//   (bottomRight[POINT_X] - topLeft[POINT_X]);
+
+// const leftValue =
+//   (leftEar[POINT_X] - leftEye[POINT_X]) /
+//   (bottomRight[POINT_X] - topLeft[POINT_X]);
+
+// console.log(rightValue, leftValue);
+
+// const facingFront =
+//   rightValue > MIN_RIGHT_THRESHOLD &&
+//   rightValue < MAX_RIGHT_THRESHOLD &&
+//   leftValue > MIN_LEFT_THRESHOLD &&
+//   leftValue < MAX_LEFT_THRESHOLD;

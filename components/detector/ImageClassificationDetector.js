@@ -6,8 +6,20 @@ import {Camera} from 'expo-camera';
 import * as tf from '@tensorflow/tfjs';
 import {cameraWithTensors} from '@tensorflow/tfjs-react-native';
 
-import {cropRotateAndResizeSquareForDetector} from '../utils/cropAndResize';
+import {cropFaceRotateAndResize} from '../utils/cropAndResize';
 import DetectorTimerConfidence from './DetectorTimerConfidence';
+
+import {
+  POINT_X,
+  POINT_Y,
+  SHAPE_HEIGHT,
+  SHAPE_WIDTH,
+  SHAPE_CHANNELS,
+  RIGHT_EYE,
+  LEFT_EYE,
+  MOUTH,
+  NOSE,
+} from '../utils/constants';
 
 const inputTensorWidth = 180; // 180 144 120
 const inputTensorHeight = 320; // 320 256 214
@@ -20,9 +32,10 @@ const textureDims = {
 };
 
 const AUTORENDER = true;
-const MAX_INCLINATION = 2.8; // in radians
-
+// const MAX_INCLINATION = 2.8; // in radians
+const MIN_BRIGHTNESS = 110;
 const DETECTION_THRESHOLD = 0.09;
+const NOSE_DISTANCE_THRESHOLD = 0.1;
 
 // tslint:disable-next-line: variable-name
 const TensorCamera = cameraWithTensors(Camera);
@@ -34,6 +47,7 @@ export default class ImageClassificationDetector extends React.Component {
 
     this.state = {
       active: false,
+      message: '',
     };
   }
 
@@ -87,24 +101,6 @@ export default class ImageClassificationDetector extends React.Component {
     });
   };
 
-  // TODO enhance this
-  // Add brightness?
-  shouldDetect = (face, imageTensor) => {
-    return true;
-    let rightEye = face.landmarks[0];
-    let leftEye = face.landmarks[1];
-
-    // 28 ms on moto-e5 brightness between 0 and 255
-    // console.log(
-    //   imageTensor.sum().dataSync() / (inputTensorHeight * inputTensorWidth * 3),
-    // );
-
-    return (
-      Math.abs(Math.atan2(rightEye[1] - leftEye[1], rightEye[0] - leftEye[0])) >
-      MAX_INCLINATION
-    );
-  };
-
   /**
    * @param {Object[]} predictions - The raw prediction of the detector.
    * @param {string} predictions[].className - The label of the class detected.
@@ -132,6 +128,61 @@ export default class ImageClassificationDetector extends React.Component {
     console.log('COMPLETADO'); // TODO stop showing something in the ui
   };
 
+  distance(p1, p2, p0) {
+    return (
+      Math.abs(
+        (p2[POINT_X] - p1[POINT_X]) * (p1[POINT_Y] - p0[POINT_Y]) -
+          (p1[POINT_X] - p0[POINT_X]) * (p2[POINT_Y] - p1[POINT_Y]),
+      ) /
+      Math.sqrt(
+        (p2[POINT_X] - p1[POINT_X]) ** 2 + (p2[POINT_Y] - p1[POINT_Y]) ** 2,
+      )
+    );
+  }
+
+  isFrontFace = (face) => {
+    const rightEye = face.landmarks[RIGHT_EYE];
+    const leftEye = face.landmarks[LEFT_EYE];
+    const mouth = face.landmarks[MOUTH];
+    const nose = face.landmarks[NOSE];
+    const {topLeft, bottomRight} = face;
+
+    const eyesCenter = [
+      (rightEye[POINT_X] + leftEye[POINT_X]) * 0.5,
+      (rightEye[POINT_Y] + leftEye[POINT_Y]) * 0.5,
+    ];
+
+    const facingFront =
+      this.distance(eyesCenter, mouth, nose) /
+        (bottomRight[POINT_X] - topLeft[POINT_X]) <
+      NOSE_DISTANCE_THRESHOLD;
+
+    if (!facingFront) {
+      this.setState({
+        message: 'La cara debe de estar de frente a la camara',
+      });
+    }
+
+    return facingFront;
+  };
+
+  hasEnoughBrightness = (cropped) => {
+    // value between 0 and 255
+    const enough =
+      (cropped.sum().dataSync() / cropped.shape[SHAPE_HEIGHT]) *
+        cropped.shape[SHAPE_WIDTH] *
+        cropped.shape[SHAPE_CHANNELS] >
+      MIN_BRIGHTNESS;
+
+    if (!enough) {
+      this.setState({
+        message: 'No hay suficiente luz',
+      });
+    }
+
+    return true; //enough;
+  };
+
   detectFaces = (imageTensor) => {
     return this.props.faceDetector.estimateFaces(
       imageTensor,
@@ -154,21 +205,20 @@ export default class ImageClassificationDetector extends React.Component {
         const imageTensor = images.next().value;
 
         this.detectFaces(imageTensor).then(async (faces) => {
-          if (faces.length > 0 && this.shouldDetect(faces[0], imageTensor)) {
+          if (faces.length > 0 && this.isFrontFace(faces[0])) {
             updatePreview();
             gl.endFrameEXP();
 
-            const cropped = cropRotateAndResizeSquareForDetector(
-              imageTensor,
-              faces[0],
-            );
+            const cropped = cropFaceRotateAndResize(imageTensor, faces[0]);
 
-            this.classify(cropped).then((prediction) => {
-              updatePreview();
-              gl.endFrameEXP();
+            if (this.hasEnoughBrightness(cropped)) {
+              this.classify(cropped).then((prediction) => {
+                updatePreview();
+                gl.endFrameEXP();
 
-              this.detect(prediction);
-            });
+                this.detect(prediction);
+              });
+            }
           }
 
           tf.dispose(imageTensor);
@@ -188,6 +238,7 @@ export default class ImageClassificationDetector extends React.Component {
     return (
       <View>
         <Text>{this.props.currentStep.label}</Text>
+        <Text>{this.state.message}</Text>
         <View style={styles.cameraContainer}>
           <TensorCamera
             type={CAMERA_TYPE}
