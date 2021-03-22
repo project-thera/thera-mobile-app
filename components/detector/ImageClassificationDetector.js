@@ -106,6 +106,10 @@ export default class ImageClassificationDetector extends React.Component {
    * @param {float} predictions[].probability - The probability of the class.
    */
   detect = (predictions) => {
+    this.setState({
+      message: JSON.stringify(predictions),
+    });
+
     this.detectorTimerConfidence.update(
       predictions[0].className === this.props.currentStep.label &&
         predictions[0].probability > DETECTION_THRESHOLD,
