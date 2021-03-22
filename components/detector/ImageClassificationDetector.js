@@ -32,7 +32,6 @@ const textureDims = {
 };
 
 const AUTORENDER = true;
-// const MAX_INCLINATION = 2.8; // in radians
 const MIN_BRIGHTNESS = 110;
 const DETECTION_THRESHOLD = 0.09;
 const NOSE_DISTANCE_THRESHOLD = 0.1;
