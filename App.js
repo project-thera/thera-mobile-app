@@ -7,6 +7,8 @@
  */
 
 import React from 'react';
+import './dev.config';
+
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 
 import * as eva from '@eva-design/eva';
