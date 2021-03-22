@@ -125,7 +125,7 @@ export default class App extends React.Component {
         steps: [
           {
             time: 1000, // in ms
-            detected: false,
+            detected: true,
           },
         ],
       },
