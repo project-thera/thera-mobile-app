@@ -1,7 +1,10 @@
 import React from 'react';
-import {AppState, View, Text} from 'react-native';
+import {AppState} from 'react-native';
+import {SafeAreaView} from 'react-native-safe-area-context';
 
-import handleAppStateChange from './utils/handleAppStateChange';
+import {Text} from '@ui-kitten/components';
+
+import handleAppStateChange from '../utils/handleAppStateChange';
 
 import Exercise from './Exercise';
 
@@ -61,7 +64,7 @@ export default class Exercises extends React.Component {
     };
 
     return (
-      <View style={{width: '100%'}}>
+      <>
         <Text>
           Ejercicio {this.state.exerciseIndex + 1}/{this.props.exercises.length}
         </Text>
@@ -70,7 +73,7 @@ export default class Exercises extends React.Component {
           onExerciseCompleted={this.onExerciseCompleted}
           ref={(ref) => (this.currentExercise = ref)}
         />
-      </View>
+      </>
     );
   }
 }

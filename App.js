@@ -7,36 +7,25 @@
  */
 
 import React from 'react';
-import {
-  SafeAreaView,
-  StyleSheet,
-  ScrollView,
-  View,
-  Text,
-  StatusBar,
-  Fragment,
-} from 'react-native';
+import {SafeAreaProvider} from 'react-native-safe-area-context';
+
+import * as eva from '@eva-design/eva';
+import {ApplicationProvider, IconRegistry} from '@ui-kitten/components';
+import {EvaIconsPack} from '@ui-kitten/eva-icons';
+import {AppNavigator} from './src/navigation/navigation';
+// Use https://colors.eva.design/?utm_campaign=eva_colors%20-%20home%20-%20kitten_docs&utm_source=ui_kitten&utm_medium=referral&utm_content=branding_article_link
+// Export as json
+import {default as theme} from './src/themes/custom-theme.json';
 
 import * as Permissions from 'expo-permissions';
-
 import * as tf from '@tensorflow/tfjs';
 import '@tensorflow/tfjs-react-native';
 import {bundleResourceIO} from '@tensorflow/tfjs-react-native';
-
-import * as mobilenet from './components/utils/Mobilenet';
-const modelJson = require('./models/model.json');
-const modelWeights = [
-  require('./models/group1-shard1of1.bin'),
-  //  require('./models/group1-shard2of2.bin'),
-];
-
+import * as mobilenet from './src/components/utils/Mobilenet';
 import * as blazeface from '@tensorflow-models/blazeface';
 
-// import Exercises from './components/ImageClassificationStandalone';
-// import Exercises from './components/ImageClassificationTestStandalone';
-// import RealTime from './components/BlowDetectorStandalone';
-// import RealTime from './components/SpeechRecognitionStandalone';
-import Exercises from './components/Exercises';
+const modelJson = require('./src/models/model.json');
+const modelWeights = require('./src/models/group1-shard1of1.bin');
 
 const BACKEND_TO_USE = 'rn-webgl';
 
@@ -45,8 +34,7 @@ export default class App extends React.Component {
     super(props);
 
     this.state = {
-      loading: true,
-      currentScreen: 'exercises',
+      hasPermissions: false,
     };
   }
 
@@ -59,152 +47,54 @@ export default class App extends React.Component {
     this.setState({hasPermissions: status === 'granted'});
   };
 
-  loadDetectors = async () => {
-    const [faceDetector, mobilenetDetector] = await Promise.all([
-      blazeface.load({
+  loadDetectors = () => {
+    mobilenet
+      .load({
+        modelUrl: bundleResourceIO(modelJson, modelWeights),
+        version: 2.0,
+        alpha: 1.0,
+        inputRange: [0, 1],
+      })
+      .then((mobilenetDetector) => {
+        this.setState({
+          mobilenetDetector,
+        });
+      });
+
+    blazeface
+      .load({
         maxFaces: 1,
         inputWidth: 128,
         inputHeight: 128,
         iouThreshold: 0.3,
         scoreThreshold: 0.99,
-      }),
-      mobilenet.load({
-        modelUrl: await bundleResourceIO(modelJson, modelWeights),
-        version: 2.0,
-        alpha: 1.0,
-        inputRange: [0, 1],
-      }),
-    ]);
-
-    this.setState({
-      loading: false,
-      faceDetector,
-      mobilenetDetector,
-    });
+      })
+      .then((faceDetector) => {
+        this.setState({
+          faceDetector,
+        });
+      });
   };
 
   async componentDidMount() {
-    await tf.setBackend(BACKEND_TO_USE);
+    tf.setBackend(BACKEND_TO_USE);
     await tf.ready();
 
-    this.askForPermissions();
     this.loadDetectors();
-  }
-
-  renderRealTime() {
-    return <RealTime />;
-  }
-
-  renderExercises() {
-    const {faceDetector, mobilenetDetector} = this.state;
-
-    const exercises = [
-      {
-        type: 'classification',
-        steps: [
-          {
-            time: 1000, // in ms
-            label: 'lengua afuera',
-          },
-          {
-            time: 1000, // in ms
-            label: 'boca cerrada',
-          },
-        ],
-      },
-      {
-        type: 'speech',
-        steps: [
-          {
-            sentence: 'perro',
-          },
-        ],
-      },
-      {
-        type: 'blow',
-        steps: [
-          {
-            time: 1000, // in ms
-            detected: true,
-          },
-        ],
-      },
-      {
-        type: 'classification',
-        steps: [
-          {
-            time: 1000, // in ms
-            label: 'boca cerrada',
-          },
-          {
-            time: 1000, // in ms
-            label: 'lengua afuera',
-          },
-        ],
-      },
-    ];
-
-    return (
-      <Exercises
-        exercises={exercises}
-        faceDetector={faceDetector}
-        mobilenetDetector={mobilenetDetector}
-      />
-    );
-  }
-
-  renderLoading() {
-    return (
-      <View style={styles.sectionContainer}>
-        <Text style={styles.sectionTitle}>Loading</Text>
-      </View>
-    );
-  }
-
-  renderContent() {
-    const {loading, currentScreen} = this.state;
-
-    if (!loading) {
-      switch (currentScreen) {
-        case 'realtime':
-          return this.renderRealTime();
-        case 'exercises':
-          return this.renderExercises();
-        default:
-          return this.renderRealTime();
-      }
-    } else {
-      return this.renderLoading();
-    }
+    this.askForPermissions();
   }
 
   render() {
     return (
-      <View>
-        <Text>App</Text>
-        <SafeAreaView>
-          <View style={styles.body}>{this.renderContent()}</View>
-        </SafeAreaView>
-      </View>
+      <SafeAreaProvider>
+        <IconRegistry icons={EvaIconsPack} />
+        <ApplicationProvider {...eva} theme={{...eva.light, ...theme}}>
+          <AppNavigator
+            faceDetector={this.state.faceDetector}
+            mobilenetDetector={this.state.mobilenetDetector}
+          />
+        </ApplicationProvider>
+      </SafeAreaProvider>
     );
   }
 }
-
-const styles = StyleSheet.create({
-  scrollView: {
-    backgroundColor: 'white',
-  },
-  body: {
-    backgroundColor: 'white',
-  },
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-    color: 'black',
-    marginBottom: 6,
-  },
-});

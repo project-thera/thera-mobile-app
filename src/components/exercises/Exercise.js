@@ -1,9 +1,10 @@
 import React from 'react';
-import {View, Text} from 'react-native';
+import {SafeAreaView} from 'react-native-safe-area-context';
+import {Text} from '@ui-kitten/components';
 
-import ImageClassificationDetector from './detector/ImageClassificationDetector';
-import BlowDetector from './detector/BlowDetector';
-import SpeechRecognitionDetector from './detector/SpeechRecognitionDetector';
+import ImageClassificationDetector from '../detector/ImageClassificationDetector';
+import BlowDetector from '../detector/BlowDetector';
+import SpeechRecognitionDetector from '../detector/SpeechRecognitionDetector';
 
 export default class Exercise extends React.Component {
   constructor(props) {
@@ -117,12 +118,12 @@ export default class Exercise extends React.Component {
 
   render() {
     return (
-      <View>
+      <>
         <Text>
           Paso {this.state.stepIndex + 1}/{this.props.steps.length}
         </Text>
         {this.renderContent()}
-      </View>
+      </>
     );
   }
 }

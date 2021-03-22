@@ -1,0 +1,7 @@
+{
+  "files.exclude": {
+    "**/__*__": true,
+    ".gradle": true,
+    "ios": true
+  },
+}

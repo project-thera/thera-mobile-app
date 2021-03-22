@@ -22,11 +22,11 @@ import {
   bundleResourceIO,
 } from '@tensorflow/tfjs-react-native';
 
-import * as mobilenet from './utils/Mobilenet';
-import {cropFaceRotateAndResize} from './utils/cropAndResize';
-import encodeJpeg from './utils/encodeJpeg';
+import * as mobilenet from '../utils/Mobilenet';
+import {cropFaceRotateAndResize} from '../utils/cropAndResize';
+import encodeJpeg from '../utils/encodeJpeg';
 
-const modelJson = require('../models/model.json');
+const modelJson = require('../../models/model.json');
 const modelWeights = [
   require('../models/group1-shard1of1.bin'),
   //  require('../models/group1-shard2of2.bin'),

@@ -1,5 +1,7 @@
 import React from 'react';
-import {View, Text, StyleSheet} from 'react-native';
+import {View, StyleSheet} from 'react-native';
+
+import {Text} from '@ui-kitten/components';
 
 import {Camera} from 'expo-camera';
 
@@ -179,10 +181,18 @@ export default class ImageClassificationDetector extends React.Component {
   hasEnoughBrightness = (cropped) => {
     // value between 0 and 255
     const enough =
-      (cropped.sum().dataSync() / cropped.shape[SHAPE_HEIGHT]) *
-        cropped.shape[SHAPE_WIDTH] *
-        cropped.shape[SHAPE_CHANNELS] >
+      cropped.sum().dataSync() /
+        (cropped.shape[SHAPE_HEIGHT] *
+          cropped.shape[SHAPE_WIDTH] *
+          cropped.shape[SHAPE_CHANNELS]) >
       MIN_BRIGHTNESS;
+
+    console.log(
+      cropped.sum().dataSync() /
+        (cropped.shape[SHAPE_HEIGHT] *
+          cropped.shape[SHAPE_WIDTH] *
+          cropped.shape[SHAPE_CHANNELS]),
+    );
 
     if (!enough) {
       this.setState({
@@ -244,69 +254,62 @@ export default class ImageClassificationDetector extends React.Component {
     loop();
   };
 
+  detectorsLoaded = () => {
+    return this.props.faceDetector && this.props.mobilenetDetector;
+  };
+
   render() {
-    return (
-      <View>
-        <Text>{this.props.currentStep.label}</Text>
-        <Text>{this.state.message}</Text>
-        <View style={styles.cameraContainer}>
-          <TensorCamera
-            type={CAMERA_TYPE}
-            zoom={0}
-            ratio={RATIO}
-            style={styles.camera}
-            // onCameraReady={this.setTextureDims}
-            // tensor related props
-            cameraTextureHeight={textureDims.height}
-            cameraTextureWidth={textureDims.width}
-            resizeHeight={inputTensorHeight}
-            resizeWidth={inputTensorWidth}
-            resizeDepth={3}
-            onReady={this.handleImageTensorReady}
-            autorender={AUTORENDER}
-          />
+    if (this.detectorsLoaded()) {
+      return (
+        <View>
+          <Text>{this.props.currentStep.label}</Text>
+          <Text>{this.state.message}</Text>
+          <View style={styles.cameraContainer}>
+            <TensorCamera
+              type={CAMERA_TYPE}
+              zoom={0}
+              ratio={RATIO}
+              style={styles.camera}
+              // onCameraReady={this.setTextureDims}
+              // tensor related props
+              cameraTextureHeight={textureDims.height}
+              cameraTextureWidth={textureDims.width}
+              resizeHeight={inputTensorHeight}
+              resizeWidth={inputTensorWidth}
+              resizeDepth={3}
+              onReady={this.handleImageTensorReady}
+              autorender={AUTORENDER}
+            />
+          </View>
         </View>
-      </View>
-    );
+      );
+    } else {
+      return <Text>Cargando</Text>;
+    }
   }
 }
 
 const styles = StyleSheet.create({
   loadingIndicator: {
-    position: 'absolute',
-    top: 20,
-    right: 20,
-    zIndex: 200,
-  },
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
+    // position: 'absolute',
+    // top: 20,
+    // right: 20,
+    // zIndex: 200,
   },
   cameraContainer: {
     display: 'flex',
-    flexDirection: 'column',
+    flexDirection: 'row',
     justifyContent: 'center',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     width: '100%',
     height: '100%',
     backgroundColor: '#fff',
   },
   camera: {
-    position: 'absolute',
-    left: 50,
-    top: 100,
-    width: 600 / 2,
-    height: 800 / 2,
+    position: 'relative',
+    width: '100%', // textureDims.height / 2.5
+    height: textureDims.width / 2.5,
     zIndex: 1,
-    borderWidth: 1,
-    borderColor: 'black',
-    borderRadius: 0,
-  },
-  modelResults: {
-    position: 'absolute',
-    left: 0,
-    top: 0,
-    zIndex: 20,
     borderWidth: 1,
     borderColor: 'black',
     borderRadius: 0,
