@@ -26,12 +26,13 @@ export default class DetectorTimer {
   updateCounter() {
     this.elapsedTime += performance.now() - this.startTime;
 
-    console.log(this.elapsedTime);
-
     this.startTime = performance.now();
   }
 
   getProgress() {
-    return Math.min((100.0 / this.time) * this.elapsedTime, 100.0);
+    return {
+      progress: Math.min((100.0 / this.time) * this.elapsedTime, 100.0),
+      remainingTime: Math.max(this.time - this.elapsedTime, 0),
+    };
   }
 }

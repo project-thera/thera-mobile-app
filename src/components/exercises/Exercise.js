@@ -1,10 +1,12 @@
 import React from 'react';
+import {StyleSheet, View} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {Text} from '@ui-kitten/components';
+import {Circle} from 'react-native-progress';
 
-import ImageClassificationDetector from '../detector/ImageClassificationDetector';
-import BlowDetector from '../detector/BlowDetector';
-import SpeechRecognitionDetector from '../detector/SpeechRecognitionDetector';
+import ImageClassificationDetector from '../detectors/ImageClassificationDetector';
+import BlowDetector from '../detectors/BlowDetector';
+import SpeechRecognitionDetector from '../detectors/SpeechRecognitionDetector';
 
 export default class Exercise extends React.Component {
   constructor(props) {
@@ -12,57 +14,58 @@ export default class Exercise extends React.Component {
 
     this.state = {
       stepIndex: 0,
+      stepProgress: 0,
+      remainingTime: this.props.steps[0].time,
     };
   }
 
   start() {
-    console.log('EXERCISE DETECTOR START');
-
     this.detector.start();
   }
 
   stop() {
-    console.log('EXERCISE DETECTOR STOP');
-
     this.detector.stop();
   }
 
   pause() {
-    console.log('EXERCISE DETECTOR PAUSE');
-
     this.detector.pause();
   }
 
   resume() {
-    console.log('EXERCISE DETECTOR RESUME');
-
     this.detector.resume();
   }
 
-  onProgress = (percentage) => {
-    console.log(`PROGRESS ${percentage}`); // TODO show something in the ui
+  onProgress = ({progress, remainingTime}) => {
+    this.setState({
+      stepProgress: progress / 100,
+      remainingTime,
+    });
   };
 
   onStoppedDetection = () => {
-    console.log('NOT DETECTING'); // TODO stop showing something in the ui
+    this.setState({
+      stepProgress: 0,
+      remainingTime: 0,
+    });
+    // console.log('NOT DETECTING'); // TODO stop showing something in the ui
   };
 
   onStepCompleted = () => {
     if (this.state.stepIndex + 1 >= this.props.steps.length) {
-      console.log('EXERCISE COMPLETE');
-
       // Do this before onExerciseCompleted otherwise currentStep could have a old value of stepIndex
       this.setState({
         stepIndex: 0,
+        remainingTime: this.props.steps[0].time,
+        stepProgress: 0,
       });
 
       this.props.onExerciseCompleted();
     } else {
       this.setState({
         stepIndex: this.state.stepIndex + 1,
+        stepProgress: 0,
+        remainingTime: this.props.steps[this.state.stepIndex].time,
       });
-
-      console.log('UPDATE STEP');
     }
   };
 
@@ -85,8 +88,7 @@ export default class Exercise extends React.Component {
     return (
       <ImageClassificationDetector
         ref={(ref) => (this.detector = ref)}
-        {...{faceDetector, mobilenetDetector}}
-        currentStep={currentStep}
+        {...{faceDetector, mobilenetDetector, currentStep}}
         onStepCompleted={this.onStepCompleted}
         onProgress={this.onProgress}
         onStoppedDetection={this.onStoppedDetection}
@@ -116,14 +118,47 @@ export default class Exercise extends React.Component {
     );
   }
 
+  formatProgress = (_) => {
+    return `${(this.state.remainingTime / 1000).toFixed(3)}`;
+  };
+
   render() {
     return (
       <>
-        <Text>
+        {/* <Text>
           Paso {this.state.stepIndex + 1}/{this.props.steps.length}
-        </Text>
+        </Text> */}
         {this.renderContent()}
+        <SafeAreaView style={styles.floating}>
+          <Circle
+            size={75}
+            borderWidth={1}
+            thickness={10}
+            showsText={true}
+            formatText={this.formatProgress}
+            strokeCap="butt"
+            progress={
+              (this.state.stepIndex + this.state.stepProgress) /
+              this.props.steps.length
+            }
+          />
+        </SafeAreaView>
       </>
     );
   }
 }
+
+const styles = StyleSheet.create({
+  floating: {
+    position: 'absolute',
+    zIndex: 1,
+    flex: 1,
+    width: '100%',
+    height: '100%',
+    alignContent: 'center',
+    alignItems: 'flex-end',
+    justifyContent: 'flex-end',
+    paddingBottom: 20,
+    paddingRight: 20,
+  },
+});

@@ -38,49 +38,42 @@ export default class SpeechRecognition extends React.Component {
   }
 
   onSpeechStart(e) {
-    console.log('onSpeechStart: ', e);
     this.setState({
       started: '√',
     });
   }
 
   onSpeechRecognized(e) {
-    console.log('onSpeechRecognized: ', e);
     this.setState({
       recognized: '√',
     });
   }
 
   onSpeechEnd(e) {
-    console.log('onSpeechEnd: ', e);
     this.setState({
       end: '√',
     });
   }
 
   onSpeechError(e) {
-    console.log('onSpeechError: ', e);
     this.setState({
       error: JSON.stringify(e.error),
     });
   }
 
   onSpeechResults(e) {
-    console.log('onSpeechResults: ', e);
     this.setState({
       results: e.value,
     });
   }
 
   onSpeechPartialResults(e) {
-    console.log('onSpeechPartialResults: ', e);
     this.setState({
       partialResults: e.value,
     });
   }
 
   onSpeechVolumeChanged(e) {
-    console.log('onSpeechVolumeChanged: ', e);
     this.setState({
       pitch: e.value,
     });

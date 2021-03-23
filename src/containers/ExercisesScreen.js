@@ -10,22 +10,35 @@ import {
   Icon,
 } from '@ui-kitten/components';
 
-import Exercises from '../components/exercises/Exercises';
+import Exercises from '../components/exercises/ExerciseList';
 
 const BackIcon = (props) => <Icon {...props} name="arrow-back" />;
 
 export default class App extends React.Component {
+  constructor(props) {
+    super(props);
+  }
+
   getExercises() {
     return [
+      {
+        type: 'blow',
+        steps: [
+          {
+            time: 1000,
+            detected: false,
+          },
+        ],
+      },
       {
         type: 'classification',
         steps: [
           {
-            time: 1000, // in ms
+            time: 1000,
             label: 'lengua afuera',
           },
           {
-            time: 1000, // in ms
+            time: 1000,
             label: 'boca cerrada',
           },
         ],
@@ -35,15 +48,6 @@ export default class App extends React.Component {
         steps: [
           {
             sentence: 'perro',
-          },
-        ],
-      },
-      {
-        type: 'blow',
-        steps: [
-          {
-            time: 1000, // in ms
-            detected: true,
           },
         ],
       },
@@ -63,21 +67,21 @@ export default class App extends React.Component {
     ];
   }
 
+  navigateBack = () => {
+    this.props.navigation.goBack(); // navigate('home');
+  };
+
   render() {
     const {faceDetector, mobilenetDetector} = this.props;
 
-    const navigateBack = () => {
-      this.navigation.goBack();
-    };
-
     const BackAction = () => (
-      <TopNavigationAction icon={BackIcon} onPress={navigateBack} />
+      <TopNavigationAction icon={BackIcon} onPress={this.navigateBack} />
     );
 
     return (
       <SafeAreaView style={{flex: 1}}>
         <TopNavigation
-          title="MyApp"
+          title="Ejercicios"
           alignment="center"
           accessoryLeft={BackAction}
         />
@@ -86,7 +90,8 @@ export default class App extends React.Component {
           style={{
             flex: 1,
             justifyContent: 'flex-start',
-            alignItems: 'flex-start',
+            alignItems: 'stretch',
+            flexDirection: 'column',
           }}>
           <Exercises
             exercises={this.getExercises()}

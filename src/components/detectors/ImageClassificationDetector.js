@@ -35,7 +35,7 @@ const textureDims = {
 
 const AUTORENDER = true;
 const MIN_BRIGHTNESS = 110;
-const DETECTION_THRESHOLD = 0.09;
+const DETECTION_THRESHOLD = 0.11;
 const NOSE_DISTANCE_THRESHOLD = 0.1;
 
 // tslint:disable-next-line: variable-name
@@ -120,17 +120,14 @@ export default class ImageClassificationDetector extends React.Component {
 
   onProgress = (percentage) => {
     this.props.onProgress(percentage);
-    console.log(`PROGRESS ${percentage}`); // TODO show something in the ui
   };
 
   onStoppedDetection = () => {
     this.props.onStoppedDetection();
-    console.log('NOT DETECTING'); // TODO stop showing something in the ui
   };
 
   onCompleted = () => {
     this.props.onStepCompleted();
-    console.log('COMPLETADO'); // TODO stop showing something in the ui
   };
 
   /**
@@ -178,6 +175,10 @@ export default class ImageClassificationDetector extends React.Component {
     return facingFront;
   };
 
+  ucfirst(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+  }
+
   hasEnoughBrightness = (cropped) => {
     // value between 0 and 255
     const enough =
@@ -186,13 +187,6 @@ export default class ImageClassificationDetector extends React.Component {
           cropped.shape[SHAPE_WIDTH] *
           cropped.shape[SHAPE_CHANNELS]) >
       MIN_BRIGHTNESS;
-
-    console.log(
-      cropped.sum().dataSync() /
-        (cropped.shape[SHAPE_HEIGHT] *
-          cropped.shape[SHAPE_WIDTH] *
-          cropped.shape[SHAPE_CHANNELS]),
-    );
 
     if (!enough) {
       this.setState({
@@ -261,9 +255,13 @@ export default class ImageClassificationDetector extends React.Component {
   render() {
     if (this.detectorsLoaded()) {
       return (
-        <View>
-          <Text>{this.props.currentStep.label}</Text>
-          <Text>{this.state.message}</Text>
+        <>
+          <Text category="h3" style={styles.centerText}>
+            {this.ucfirst(this.props.currentStep.label)}
+          </Text>
+          <Text status="danger" style={styles.centerText}>
+            {this.state.message}
+          </Text>
           <View style={styles.cameraContainer}>
             <TensorCamera
               type={CAMERA_TYPE}
@@ -281,7 +279,7 @@ export default class ImageClassificationDetector extends React.Component {
               autorender={AUTORENDER}
             />
           </View>
-        </View>
+        </>
       );
     } else {
       return <Text>Cargando</Text>;
@@ -295,6 +293,9 @@ const styles = StyleSheet.create({
     // top: 20,
     // right: 20,
     // zIndex: 200,
+  },
+  centerText: {
+    textAlign: 'center',
   },
   cameraContainer: {
     display: 'flex',

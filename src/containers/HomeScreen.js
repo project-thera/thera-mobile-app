@@ -8,13 +8,13 @@ export default class HomeScreen extends React.Component {
   }
 
   navigateExercises = () => {
-    this.props.navigation.navigate('Exercises');
+    this.props.navigation.navigate('exercises');
   };
 
   render() {
     return (
       <SafeAreaView style={{flex: 1}}>
-        <TopNavigation title="MyApp" alignment="center" />
+        <TopNavigation title="Thera Project" alignment="center" />
         <Divider />
         <Layout
           style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>

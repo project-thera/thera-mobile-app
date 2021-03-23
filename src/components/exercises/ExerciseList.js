@@ -1,14 +1,16 @@
 import React from 'react';
-import {AppState} from 'react-native';
+import {AppState, View} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 
-import {Text} from '@ui-kitten/components';
+import {Bar} from 'react-native-progress';
+
+import {withStyles} from '@ui-kitten/components';
 
 import handleAppStateChange from '../utils/handleAppStateChange';
 
 import Exercise from './Exercise';
 
-export default class Exercises extends React.Component {
+class ExerciseList extends React.Component {
   constructor(props) {
     super(props);
 
@@ -65,9 +67,22 @@ export default class Exercises extends React.Component {
 
     return (
       <>
-        <Text>
+        {/* <Text>
           Ejercicio {this.state.exerciseIndex + 1}/{this.props.exercises.length}
-        </Text>
+        </Text> */}
+        <Bar
+          progress={this.state.exerciseIndex / this.props.exercises.length}
+          animationConfig={{speed: 5, bounciness: 10}}
+          animationType={'spring'}
+          width={null}
+          height={15}
+          useNativeDriver={true}
+          borderWidth={0}
+          borderRadius={100}
+          style={{margin: 25}}
+          color={this.props.eva.theme['color-primary-default']}
+          unfilledColor="#d6d6d6"
+        />
         <Exercise
           {...exerciseProps}
           onExerciseCompleted={this.onExerciseCompleted}
@@ -77,3 +92,5 @@ export default class Exercises extends React.Component {
     );
   }
 }
+
+export default withStyles(ExerciseList);

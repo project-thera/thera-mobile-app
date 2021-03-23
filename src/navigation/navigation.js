@@ -8,11 +8,13 @@ import ExercisesScreen from '../containers/ExercisesScreen';
 
 const {Navigator, Screen} = createStackNavigator();
 
-const HomeNavigator = (props) => {
+const HomeNavigator = (parentProps) => {
   return (
     <Navigator headerMode="none">
-      <Screen name="Home" component={HomeScreen} {...props} />
-      <Screen name="Exercises">{(_) => <ExercisesScreen {...props} />}</Screen>
+      <Screen name="home" component={HomeScreen} />
+      <Screen name="exercises">
+        {(props) => <ExercisesScreen {...props} {...parentProps} />}
+      </Screen>
     </Navigator>
   );
 };

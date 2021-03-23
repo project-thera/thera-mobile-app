@@ -1,5 +1,7 @@
 import React from 'react';
-import {View, Text} from 'react-native';
+import {View, StyleSheet} from 'react-native';
+
+import {Text} from '@ui-kitten/components';
 
 import Recording from 'react-native-recording';
 import {amplitudeSpectrum} from 'fftjs-supplements';
@@ -56,23 +58,18 @@ export default class BlowDetector extends React.Component {
     // this.listener.remove();
   }
 
-  onProgress = (percentage) => {
-    this.props.onProgress(percentage);
-
-    this.setState({
-      progress: percentage,
-    });
-    console.log(`PROGRESS ${percentage}`); // TODO show something in the ui
+  onProgress = (data) => {
+    this.props.onProgress(data);
   };
 
   onStoppedDetection = () => {
     this.props.onStoppedDetection();
-    console.log('NOT DETECTING'); // TODO stop showing something in the ui
+    // console.log('NOT DETECTING'); // TODO stop showing something in the ui
   };
 
   onCompleted = () => {
     this.props.onStepCompleted();
-    console.log('COMPLETADO'); // TODO stop showing something in the ui
+    // console.log('COMPLETADO'); // TODO stop showing something in the ui
   };
 
   start = () => {
@@ -137,14 +134,27 @@ export default class BlowDetector extends React.Component {
 
   render() {
     return (
-      <View style={{width: '100%'}}>
-        <View>
-          <Text>
-            {this.props.currentStep.detected ? 'Sin soplar' : 'Soplar'}
-          </Text>
-          <Text>detected: {this.state.progress}</Text>
-        </View>
+      <View style={styles.flex}>
+        <Text category="h1" style={styles.centerText}>
+          {this.props.currentStep.detected
+            ? 'Sopla durante'
+            : 'Deja de soplar durante'}
+        </Text>
+        <Text category="h2" style={styles.centerText}>
+          {`${this.props.currentStep.time / 1000} segundo`}
+        </Text>
       </View>
     );
   }
 }
+
+const styles = StyleSheet.create({
+  flex: {
+    flex: 1,
+    justifyContent: 'center',
+    flexDirection: 'column',
+  },
+  centerText: {
+    textAlign: 'center',
+  },
+});
