@@ -1,6 +1,7 @@
 import React from 'react';
-import {AppState, View} from 'react-native';
-import {SafeAreaView} from 'react-native-safe-area-context';
+import {AppState} from 'react-native';
+
+import {View as AnimatableView} from 'react-native-animatable';
 
 import {Bar} from 'react-native-progress';
 
@@ -70,19 +71,24 @@ class ExerciseList extends React.Component {
         {/* <Text>
           Ejercicio {this.state.exerciseIndex + 1}/{this.props.exercises.length}
         </Text> */}
-        <Bar
-          progress={this.state.exerciseIndex / this.props.exercises.length}
-          animationConfig={{speed: 5, bounciness: 10}}
-          animationType={'spring'}
-          width={null}
-          height={15}
-          useNativeDriver={true}
-          borderWidth={0}
-          borderRadius={100}
-          style={{margin: 25}}
-          color={this.props.eva.theme['color-primary-default']}
-          unfilledColor="#d6d6d6"
-        />
+        <AnimatableView
+          animation="zoomIn"
+          duration={1000}
+          useNativeDriver={true}>
+          <Bar
+            progress={this.state.exerciseIndex / this.props.exercises.length}
+            animationConfig={{speed: 5, bounciness: 10}}
+            animationType={'spring'}
+            width={null}
+            height={15}
+            useNativeDriver={true}
+            borderWidth={0}
+            borderRadius={100}
+            style={{margin: 25}}
+            color={this.props.eva.theme['color-primary-default']}
+            unfilledColor="#d6d6d6"
+          />
+        </AnimatableView>
         <Exercise
           {...exerciseProps}
           onExerciseCompleted={this.onExerciseCompleted}

@@ -142,7 +142,11 @@ export default class Exercise extends React.Component {
         </Text> */}
         {this.renderContent()}
         <SafeAreaView style={styles.floating}>
-          <AnimatableView ref={(ref) => (this.progressView = ref)}>
+          <AnimatableView
+            animation="bounceInRight"
+            duration={500}
+            useNativeDriver={true}
+            ref={(ref) => (this.progressView = ref)}>
             <Circle
               size={75}
               borderWidth={1}
