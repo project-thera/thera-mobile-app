@@ -64,12 +64,10 @@ export default class BlowDetector extends React.Component {
 
   onStoppedDetection = () => {
     this.props.onStoppedDetection();
-    // console.log('NOT DETECTING'); // TODO stop showing something in the ui
   };
 
   onCompleted = () => {
     this.props.onStepCompleted();
-    // console.log('COMPLETADO'); // TODO stop showing something in the ui
   };
 
   start = () => {
@@ -88,11 +86,16 @@ export default class BlowDetector extends React.Component {
   };
 
   resume = () => {
+    this.listener = Recording.addRecordingEventListener(
+      this._handleRecordingEvent,
+    );
+
     Recording.start();
   };
 
   pause = () => {
     Recording.stop();
+    this.listener.remove();
   };
 
   // Call stop on component did unmount?

@@ -35,11 +35,11 @@ export default class App extends React.Component {
         steps: [
           {
             time: 1000,
-            label: 'lengua afuera',
+            label: 'boca cerrada',
           },
           {
             time: 1000,
-            label: 'boca cerrada',
+            label: 'inflar cachetes',
           },
         ],
       },

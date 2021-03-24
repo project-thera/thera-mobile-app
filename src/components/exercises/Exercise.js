@@ -2,11 +2,15 @@ import React from 'react';
 import {StyleSheet, View} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {Text} from '@ui-kitten/components';
-import {Circle} from 'react-native-progress';
+import {Circle, CircleSnail} from 'react-native-progress';
+
+import {View as AnimatableView} from 'react-native-animatable';
 
 import ImageClassificationDetector from '../detectors/ImageClassificationDetector';
 import BlowDetector from '../detectors/BlowDetector';
 import SpeechRecognitionDetector from '../detectors/SpeechRecognitionDetector';
+
+const STEP_ANIMATION_TIME = 500;
 
 export default class Exercise extends React.Component {
   constructor(props) {
@@ -50,22 +54,30 @@ export default class Exercise extends React.Component {
     // console.log('NOT DETECTING'); // TODO stop showing something in the ui
   };
 
-  onStepCompleted = () => {
-    if (this.state.stepIndex + 1 >= this.props.steps.length) {
-      // Do this before onExerciseCompleted otherwise currentStep could have a old value of stepIndex
-      this.setState({
-        stepIndex: 0,
-        remainingTime: this.props.steps[0].time,
-        stepProgress: 0,
-      });
+  onStepCompleted = async () => {
+    this.pause();
 
-      this.props.onExerciseCompleted();
-    } else {
-      this.setState({
-        stepIndex: this.state.stepIndex + 1,
-        stepProgress: 0,
-        remainingTime: this.props.steps[this.state.stepIndex].time,
-      });
+    let result = await this.progressView.bounce(STEP_ANIMATION_TIME);
+
+    if (result.finished) {
+      if (this.state.stepIndex + 1 >= this.props.steps.length) {
+        // Do this before onExerciseCompleted otherwise currentStep could have a old value of stepIndex
+        this.setState({
+          stepIndex: 0,
+          remainingTime: this.props.steps[0].time,
+          stepProgress: 0,
+        });
+
+        this.props.onExerciseCompleted();
+      } else {
+        this.setState({
+          stepIndex: this.state.stepIndex + 1,
+          stepProgress: 0,
+          remainingTime: this.props.steps[this.state.stepIndex + 1].time,
+        });
+
+        this.resume();
+      }
     }
   };
 
@@ -130,18 +142,22 @@ export default class Exercise extends React.Component {
         </Text> */}
         {this.renderContent()}
         <SafeAreaView style={styles.floating}>
-          <Circle
-            size={75}
-            borderWidth={1}
-            thickness={10}
-            showsText={true}
-            formatText={this.formatProgress}
-            strokeCap="butt"
-            progress={
-              (this.state.stepIndex + this.state.stepProgress) /
-              this.props.steps.length
-            }
-          />
+          <AnimatableView ref={(ref) => (this.progressView = ref)}>
+            <Circle
+              size={75}
+              borderWidth={1}
+              thickness={10}
+              showsText={true}
+              formatText={this.formatProgress}
+              strokeCap="butt"
+              useNativeDriver={true}
+              endAngle={0.9}
+              progress={
+                (this.state.stepIndex + this.state.stepProgress) /
+                this.props.steps.length
+              }
+            />
+          </AnimatableView>
         </SafeAreaView>
       </>
     );

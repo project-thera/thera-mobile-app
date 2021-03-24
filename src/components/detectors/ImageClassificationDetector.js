@@ -23,8 +23,8 @@ import {
   NOSE,
 } from '../utils/constants';
 
-const inputTensorWidth = 180; // 180 144 120
-const inputTensorHeight = 320; // 320 256 214
+const inputTensorWidth = 120; // 180; // 180 144 120
+const inputTensorHeight = 214; // 320; // 320 256 214
 
 const RATIO = '16:9';
 
@@ -50,6 +50,8 @@ export default class ImageClassificationDetector extends React.Component {
       active: false,
       message: '',
     };
+
+    this.time = performance.now();
   }
 
   componentWillUnmount() {
@@ -210,18 +212,28 @@ export default class ImageClassificationDetector extends React.Component {
     return this.props.mobilenetDetector.classify(cropped);
   };
 
+  countTime = (label = 'Tiempo') => {
+    console.log(`${label}: ${performance.now() - this.time}`);
+
+    this.time = performance.now();
+  };
+
   handleImageTensorReady = async (images, updatePreview, gl) => {
     const loop = async () => {
-      if (this.state.active) {
-        updatePreview();
-        gl.endFrameEXP();
+      updatePreview();
+      gl.endFrameEXP();
 
+      if (this.state.active) {
         const imageTensor = images.next().value;
+
+        this.countTime('Detect face 0');
 
         this.detectFaces(imageTensor).then(async (faces) => {
           if (faces.length > 0 && this.isFrontFace(faces[0])) {
             updatePreview();
             gl.endFrameEXP();
+
+            this.countTime('Detect face 1');
 
             const cropped = cropFaceRotateAndResize(imageTensor, faces[0]);
 
@@ -229,6 +241,8 @@ export default class ImageClassificationDetector extends React.Component {
               this.classify(cropped).then((prediction) => {
                 updatePreview();
                 gl.endFrameEXP();
+
+                this.countTime('Predict');
 
                 this.detect(prediction);
               });
@@ -240,9 +254,9 @@ export default class ImageClassificationDetector extends React.Component {
 
         updatePreview();
         gl.endFrameEXP();
-
-        this.rafID = requestAnimationFrame(loop);
       }
+
+      this.rafID = requestAnimationFrame(loop);
     };
 
     loop();
