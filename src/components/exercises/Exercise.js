@@ -1,7 +1,7 @@
 import React from 'react';
 import {StyleSheet} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
-import {Pie} from 'react-native-progress';
+import {Pie, Circle} from 'react-native-progress';
 
 import {View as AnimatableView} from 'react-native-animatable';
 
@@ -133,7 +133,7 @@ export default class Exercise extends React.Component {
   }
 
   formatProgress = (_) => {
-    return `${(this.state.remainingTime / 1000).toFixed(3)}`;
+    return `${(this.state.remainingTime / 1000).toFixed(1)}`;
   };
 
   render() {
