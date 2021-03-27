@@ -1,5 +1,7 @@
 import React from 'react';
-import {StyleSheet, Text, View, Button} from 'react-native';
+import {StyleSheet} from 'react-native';
+
+import {Text, Button, Icon, Layout, Spinner} from '@ui-kitten/components';
 
 import Voice from '@react-native-voice/voice';
 
@@ -15,22 +17,19 @@ export default class SpeechRecognition extends React.Component {
     super(props);
 
     this.state = {
-      recognized: '',
-      pitch: '',
       error: '',
-      end: '',
-      started: '',
+      end: false,
+      started: false,
       results: [],
-      partialResults: [],
     };
 
     Voice.onSpeechStart = this.onSpeechStart;
-    Voice.onSpeechRecognized = this.onSpeechRecognized;
     Voice.onSpeechEnd = this.onSpeechEnd;
     Voice.onSpeechError = this.onSpeechError;
     Voice.onSpeechResults = this.onSpeechResults;
-    Voice.onSpeechPartialResults = this.onSpeechPartialResults;
-    Voice.onSpeechVolumeChanged = this.onSpeechVolumeChanged;
+    // Voice.onSpeechRecognized = this.onSpeechRecognized;
+    // Voice.onSpeechPartialResults = this.onSpeechPartialResults;
+    // Voice.onSpeechVolumeChanged = this.onSpeechVolumeChanged;
   }
 
   componentWillUnmount() {
@@ -53,24 +52,34 @@ export default class SpeechRecognition extends React.Component {
       this.props.currentStep.sentence.toLowerCase()
     ) {
       this.onCompleted();
+    } else {
+      this.onFail();
     }
+  };
+
+  onFail = () => {
+    this.setState({
+      started: false,
+      end: false,
+    });
   };
 
   onSpeechStart = (e) => {
     this.setState({
-      started: '√',
+      started: true,
     });
   };
 
-  onSpeechRecognized = (e) => {
-    this.setState({
-      recognized: '√',
-    });
-  };
+  // onSpeechRecognized = (e) => {
+  //   console.log('RECOGNIZED');
+  //   this.setState({
+  //     recognized: '√',
+  //   });
+  // };
 
   onSpeechEnd = (e) => {
     this.setState({
-      end: '√',
+      end: true,
     });
   };
 
@@ -88,17 +97,17 @@ export default class SpeechRecognition extends React.Component {
     this.detect(e.value);
   };
 
-  onSpeechPartialResults = (e) => {
-    this.setState({
-      partialResults: e.value,
-    });
-  };
+  // onSpeechPartialResults = (e) => {
+  //   this.setState({
+  //     partialResults: e.value,
+  //   });
+  // };
 
-  onSpeechVolumeChanged = (e) => {
-    this.setState({
-      pitch: e.value,
-    });
-  };
+  // onSpeechVolumeChanged = (e) => {
+  //   this.setState({
+  //     pitch: e.value,
+  //   });
+  // };
 
   onCompleted = () => {
     this.props.onStepCompleted();
@@ -106,13 +115,10 @@ export default class SpeechRecognition extends React.Component {
 
   _startRecognizing = async () => {
     this.setState({
-      recognized: '',
-      pitch: '',
       error: '',
-      started: '',
+      end: false,
+      started: false,
       results: [],
-      partialResults: [],
-      end: '',
     });
 
     try {
@@ -157,86 +163,40 @@ export default class SpeechRecognition extends React.Component {
 
   render() {
     return (
-      <View>
-        <Text style={styles.welcome}>
-          Deci la frase: {this.props.currentStep.sentence}
+      <Layout style={styles.container}>
+        <Text style={styles.centerText} category="h2">
+          Deci la frase:
         </Text>
-        <Text style={styles.instructions}>
-          Press the button and start speaking.
+        <Text style={styles.centerText} category="h1">
+          {this.props.currentStep.sentence}
         </Text>
-        <Text style={styles.stat}>{`Started: ${this.state.started}`}</Text>
-        <Text
-          style={styles.stat}>{`Recognized: ${this.state.recognized}`}</Text>
-        <Text style={styles.stat}>{`Pitch: ${this.state.pitch}`}</Text>
-        <Text style={styles.stat}>{`Error: ${this.state.error}`}</Text>
-        <Text style={styles.stat}>Results</Text>
-        {this.state.results.map((result, index) => {
-          return (
-            <Text key={`result-${index}`} style={styles.stat}>
-              {result}
-            </Text>
-          );
-        })}
-        <Text style={styles.stat}>Partial Results</Text>
-        {this.state.partialResults.map((result, index) => {
-          return (
-            <Text key={`partial-result-${index}`} style={styles.stat}>
-              {result}
-            </Text>
-          );
-        })}
-        <Text style={styles.stat}>{`End: ${this.state.end}`}</Text>
-        <Button
-          onPress={this._startRecognizing}
-          title="Empezar deteccion"
-          accessibilityLabel="Learn more about this purple button"
-        />
-        <Button
-          onPress={this._stopRecognizing}
-          title="Detener"
-          accessibilityLabel="Learn more about this purple button"
-        />
-        <Button
-          onPress={this._cancelRecognizing}
-          title="Cancelar"
-          accessibilityLabel="Learn more about this purple button"
-        />
-        <Button
-          onPress={this._destroyRecognizer}
-          title="Destruir"
-          accessibilityLabel="Learn more about this purple button"
-        />
-      </View>
+        <Text style={styles.centerText} category="s1">
+          Presiona el boton y empieza a hablar.
+        </Text>
+        {this.state.started && <Spinner />}
+        {!this.state.started && (
+          <Button
+            size="giant"
+            accessibilityLabel="Empezar detección"
+            onPress={this._startRecognizing}
+            appearance="ghost"
+            accessoryLeft={(props) => <Icon {...props} name="mic" />}
+          />
+        )}
+      </Layout>
     );
   }
 }
 
 const styles = StyleSheet.create({
+  centerText: {
+    textAlign: 'center',
+  },
   container: {
     flex: 1,
-    justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F5FCFF',
-  },
-  welcome: {
-    fontSize: 20,
-    textAlign: 'center',
-    margin: 10,
-  },
-  action: {
-    textAlign: 'center',
-    color: '#0000FF',
-    marginVertical: 5,
-    fontWeight: 'bold',
-  },
-  instructions: {
-    textAlign: 'center',
-    color: '#333333',
-    marginBottom: 5,
-  },
-  stat: {
-    textAlign: 'center',
-    color: '#B0171F',
-    marginBottom: 1,
+    flexDirection: 'column',
+    justifyContent: 'flex-start',
+    height: '100%',
   },
 });

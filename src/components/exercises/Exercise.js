@@ -143,7 +143,7 @@ export default class Exercise extends React.Component {
           Paso {this.state.stepIndex + 1}/{this.props.steps.length}
         </Text> */}
         {this.renderContent()}
-        <SafeAreaView style={styles.floating}>
+        <SafeAreaView style={styles.floating} pointerEvents="none">
           <AnimatableView
             animation="bounceInRight"
             duration={500}
