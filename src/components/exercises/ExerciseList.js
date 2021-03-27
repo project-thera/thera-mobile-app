@@ -27,7 +27,7 @@ class ExerciseList extends React.Component {
     this.currentExercise.stop();
 
     if (this.state.exerciseIndex + 1 >= this.props.exercises.length) {
-      console.log('FINISHED ALLLLL'); // TODO redirect
+      console.log('FINISHED ALL'); // TODO redirect
     } else {
       this.setState({
         exerciseIndex: this.state.exerciseIndex + 1,

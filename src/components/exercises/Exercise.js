@@ -1,14 +1,15 @@
 import React from 'react';
-import {StyleSheet, View} from 'react-native';
+import {StyleSheet} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
-import {Text} from '@ui-kitten/components';
-import {Circle, CircleSnail} from 'react-native-progress';
+import {Pie} from 'react-native-progress';
 
 import {View as AnimatableView} from 'react-native-animatable';
 
 import ImageClassificationDetector from '../detectors/ImageClassificationDetector';
 import BlowDetector from '../detectors/BlowDetector';
 import SpeechRecognitionDetector from '../detectors/SpeechRecognitionDetector';
+
+import {RESET_TIMER} from '../detectors/DetectorTimerConfidence';
 
 const STEP_ANIMATION_TIME = 500;
 
@@ -47,11 +48,12 @@ export default class Exercise extends React.Component {
   };
 
   onStoppedDetection = () => {
-    this.setState({
-      stepProgress: 0,
-      remainingTime: 0,
-    });
-    // console.log('NOT DETECTING'); // TODO stop showing something in the ui
+    if (RESET_TIMER) {
+      this.setState({
+        stepProgress: 0,
+        remainingTime: this.props.steps[this.state.stepIndex].time,
+      });
+    }
   };
 
   onStepCompleted = async () => {
@@ -147,7 +149,18 @@ export default class Exercise extends React.Component {
             duration={500}
             useNativeDriver={true}
             ref={(ref) => (this.progressView = ref)}>
-            <Circle
+            <Pie
+              animated={true}
+              size={75}
+              borderWidth={1}
+              useNativeDriver={true}
+              progress={
+                (this.state.stepIndex + this.state.stepProgress) /
+                this.props.steps.length
+              }
+            />
+            {/* <Circle
+              animated={true}
               size={75}
               borderWidth={1}
               thickness={10}
@@ -155,12 +168,12 @@ export default class Exercise extends React.Component {
               formatText={this.formatProgress}
               strokeCap="butt"
               useNativeDriver={true}
-              endAngle={0.9}
+              endAngle={0.99}
               progress={
                 (this.state.stepIndex + this.state.stepProgress) /
                 this.props.steps.length
               }
-            />
+            /> */}
           </AnimatableView>
         </SafeAreaView>
       </>

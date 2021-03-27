@@ -28,6 +28,7 @@ export default class BlowDetector extends React.Component {
     super(props);
 
     this.state = {
+      remainingTime: this.props.currentStep.time,
       progress: 0,
     };
   }
@@ -59,6 +60,8 @@ export default class BlowDetector extends React.Component {
   }
 
   onProgress = (data) => {
+    this.setState({remainingTime: data.remainingTime});
+
     this.props.onProgress(data);
   };
 
@@ -144,7 +147,7 @@ export default class BlowDetector extends React.Component {
             : 'Deja de soplar durante'}
         </Text>
         <Text category="h2" style={styles.centerText}>
-          {`${this.props.currentStep.time / 1000} segundo`}
+          {`${(this.state.remainingTime / 1000).toFixed(3)} segundos`}
         </Text>
       </View>
     );

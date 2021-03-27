@@ -8,10 +8,8 @@ import {Camera} from 'expo-camera';
 import * as tf from '@tensorflow/tfjs';
 import {cameraWithTensors} from '@tensorflow/tfjs-react-native';
 
-// import {cropFaceRotateAndResize} from '../utils/cropAndResize';
+import {cropFaceRotateAndResize} from '../utils/cropAndResize';
 import DetectorTimerConfidence from './DetectorTimerConfidence';
-
-import {IMAGE_SIZE} from '../../models/mobilenet/Mobilenet';
 
 import {
   POINT_X,
@@ -23,7 +21,6 @@ import {
   LEFT_EYE,
   MOUTH,
   NOSE,
-  BLACK,
 } from '../utils/constants';
 
 const inputTensorWidth = 120; // 180; // 180 144 120
@@ -135,82 +132,6 @@ export default class ImageClassificationDetector extends React.Component {
     this.props.onStepCompleted();
   };
 
-  cropFaceRotateAndResize(
-    imageTensor,
-    face,
-    growRatio = 1.6,
-    displacement = 0.02,
-  ) {
-    // this.countTime('Rotate 0');
-    const {topLeft, bottomRight} = face;
-    // const inputTensorHeight = imageTensor.shape[0];
-    // const inputTensorWidth = imageTensor.shape[1];
-    const channelNumbers = imageTensor.shape[2];
-
-    const rightEye = face.landmarks[RIGHT_EYE];
-    const leftEye = face.landmarks[LEFT_EYE];
-    const eyesCenter = [
-      (rightEye[POINT_X] + leftEye[POINT_X]) / 2,
-      (rightEye[POINT_Y] + leftEye[POINT_Y]) / 2,
-    ];
-    // const nose = face.landmarks[NOSE];
-    const mouth = face.landmarks[MOUTH];
-
-    // The mouth and the center of the eyes are more precise you can check:
-    // https://storage.googleapis.com/tfjs-models/demos/blazeface/index.html for experiment
-    // Math.atan2(nose[POINT_Y] - mouth[POINT_Y], nose[POINT_X] - mouth[POINT_X])
-    const rotation =
-      Math.atan2(
-        eyesCenter[POINT_Y] - mouth[POINT_Y],
-        eyesCenter[POINT_X] - mouth[POINT_X],
-      ) +
-      0.5 * Math.PI;
-
-    const centerPoint = [
-      (mouth[POINT_X] + eyesCenter[POINT_X]) * 0.5,
-      (mouth[POINT_Y] + eyesCenter[POINT_Y]) * 0.5,
-    ];
-
-    const center = [
-      centerPoint[POINT_X] / inputTensorWidth,
-      centerPoint[POINT_Y] / inputTensorHeight,
-    ];
-
-    // Crop and resize values
-    const boxWidthRaw = (bottomRight[POINT_X] - topLeft[POINT_X]) * growRatio;
-    const boxHeightRaw = boxWidthRaw;
-
-    const y1 =
-      (centerPoint[POINT_Y] - boxWidthRaw * 0.5 + boxHeightRaw * displacement) /
-      inputTensorHeight;
-    const y2 =
-      (centerPoint[POINT_Y] + boxWidthRaw * 0.5 + boxHeightRaw * displacement) /
-      inputTensorHeight;
-
-    const x1 = (centerPoint[POINT_X] - boxWidthRaw * 0.5) / inputTensorWidth;
-    const x2 = (centerPoint[POINT_X] + boxWidthRaw * 0.5) / inputTensorWidth;
-
-    return tf.tidy(() => {
-      const rotated = tf.image.rotateWithOffset(
-        tf.cast(imageTensor.reshape([1, ...imageTensor.shape]), 'float32'),
-        rotation,
-        BLACK,
-        center,
-      );
-
-      tf.dispose(imageTensor);
-
-      return tf.image
-        .cropAndResize(
-          rotated,
-          [[y1, x1, y2, x2]],
-          [0],
-          [IMAGE_SIZE, IMAGE_SIZE],
-        )
-        .reshape([IMAGE_SIZE, IMAGE_SIZE, channelNumbers]);
-    });
-  }
-
   /**
    * @param {Array} p1 Point 1 of the line
    * @param {Array} p2 Point 2 of the line
@@ -230,9 +151,7 @@ export default class ImageClassificationDetector extends React.Component {
     );
   }
 
-  // 0.06 ms
   isFrontFace = (face) => {
-    // this.countTime('Detect front face 0');
     const rightEye = face.landmarks[RIGHT_EYE];
     const leftEye = face.landmarks[LEFT_EYE];
     const mouth = face.landmarks[MOUTH];
@@ -255,7 +174,6 @@ export default class ImageClassificationDetector extends React.Component {
       });
     }
 
-    // this.countTime('Detect front face 1');
     return facingFront;
   };
 
@@ -263,9 +181,7 @@ export default class ImageClassificationDetector extends React.Component {
     return string.charAt(0).toUpperCase() + string.slice(1);
   }
 
-  // 20 ms
   hasEnoughBrightness = (cropped) => {
-    // this.countTime('Enought brightness 0');
     // value between 0 and 255
     const enough =
       cropped.sum().dataSync() /
@@ -279,22 +195,21 @@ export default class ImageClassificationDetector extends React.Component {
         message: 'No hay suficiente luz',
       });
     }
-    // this.countTime('Enought brightness 1');
+
     return enough;
   };
 
-  detectFaces = (imageTensor, updateView) => {
+  detectFaces = (imageTensor) => {
     return this.props.faceDetector.estimateFaces(
       imageTensor,
-      updateView,
       false, // return tensors
       false, // flip horizontal
       true, // annotate boxes
     );
   };
 
-  classify = (cropped, updateView) => {
-    return this.props.mobilenetDetector.classify(cropped, updateView);
+  classify = (cropped) => {
+    return this.props.mobilenetDetector.classify(cropped);
   };
 
   countTime = (label = 'Tiempo') => {
@@ -303,45 +218,42 @@ export default class ImageClassificationDetector extends React.Component {
     this.time = performance.now();
   };
 
-  handleImageTensorReady = (images, updatePreview, gl) => {
-    const updateView = function () {
+  handleImageTensorReady = async (images, updatePreview, gl) => {
+    const loop = async () => {
       updatePreview();
       gl.endFrameEXP();
-    };
 
-    const loop = () => {
       if (this.state.active) {
-        this.countTime('Total time');
-
-        // 40 ms
         const imageTensor = images.next().value;
-        updateView();
 
-        this.detectFaces(imageTensor, updateView).then((faces) => {
+        this.countTime('Detect face 0');
+
+        this.detectFaces(imageTensor).then(async (faces) => {
           if (faces.length > 0 && this.isFrontFace(faces[0])) {
-            updateView();
+            updatePreview();
+            gl.endFrameEXP();
 
-            // this.countTime('Detect face 1');
+            this.countTime('Detect face 1');
 
-            const cropped = this.cropFaceRotateAndResize(imageTensor, faces[0]);
-
-            updateView();
+            const cropped = cropFaceRotateAndResize(imageTensor, faces[0]);
 
             if (this.hasEnoughBrightness(cropped)) {
-              this.classify(cropped, updateView).then((prediction) => {
-                // this.countTime('Predict');
-                updateView();
+              this.classify(cropped).then((prediction) => {
+                updatePreview();
+                gl.endFrameEXP();
 
-                this.countTime('Total time end');
+                this.countTime('Predict');
+
                 this.detect(prediction);
               });
             }
-
-            tf.dispose(cropped);
           }
+
+          tf.dispose(imageTensor);
         });
 
-        updateView();
+        updatePreview();
+        gl.endFrameEXP();
       }
 
       this.rafID = requestAnimationFrame(loop);

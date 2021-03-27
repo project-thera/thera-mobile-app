@@ -23,11 +23,11 @@ import * as Permissions from 'expo-permissions';
 import * as tf from '@tensorflow/tfjs';
 import '@tensorflow/tfjs-react-native';
 import {bundleResourceIO} from '@tensorflow/tfjs-react-native';
-import * as mobilenet from './src/components/utils/Mobilenet';
-import * as blazeface from '@tensorflow-models/blazeface';
+import * as mobilenet from './src/models/mobilenet/Mobilenet';
+import * as blazeface from './src/models/blazeface';
 
-const modelJson = require('./src/models/model.json');
-const modelWeights = require('./src/models/group1-shard1of1.bin');
+const modelJson = require('./src/models/mobilenet/data/model.json');
+const modelWeights = require('./src/models/mobilenet/data/group1-shard1of1.bin');
 
 const BACKEND_TO_USE = 'rn-webgl';
 

@@ -35,7 +35,7 @@ import * as tfjs from '@tensorflow/tfjs';
  * model hosted at the modelUrl. This is typically [0, 1] or [-1, 1].
  */
 
-import labels from './../../models/labels';
+import labels from './data/labels';
 
 let CUSTOM_CLASSES = {};
 
@@ -213,11 +213,15 @@ class MobileNetImpl {
    *
    * @param img The image to classify. Can be a tensor or a DOM element image,
    * video, or canvas.
-   * @param topk How many top values to use. Defaults to 3.
+   * @param topk How many top values to use. Defaults to 1.
    */
-  async classify(img, topk = 3) {
+  async classify(img, updateView, topk = 1) {
+    // 180 ms
     const logits = this.infer(img);
 
+    updateView();
+
+    // 90 ms
     const classes = await getTopKClasses(logits, topk);
 
     logits.dispose();
