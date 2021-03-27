@@ -21,6 +21,7 @@ export default class SpeechRecognition extends React.Component {
       end: false,
       started: false,
       results: [],
+      message: '',
     };
 
     Voice.onSpeechStart = this.onSpeechStart;
@@ -61,12 +62,14 @@ export default class SpeechRecognition extends React.Component {
     this.setState({
       started: false,
       end: false,
+      message: 'No puedo oirte bien, intentalo de nuevo',
     });
   };
 
   onSpeechStart = (e) => {
     this.setState({
       started: true,
+      message: '',
     });
   };
 
@@ -173,16 +176,32 @@ export default class SpeechRecognition extends React.Component {
         <Text style={styles.centerText} category="s1">
           Presiona el boton y empieza a hablar.
         </Text>
-        {this.state.started && <Spinner />}
-        {!this.state.started && (
-          <Button
-            size="giant"
-            accessibilityLabel="Empezar detección"
-            onPress={this._startRecognizing}
-            appearance="ghost"
-            accessoryLeft={(props) => <Icon {...props} name="mic" />}
-          />
-        )}
+        <Layout style={{paddingTop: 100}}>
+          {this.state.started && (
+            <Layout style={{padding: 20}}>
+              <Spinner size="galactic" />
+            </Layout>
+          )}
+          {!this.state.started && (
+            <Button
+              size="giant"
+              accessibilityLabel="Empezar detección"
+              onPress={this._startRecognizing}
+              appearance="ghost"
+              accessoryLeft={(props) => (
+                <Icon
+                  {...props}
+                  style={[props.style, {width: 75, height: 75}]}
+                  name="mic"
+                />
+              )}
+            />
+          )}
+        </Layout>
+
+        <Text style={styles.centerText} status="danger" category="s1">
+          {this.state.message}
+        </Text>
       </Layout>
     );
   }

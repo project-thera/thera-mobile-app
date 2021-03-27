@@ -30,6 +30,18 @@ export default class App extends React.Component {
         ],
       },
       {
+        type: 'blow',
+        steps: [
+          {
+            time: 1000,
+            detected: true,
+            requiredConfidence: 2,
+            penalizeStep: 2,
+            maxConfidence: 5,
+          },
+        ],
+      },
+      {
         type: 'classification',
         steps: [
           {
@@ -39,18 +51,6 @@ export default class App extends React.Component {
           {
             time: 1000,
             label: 'inflar cachetes',
-          },
-        ],
-      },
-      {
-        type: 'blow',
-        steps: [
-          {
-            time: 500,
-            detected: true,
-            requiredConfidence: 2,
-            penalizeStep: 2,
-            maxConfidence: 5,
           },
         ],
       },

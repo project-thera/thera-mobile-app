@@ -18,6 +18,7 @@ import {AppNavigator} from './src/navigation/navigation';
 // Use https://colors.eva.design/?utm_campaign=eva_colors%20-%20home%20-%20kitten_docs&utm_source=ui_kitten&utm_medium=referral&utm_content=branding_article_link
 // Export as json
 import {default as theme} from './src/themes/custom-theme.json';
+import {default as mapping} from './src/themes/mapping.json';
 
 import * as Permissions from 'expo-permissions';
 import * as tf from '@tensorflow/tfjs';
@@ -90,7 +91,10 @@ export default class App extends React.Component {
     return (
       <SafeAreaProvider>
         <IconRegistry icons={EvaIconsPack} />
-        <ApplicationProvider {...eva} theme={{...eva.light, ...theme}}>
+        <ApplicationProvider
+          {...eva}
+          customMapping={mapping}
+          theme={{...eva.light, ...theme}}>
           <AppNavigator
             faceDetector={this.state.faceDetector}
             mobilenetDetector={this.state.mobilenetDetector}

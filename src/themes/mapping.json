@@ -1,0 +1,29 @@
+{
+  "components": {
+    "Spinner": {
+      "meta": {
+        "variantGroups": {
+          "size": {
+            "galactic": {
+              "default": false
+            }
+          }
+        }
+      },
+      "appearances": {
+        "default": {
+          "variantGroups": {
+            "size": {
+              "galactic": {
+                "width": 64,
+                "height": 64,
+                "borderRadius": 32,
+                "borderWidth": 5.5
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

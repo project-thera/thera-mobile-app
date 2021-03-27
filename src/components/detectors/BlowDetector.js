@@ -147,7 +147,7 @@ export default class BlowDetector extends React.Component {
             : 'Deja de soplar durante'}
         </Text>
         <Text category="h2" style={styles.centerText}>
-          {`${(this.state.remainingTime / 1000).toFixed(3)} segundos`}
+          {`${(this.state.remainingTime / 1000).toFixed(1)} segundos`}
         </Text>
       </View>
     );
