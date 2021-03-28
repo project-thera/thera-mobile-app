@@ -37,6 +37,9 @@ import * as blazeface from './src/models/blazeface';
 const modelJson = require('./src/models/mobilenet/data/model.json');
 const modelWeights = require('./src/models/mobilenet/data/group1-shard1of1.bin');
 
+const blazefaceModelJson = require('./src/models/blazeface/data/model.json');
+const blazefaceModelWeights = require('./src/models/blazeface/data/group1-shard1of1.bin');
+
 const BACKEND_TO_USE = 'rn-webgl';
 
 export default class App extends React.Component {
@@ -73,6 +76,7 @@ export default class App extends React.Component {
 
     blazeface
       .load({
+        modelUrl: bundleResourceIO(blazefaceModelJson, blazefaceModelWeights),
         maxFaces: 1,
         inputWidth: 128,
         inputHeight: 128,
