@@ -56,9 +56,15 @@ class ExerciseList extends React.Component {
     this.currentExercise.start();
 
     Audio.Sound.createAsync(
-      require('../../assets/sounds/exercise_complete.wav'),
+      require('../../assets/sounds/exercise_completed.wav'),
     ).then(({sound}) => {
-      this.setState({exerciseCompleteSound: sound});
+      this.setState({exerciseCompletedSound: sound});
+    });
+
+    Audio.Sound.createAsync(
+      require('../../assets/sounds/step_completed.wav'),
+    ).then(({sound}) => {
+      this.setState({stepCompletedSound: sound});
     });
   }
 
@@ -103,7 +109,8 @@ class ExerciseList extends React.Component {
         <Exercise
           {...exerciseProps}
           onExerciseCompleted={this.onExerciseCompleted}
-          exerciseCompleteSound={this.state.exerciseCompleteSound}
+          exerciseCompletedSound={this.state.exerciseCompletedSound}
+          stepCompletedSound={this.state.stepCompletedSound}
           ref={(ref) => (this.currentExercise = ref)}
         />
       </>

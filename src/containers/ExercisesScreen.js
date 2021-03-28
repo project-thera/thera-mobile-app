@@ -26,18 +26,6 @@ export default class App extends React.Component {
         steps: [
           {
             time: 1000,
-            detected: false,
-            requiredConfidence: 2,
-            penalizeStep: 2,
-            maxConfidence: 5,
-          },
-        ],
-      },
-      {
-        type: 'blow',
-        steps: [
-          {
-            time: 1000,
             detected: true,
             requiredConfidence: 2,
             penalizeStep: 2,

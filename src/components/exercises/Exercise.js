@@ -67,7 +67,7 @@ export default class Exercise extends React.Component {
 
     if (result.finished) {
       if (this.state.stepIndex + 1 >= this.props.steps.length) {
-        this.props.exerciseCompleteSound?.replayAsync();
+        this.props.exerciseCompletedSound?.replayAsync();
 
         if (AUTO_EXERCISE_ADVANCE) {
           this.advanceExercise();
@@ -78,6 +78,8 @@ export default class Exercise extends React.Component {
           });
         }
       } else {
+        this.props.stepCompletedSound?.replayAsync();
+
         this.setState(
           {
             stepIndex: this.state.stepIndex + 1,
