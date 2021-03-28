@@ -317,7 +317,7 @@ export default class ImageClassificationDetector extends React.Component {
 
     const loop = () => {
       if (this.state.active) {
-        this.countTime('Total time');
+        // this.countTime('Total time');
 
         // 40 ms
         const imageTensor = images.next().value;
@@ -338,7 +338,7 @@ export default class ImageClassificationDetector extends React.Component {
                 // this.countTime('Predict');
                 updateView();
 
-                this.countTime('Total time end');
+                // this.countTime('Total time end');
                 this.detect(prediction);
               });
             }

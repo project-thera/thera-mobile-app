@@ -2,7 +2,6 @@ import React from 'react';
 import {StyleSheet} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {Pie, Circle} from 'react-native-progress';
-
 import {View as AnimatableView} from 'react-native-animatable';
 
 import {Button} from '@ui-kitten/components';
@@ -68,6 +67,8 @@ export default class Exercise extends React.Component {
 
     if (result.finished) {
       if (this.state.stepIndex + 1 >= this.props.steps.length) {
+        this.props.exerciseCompleteSound?.replayAsync();
+
         if (AUTO_EXERCISE_ADVANCE) {
           this.advanceExercise();
         } else {
@@ -84,7 +85,6 @@ export default class Exercise extends React.Component {
             remainingTime: this.props.steps[this.state.stepIndex + 1].time,
           },
           () => {
-            console.log('RESUME');
             this.resume();
           },
         );

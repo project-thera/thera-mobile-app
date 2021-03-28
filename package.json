@@ -23,6 +23,7 @@
     "@tensorflow/tfjs-react-native": "^0.5.0",
     "@ui-kitten/components": "^5.0.0",
     "@ui-kitten/eva-icons": "^5.0.0",
+    "expo-av": "^9.0.0",
     "expo-camera": "^10.0.0",
     "expo-gl": "^10.1.0",
     "expo-gl-cpp": "^10.0.0",

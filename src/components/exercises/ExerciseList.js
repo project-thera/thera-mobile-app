@@ -1,6 +1,6 @@
 import React from 'react';
 import {AppState} from 'react-native';
-
+import {Audio} from 'expo-av';
 import {View as AnimatableView} from 'react-native-animatable';
 
 import {Bar} from 'react-native-progress';
@@ -20,6 +20,7 @@ class ExerciseList extends React.Component {
     this.state = {
       appState: AppState.currentState,
       exerciseIndex: 0,
+      exerciseCompleteSound: null,
     };
   }
 
@@ -53,6 +54,12 @@ class ExerciseList extends React.Component {
     AppState.addEventListener('change', this.handleAppStateChange);
 
     this.currentExercise.start();
+
+    Audio.Sound.createAsync(require('../../assets/exercise_complete.wav')).then(
+      ({sound}) => {
+        this.setState({exerciseCompleteSound: sound});
+      },
+    );
   }
 
   componentWillUnmount() {
@@ -96,6 +103,7 @@ class ExerciseList extends React.Component {
         <Exercise
           {...exerciseProps}
           onExerciseCompleted={this.onExerciseCompleted}
+          exerciseCompleteSound={this.state.exerciseCompleteSound}
           ref={(ref) => (this.currentExercise = ref)}
         />
       </>

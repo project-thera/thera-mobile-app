@@ -57,7 +57,6 @@ export default class BlowDetector extends React.Component {
   // Needed because access to props to set instance variable
   componentDidUpdate(prevProps) {
     if (prevProps.currentStep !== this.props.currentStep) {
-      console.log('New detector timer bla bla');
       this.setDetectorTimerConfidence();
       this.reset();
     }
@@ -129,7 +128,6 @@ export default class BlowDetector extends React.Component {
   };
 
   _handleRecordingEvent = (signal) => {
-    console.log('HANDLING');
     let amplitudes = amplitudeSpectrum(signal);
     let energy = 0.0;
     let maxAmplitude = 0.0;
