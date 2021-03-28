@@ -55,11 +55,11 @@ class ExerciseList extends React.Component {
 
     this.currentExercise.start();
 
-    Audio.Sound.createAsync(require('../../assets/exercise_complete.wav')).then(
-      ({sound}) => {
-        this.setState({exerciseCompleteSound: sound});
-      },
-    );
+    Audio.Sound.createAsync(
+      require('../../assets/sounds/exercise_complete.wav'),
+    ).then(({sound}) => {
+      this.setState({exerciseCompleteSound: sound});
+    });
   }
 
   componentWillUnmount() {
