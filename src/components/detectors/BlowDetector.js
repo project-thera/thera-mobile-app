@@ -27,11 +27,19 @@ export default class BlowDetector extends React.Component {
   constructor(props) {
     super(props);
 
-    this.state = {
+    this.state = this.defaultState();
+  }
+
+  defaultState = () => {
+    return {
       remainingTime: this.props.currentStep.time,
       progress: 0,
     };
-  }
+  };
+
+  reset = () => {
+    this.setState(this.defaultState());
+  };
 
   setDetectorTimerConfidence = () => {
     this.detectorTimerConfidence = new DetectorTimerConfidence({
@@ -49,7 +57,9 @@ export default class BlowDetector extends React.Component {
   // Needed because access to props to set instance variable
   componentDidUpdate(prevProps) {
     if (prevProps.currentStep !== this.props.currentStep) {
+      console.log('New detector timer bla bla');
       this.setDetectorTimerConfidence();
+      this.reset();
     }
   }
 
@@ -73,7 +83,7 @@ export default class BlowDetector extends React.Component {
     this.props.onStepCompleted();
   };
 
-  start = () => {
+  _start = () => {
     Recording.init({
       bufferSize: BUFFER_SIZE,
       sampleRate: SAMPLE_RATE,
@@ -88,23 +98,25 @@ export default class BlowDetector extends React.Component {
     Recording.start();
   };
 
-  resume = () => {
-    this.listener = Recording.addRecordingEventListener(
-      this._handleRecordingEvent,
-    );
+  _stop = () => {
+    Recording.stop();
+    this.listener.remove();
+  };
 
-    Recording.start();
+  start = () => {
+    this._start();
+  };
+
+  resume = () => {
+    this._start();
   };
 
   pause = () => {
-    Recording.stop();
-    this.listener.remove();
+    this._stop();
   };
 
-  // Call stop on component did unmount?
   stop = () => {
-    Recording.stop();
-    this.listener.remove();
+    this._stop();
   };
 
   /**
@@ -117,6 +129,7 @@ export default class BlowDetector extends React.Component {
   };
 
   _handleRecordingEvent = (signal) => {
+    console.log('HANDLING');
     let amplitudes = amplitudeSpectrum(signal);
     let energy = 0.0;
     let maxAmplitude = 0.0;

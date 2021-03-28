@@ -22,14 +22,6 @@ export default class App extends React.Component {
   getExercises() {
     return [
       {
-        type: 'speech',
-        steps: [
-          {
-            sentence: 'perro',
-          },
-        ],
-      },
-      {
         type: 'blow',
         steps: [
           {
@@ -38,6 +30,24 @@ export default class App extends React.Component {
             requiredConfidence: 2,
             penalizeStep: 2,
             maxConfidence: 5,
+          },
+          {
+            time: 1000,
+            detected: false,
+            requiredConfidence: 2,
+            penalizeStep: 2,
+            maxConfidence: 5,
+          },
+        ],
+      },
+      {
+        type: 'speech',
+        steps: [
+          {
+            sentence: 'perro',
+          },
+          {
+            sentence: 'gato',
           },
         ],
       },

@@ -16,13 +16,7 @@ export default class SpeechRecognition extends React.Component {
   constructor(props) {
     super(props);
 
-    this.state = {
-      error: '',
-      end: false,
-      started: false,
-      results: [],
-      message: '',
-    };
+    this.state = this.defaultState();
 
     Voice.onSpeechStart = this.onSpeechStart;
     Voice.onSpeechEnd = this.onSpeechEnd;
@@ -35,6 +29,29 @@ export default class SpeechRecognition extends React.Component {
 
   componentWillUnmount() {
     Voice.destroy().then(Voice.removeAllListeners);
+  }
+
+  defaultState() {
+    return {
+      error: '',
+      end: false,
+      started: false,
+      results: [],
+      message: '',
+      messageStatus: 'primary',
+      showSpinner: false,
+      showButton: true,
+    };
+  }
+
+  reset = () => {
+    this.setState(this.defaultState());
+  };
+
+  componentDidUpdate(prevProps) {
+    if (prevProps.currentStep !== this.props.currentStep) {
+      this.reset();
+    }
   }
 
   start = () => {};
@@ -62,13 +79,18 @@ export default class SpeechRecognition extends React.Component {
     this.setState({
       started: false,
       end: false,
+      showSpinner: false,
+      showButton: true,
       message: 'No puedo oirte bien, intentalo de nuevo',
+      messageStatus: 'danger',
     });
   };
 
   onSpeechStart = (e) => {
     this.setState({
       started: true,
+      showSpinner: true,
+      showButton: false,
       message: '',
     });
   };
@@ -113,6 +135,13 @@ export default class SpeechRecognition extends React.Component {
   // };
 
   onCompleted = () => {
+    this.setState({
+      message: 'Muy bien',
+      messageStatus: 'success',
+      showSpinner: false,
+      showButton: false,
+    });
+
     this.props.onStepCompleted();
   };
 
@@ -177,12 +206,12 @@ export default class SpeechRecognition extends React.Component {
           Presiona el boton y empieza a hablar.
         </Text>
         <Layout style={{paddingTop: 100}}>
-          {this.state.started && (
+          {this.state.showSpinner && (
             <Layout style={{padding: 20}}>
               <Spinner size="galactic" />
             </Layout>
           )}
-          {!this.state.started && (
+          {this.state.showButton && (
             <Button
               size="giant"
               accessibilityLabel="Empezar detección"
@@ -199,7 +228,10 @@ export default class SpeechRecognition extends React.Component {
           )}
         </Layout>
 
-        <Text style={styles.centerText} status="danger" category="s1">
+        <Text
+          style={styles.centerText}
+          status={this.state.messageStatus}
+          category="s1">
           {this.state.message}
         </Text>
       </Layout>

@@ -52,6 +52,7 @@ export default class ImageClassificationDetector extends React.Component {
     this.state = {
       active: false,
       message: '',
+      messageStatus: 'primary',
     };
 
     this.time = performance.now();
@@ -114,7 +115,10 @@ export default class ImageClassificationDetector extends React.Component {
    */
   detect = (predictions) => {
     this.setState({
-      message: JSON.stringify(predictions),
+      message: `${
+        predictions[0].className
+      }: ${predictions[0].probability.toFixed(2)}`,
+      messageStatus: 'info',
     });
 
     this.detectorTimerConfidence.update(
@@ -252,6 +256,7 @@ export default class ImageClassificationDetector extends React.Component {
     if (!facingFront) {
       this.setState({
         message: 'La cara debe de estar de frente a la camara',
+        messageStatus: 'danger',
       });
     }
 
@@ -277,6 +282,7 @@ export default class ImageClassificationDetector extends React.Component {
     if (!enough) {
       this.setState({
         message: 'No hay suficiente luz',
+        messageStatus: 'danger',
       });
     }
     // this.countTime('Enought brightness 1');
@@ -361,7 +367,7 @@ export default class ImageClassificationDetector extends React.Component {
           <Text category="h3" style={styles.centerText}>
             {this.ucfirst(this.props.currentStep.label)}
           </Text>
-          <Text status="danger" style={styles.centerText}>
+          <Text status={this.state.messageStatus} style={styles.centerText}>
             {this.state.message}
           </Text>
           <View style={styles.cameraContainer}>

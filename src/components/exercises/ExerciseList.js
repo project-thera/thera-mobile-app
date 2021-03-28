@@ -5,7 +5,7 @@ import {View as AnimatableView} from 'react-native-animatable';
 
 import {Bar} from 'react-native-progress';
 
-import {withStyles} from '@ui-kitten/components';
+import {withStyles, Button} from '@ui-kitten/components';
 
 import handleAppStateChange from '../utils/handleAppStateChange';
 
@@ -29,11 +29,15 @@ class ExerciseList extends React.Component {
     if (this.state.exerciseIndex + 1 >= this.props.exercises.length) {
       console.log('FINISHED ALL'); // TODO redirect
     } else {
-      this.setState({
-        exerciseIndex: this.state.exerciseIndex + 1,
-      });
-
-      this.currentExercise.start();
+      // Set state is asyncronimous
+      this.setState(
+        {
+          exerciseIndex: this.state.exerciseIndex + 1,
+        },
+        () => {
+          this.currentExercise.start();
+        },
+      );
     }
   };
 

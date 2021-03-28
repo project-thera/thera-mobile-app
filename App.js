@@ -12,9 +12,16 @@ import './dev.config';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 
 import * as eva from '@eva-design/eva';
-import {ApplicationProvider, IconRegistry} from '@ui-kitten/components';
+import {
+  ApplicationProvider,
+  IconRegistry,
+  Spinner,
+  Layout,
+  Text,
+} from '@ui-kitten/components';
 import {EvaIconsPack} from '@ui-kitten/eva-icons';
 import {AppNavigator} from './src/navigation/navigation';
+import {View as AnimatableView} from 'react-native-animatable';
 // Use https://colors.eva.design/?utm_campaign=eva_colors%20-%20home%20-%20kitten_docs&utm_source=ui_kitten&utm_medium=referral&utm_content=branding_article_link
 // Export as json
 import {default as theme} from './src/themes/custom-theme.json';
@@ -95,10 +102,27 @@ export default class App extends React.Component {
           {...eva}
           customMapping={mapping}
           theme={{...eva.light, ...theme}}>
+          {/* {this.state.mobilenetDetector && this.state.faceDetector && ( */}
           <AppNavigator
             faceDetector={this.state.faceDetector}
             mobilenetDetector={this.state.mobilenetDetector}
           />
+          {/* )} */}
+          {/* {!(this.state.mobilenetDetector && this.state.faceDetector) && (
+            <Layout
+              style={{
+                flex: 1,
+                flexDirection: 'column',
+                alignContent: 'center',
+                justifyContent: 'center',
+              }}>
+              <AnimatableView animation="fadeIn">
+                <Text category="h1" style={{textAlign: 'center'}}>
+                  Thera Project
+                </Text>
+              </AnimatableView>
+            </Layout>
+          )} */}
         </ApplicationProvider>
       </SafeAreaProvider>
     );

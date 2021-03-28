@@ -5,6 +5,8 @@ import {Pie, Circle} from 'react-native-progress';
 
 import {View as AnimatableView} from 'react-native-animatable';
 
+import {Button} from '@ui-kitten/components';
+
 import ImageClassificationDetector from '../detectors/ImageClassificationDetector';
 import BlowDetector from '../detectors/BlowDetector';
 import SpeechRecognitionDetector from '../detectors/SpeechRecognitionDetector';
@@ -12,6 +14,8 @@ import SpeechRecognitionDetector from '../detectors/SpeechRecognitionDetector';
 import {RESET_TIMER} from '../detectors/DetectorTimerConfidence';
 
 const STEP_ANIMATION_TIME = 500;
+// Show button or advance exercise automatically?
+const AUTO_EXERCISE_ADVANCE = false;
 
 export default class Exercise extends React.Component {
   constructor(props) {
@@ -21,6 +25,7 @@ export default class Exercise extends React.Component {
       stepIndex: 0,
       stepProgress: 0,
       remainingTime: this.props.steps[0].time,
+      buttonDisabled: true,
     };
   }
 
@@ -63,24 +68,40 @@ export default class Exercise extends React.Component {
 
     if (result.finished) {
       if (this.state.stepIndex + 1 >= this.props.steps.length) {
-        // Do this before onExerciseCompleted otherwise currentStep could have a old value of stepIndex
-        this.setState({
-          stepIndex: 0,
-          remainingTime: this.props.steps[0].time,
-          stepProgress: 0,
-        });
-
-        this.props.onExerciseCompleted();
+        if (AUTO_EXERCISE_ADVANCE) {
+          this.advanceExercise();
+        } else {
+          this.setState({
+            buttonDisabled: false,
+            stepProgress: 100,
+          });
+        }
       } else {
-        this.setState({
-          stepIndex: this.state.stepIndex + 1,
-          stepProgress: 0,
-          remainingTime: this.props.steps[this.state.stepIndex + 1].time,
-        });
-
-        this.resume();
+        this.setState(
+          {
+            stepIndex: this.state.stepIndex + 1,
+            stepProgress: 0,
+            remainingTime: this.props.steps[this.state.stepIndex + 1].time,
+          },
+          () => {
+            console.log('RESUME');
+            this.resume();
+          },
+        );
       }
     }
+  };
+
+  advanceExercise = () => {
+    // Do this before onExerciseCompleted otherwise currentStep could have a old value of stepIndex
+    this.setState({
+      stepIndex: 0,
+      remainingTime: this.props.steps[0].time,
+      stepProgress: 0,
+      buttonDisabled: true,
+    });
+
+    this.props.onExerciseCompleted();
   };
 
   renderContent() {
@@ -143,7 +164,7 @@ export default class Exercise extends React.Component {
           Paso {this.state.stepIndex + 1}/{this.props.steps.length}
         </Text> */}
         {this.renderContent()}
-        <SafeAreaView style={styles.floating} pointerEvents="none">
+        <SafeAreaView style={styles.floating} pointerEvents="box-none">
           <AnimatableView
             animation="bounceInRight"
             duration={500}
@@ -151,7 +172,7 @@ export default class Exercise extends React.Component {
             ref={(ref) => (this.progressView = ref)}>
             <Pie
               animated={true}
-              size={75}
+              size={60}
               borderWidth={1}
               useNativeDriver={true}
               progress={
@@ -175,6 +196,14 @@ export default class Exercise extends React.Component {
               }
             /> */}
           </AnimatableView>
+          {!AUTO_EXERCISE_ADVANCE && (
+            <Button
+              onPress={this.advanceExercise}
+              disabled={this.state.buttonDisabled}
+              style={{marginTop: 10, width: '100%'}}>
+              Continuar
+            </Button>
+          )}
         </SafeAreaView>
       </>
     );
@@ -191,7 +220,6 @@ const styles = StyleSheet.create({
     alignContent: 'center',
     alignItems: 'flex-end',
     justifyContent: 'flex-end',
-    paddingBottom: 20,
-    paddingRight: 20,
+    padding: 20,
   },
 });
