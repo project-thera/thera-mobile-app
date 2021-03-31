@@ -7,7 +7,7 @@
  */
 
 import React from 'react';
-import './dev.config';
+import './config/development';
 
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 
@@ -42,12 +42,19 @@ const blazefaceModelWeights = require('./src/models/blazeface/data/group1-shard1
 
 const BACKEND_TO_USE = 'rn-webgl';
 
+import LoginScreen from './src/containers/LoginScreen';
+
+import {ApiClient} from 'jsonapi-react-native';
+import schema from './src/models/schema';
+
 export default class App extends React.Component {
   constructor(props) {
     super(props);
 
     this.state = {
       hasPermissions: false,
+      loggedIn: false,
+      crfsToken: null,
     };
   }
 
@@ -98,6 +105,10 @@ export default class App extends React.Component {
     this.askForPermissions();
   }
 
+  onLoggedIn = (token) => {
+    this.setState({loggedIn: true, crfsToken: token});
+  };
+
   render() {
     return (
       <SafeAreaProvider>
@@ -107,10 +118,13 @@ export default class App extends React.Component {
           customMapping={mapping}
           theme={{...eva.light, ...theme}}>
           {/* {this.state.mobilenetDetector && this.state.faceDetector && ( */}
-          <AppNavigator
-            faceDetector={this.state.faceDetector}
-            mobilenetDetector={this.state.mobilenetDetector}
-          />
+          {this.state.loggedIn && (
+            <AppNavigator
+              faceDetector={this.state.faceDetector}
+              mobilenetDetector={this.state.mobilenetDetector}
+            />
+          )}
+          {!this.state.loggedIn && <LoginScreen onLoggedIn={this.onLoggedIn} />}
           {/* )} */}
           {/* {!(this.state.mobilenetDetector && this.state.faceDetector) && (
             <Layout
