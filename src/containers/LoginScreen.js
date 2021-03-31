@@ -1,6 +1,6 @@
 import React from 'react';
 import {TouchableWithoutFeedback, StyleSheet, View} from 'react-native';
-import {Icon, Input, Button, Spinner} from '@ui-kitten/components';
+import {Icon, Input, Button, Spinner, Text} from '@ui-kitten/components';
 
 import {SafeAreaView} from 'react-native-safe-area-context';
 
@@ -62,10 +62,11 @@ export default class LoginScreen extends React.Component {
 
   render() {
     return (
-      <SafeAreaView style={{flex: 1}}>
+      <SafeAreaView style={styles.container}>
+        <Text category="h1">Thera Project</Text>
         <Formik initialValues={{email: '', password: ''}} onSubmit={this.login}>
           {({handleChange, handleBlur, handleSubmit, values}) => (
-            <View style={{padding: 20}}>
+            <View>
               <Input
                 onChangeText={handleChange('email')}
                 onBlur={handleBlur('email')}
@@ -80,9 +81,6 @@ export default class LoginScreen extends React.Component {
                 // caption="Should contain at least 8 symbols"
                 accessoryRight={this.renderIcon}
                 secureTextEntry={this.state.secureTextEntry}
-                // onChangeText={(nextValue) =>
-                //   this.setState({password: nextValue})
-                // }
               />
               <Button
                 style={styles.button}
@@ -102,8 +100,14 @@ export default class LoginScreen extends React.Component {
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'space-evenly',
+  },
   button: {
-    marginTop: 10,
+    marginTop: 40,
   },
   indicator: {
     justifyContent: 'center',
