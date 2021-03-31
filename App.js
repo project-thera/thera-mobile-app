@@ -47,6 +47,8 @@ import LoginScreen from './src/containers/LoginScreen';
 import {ApiClient} from 'jsonapi-react-native';
 import schema from './src/models/schema';
 
+import {API_URL} from './config/config';
+
 export default class App extends React.Component {
   constructor(props) {
     super(props);
@@ -105,8 +107,19 @@ export default class App extends React.Component {
     this.askForPermissions();
   }
 
-  onLoggedIn = (token) => {
+  onLoggedIn = async (token) => {
     this.setState({loggedIn: true, crfsToken: token});
+
+    // const client = new ApiClient({
+    //   url: API_URL,
+    //   schema,
+    //   headers: {
+    //     'X-CSRF-Token': token,
+    //   },
+    // });
+
+    // const {data, error} = await client.fetch(['users', 'current']);
+    // console.log(data, error);
   };
 
   render() {

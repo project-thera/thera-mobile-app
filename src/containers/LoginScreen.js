@@ -44,13 +44,6 @@ export default class LoginScreen extends React.Component {
       (response) => {
         if (response?.data?.success) {
           this.props.onLoggedIn(response.headers['x-csrf-token']);
-          // const client = new ApiClient({
-          //   url: API_URL,
-          //   schema,
-          //   headers: {
-          //     'X-CSRF-Token': response.headers['x-csrf-token'],
-          //   },
-          // });
         } else {
           this.setState({
             loading: false,
