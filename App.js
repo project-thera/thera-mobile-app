@@ -54,6 +54,8 @@ import {API_URL} from './config/config';
 import PouchDB from 'pouchdb-core';
 PouchDB.plugin(require('pouchdb-adapter-asyncstorage').default);
 
+import RCTNetworking from 'react-native/Libraries/Network/RCTNetworking';
+
 export default class App extends React.Component {
   constructor(props) {
     super(props);
@@ -62,6 +64,8 @@ export default class App extends React.Component {
       hasPermissions: false,
       currentUser: null,
     };
+
+    this.db = new PouchDB('thera', {adapter: 'asyncstorage'});
   }
 
   askForPermissions = async () => {
@@ -104,11 +108,6 @@ export default class App extends React.Component {
   };
 
   setCurrentUser = async () => {
-    // This clears the async storage
-    // AsyncStorage.clear().then(() => console.log('Cleared'));
-
-    this.db = new PouchDB('thera', {adapter: 'asyncstorage'});
-
     try {
       this.setState({currentUser: await this.db.get('current')});
     } catch (error) {}
@@ -123,6 +122,30 @@ export default class App extends React.Component {
     this.askForPermissions();
   }
 
+  async getJsonApiCurrentUser() {
+    const client = new ApiClient({
+      url: API_URL,
+      schema,
+      // headers: {
+      //   'X-CSRF-Token': token,
+      // },
+    });
+    const {data, error} = await client.fetch(['users', 'current']);
+    console.log(data, error);
+  }
+
+  logout = () => {
+    // Clear cookies
+    RCTNetworking.clearCookies(() => {});
+
+    // This clears the async storage
+    // AsyncStorage.clear().then(() => console.log('Cleared'));
+
+    this.db.get('current').then((doc) => {
+      return this.db.remove(doc);
+    });
+  };
+
   onLoggedIn = async (response) => {
     const currentUser = {
       _id: 'current',
@@ -133,16 +156,6 @@ export default class App extends React.Component {
     await this.db.put(currentUser);
 
     this.setState({currentUser});
-    // const client = new ApiClient({
-    //   url: API_URL,
-    //   schema,
-    //   headers: {
-    //     'X-CSRF-Token': token,
-    //   },
-    // });
-
-    // const {data, error} = await client.fetch(['users', 'current']);
-    // console.log(data, error);
   };
 
   render() {
