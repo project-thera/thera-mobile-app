@@ -62,6 +62,7 @@ export default class App extends React.Component {
 
     this.state = {
       hasPermissions: false,
+      loadingUser: true,
       currentUser: null,
     };
 
@@ -109,8 +110,13 @@ export default class App extends React.Component {
 
   setCurrentUser = async () => {
     try {
-      this.setState({currentUser: await this.db.get('current')});
-    } catch (error) {}
+      this.setState({
+        currentUser: await this.db.get('current'),
+        loadingUser: false,
+      });
+    } catch (error) {
+      this.setState({loadingUser: false});
+    }
   };
 
   async componentDidMount() {
@@ -118,6 +124,7 @@ export default class App extends React.Component {
     await tf.ready();
 
     this.loadDetectors();
+    //this.logout();
     this.setCurrentUser();
     this.askForPermissions();
   }
@@ -158,6 +165,37 @@ export default class App extends React.Component {
     this.setState({currentUser});
   };
 
+  renderAppNavigator = () => {
+    return (
+      <AppNavigator
+        faceDetector={this.state.faceDetector}
+        mobilenetDetector={this.state.mobilenetDetector}
+      />
+    );
+  };
+
+  renderLoginScreen = () => {
+    return <LoginScreen onLoggedIn={this.onLoggedIn} />;
+  };
+
+  renderBrand = () => {
+    return (
+      <Layout
+        style={{
+          flex: 1,
+          flexDirection: 'column',
+          alignContent: 'center',
+          justifyContent: 'center',
+        }}>
+        <AnimatableView animation="fadeIn">
+          <Text category="h1" style={{textAlign: 'center'}}>
+            Thera Project
+          </Text>
+        </AnimatableView>
+      </Layout>
+    );
+  };
+
   render() {
     return (
       <SafeAreaProvider>
@@ -166,32 +204,13 @@ export default class App extends React.Component {
           {...eva}
           customMapping={mapping}
           theme={{...eva.light, ...theme}}>
-          {/* {this.state.mobilenetDetector && this.state.faceDetector && ( */}
-          {this.state.currentUser && (
-            <AppNavigator
-              faceDetector={this.state.faceDetector}
-              mobilenetDetector={this.state.mobilenetDetector}
-            />
-          )}
-          {!this.state.currentUser && (
-            <LoginScreen onLoggedIn={this.onLoggedIn} />
-          )}
-          {/* )} */}
-          {/* {!(this.state.mobilenetDetector && this.state.faceDetector) && (
-            <Layout
-              style={{
-                flex: 1,
-                flexDirection: 'column',
-                alignContent: 'center',
-                justifyContent: 'center',
-              }}>
-              <AnimatableView animation="fadeIn">
-                <Text category="h1" style={{textAlign: 'center'}}>
-                  Thera Project
-                </Text>
-              </AnimatableView>
-            </Layout>
-          )} */}
+          {!this.state.loadingUser &&
+            this.state.currentUser &&
+            this.renderAppNavigator()}
+          {!this.state.loadingUser &&
+            !this.state.currentUser &&
+            this.renderLoginScreen()}
+          {this.state.loadingUser && this.renderBrand()}
         </ApplicationProvider>
       </SafeAreaProvider>
     );
