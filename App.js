@@ -9,6 +9,8 @@
 import React from 'react';
 import './config/development';
 
+import {AsyncStorage} from 'react-native';
+
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 
 import * as eva from '@eva-design/eva';
@@ -49,14 +51,16 @@ import schema from './src/models/schema';
 
 import {API_URL} from './config/config';
 
+import PouchDB from 'pouchdb-core';
+PouchDB.plugin(require('pouchdb-adapter-asyncstorage').default);
+
 export default class App extends React.Component {
   constructor(props) {
     super(props);
 
     this.state = {
       hasPermissions: false,
-      loggedIn: false,
-      crfsToken: null,
+      currentUser: null,
     };
   }
 
@@ -99,17 +103,36 @@ export default class App extends React.Component {
       });
   };
 
+  setCurrentUser = async () => {
+    // This clears the async storage
+    // AsyncStorage.clear().then(() => console.log('Cleared'));
+
+    this.db = new PouchDB('thera', {adapter: 'asyncstorage'});
+
+    try {
+      this.setState({currentUser: await this.db.get('current')});
+    } catch (error) {}
+  };
+
   async componentDidMount() {
     tf.setBackend(BACKEND_TO_USE);
     await tf.ready();
 
     this.loadDetectors();
+    this.setCurrentUser();
     this.askForPermissions();
   }
 
-  onLoggedIn = async (token) => {
-    this.setState({loggedIn: true, crfsToken: token});
+  onLoggedIn = async (response) => {
+    const currentUser = {
+      _id: 'current',
+      data: response.data,
+      token: response.headers['x-csrf-token'],
+    };
 
+    await this.db.put(currentUser);
+
+    this.setState({currentUser});
     // const client = new ApiClient({
     //   url: API_URL,
     //   schema,
@@ -131,13 +154,15 @@ export default class App extends React.Component {
           customMapping={mapping}
           theme={{...eva.light, ...theme}}>
           {/* {this.state.mobilenetDetector && this.state.faceDetector && ( */}
-          {this.state.loggedIn && (
+          {this.state.currentUser && (
             <AppNavigator
               faceDetector={this.state.faceDetector}
               mobilenetDetector={this.state.mobilenetDetector}
             />
           )}
-          {!this.state.loggedIn && <LoginScreen onLoggedIn={this.onLoggedIn} />}
+          {!this.state.currentUser && (
+            <LoginScreen onLoggedIn={this.onLoggedIn} />
+          )}
           {/* )} */}
           {/* {!(this.state.mobilenetDetector && this.state.faceDetector) && (
             <Layout

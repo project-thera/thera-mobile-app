@@ -43,7 +43,7 @@ export default class LoginScreen extends React.Component {
     }).then(
       (response) => {
         if (response?.data?.success) {
-          this.props.onLoggedIn(response.headers['x-csrf-token']);
+          this.props.onLoggedIn(response);
         } else {
           this.setState({
             loading: false,
