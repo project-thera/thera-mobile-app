@@ -56,7 +56,7 @@ PouchDB.plugin(require('pouchdb-adapter-asyncstorage').default);
 
 import RCTNetworking from 'react-native/Libraries/Network/RCTNetworking';
 
-const IGNORE_LOGIN = false;
+const IGNORE_LOGIN = true;
 
 export default class App extends React.Component {
   constructor(props) {
