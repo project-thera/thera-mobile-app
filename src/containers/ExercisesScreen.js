@@ -94,7 +94,8 @@ export default class App extends React.Component {
     return (
       <SafeAreaView style={{flex: 1}}>
         <TopNavigation
-          title="Ejercicios"
+          title="Thera Project"
+          subtitle="ExercisesScreen"
           alignment="center"
           accessoryLeft={BackAction}
         />

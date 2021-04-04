@@ -7,7 +7,9 @@
  */
 
 import React from 'react';
-import './dev.config';
+import './config/development';
+
+import {AsyncStorage} from 'react-native';
 
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 
@@ -42,13 +44,39 @@ const blazefaceModelWeights = require('./src/models/blazeface/data/group1-shard1
 
 const BACKEND_TO_USE = 'rn-webgl';
 
+import LoginScreen from './src/containers/LoginScreen';
+
+import {ApiClient} from 'jsonapi-react-native';
+import schema from './src/models/schema';
+
+import {API_URL} from './config/config';
+
+import PouchDB from 'pouchdb-core';
+PouchDB.plugin(require('pouchdb-adapter-asyncstorage').default);
+
+import RCTNetworking from 'react-native/Libraries/Network/RCTNetworking';
+
+const IGNORE_LOGIN = true;
+
 export default class App extends React.Component {
   constructor(props) {
     super(props);
 
-    this.state = {
-      hasPermissions: false,
-    };
+    if (IGNORE_LOGIN) {
+      this.state = {
+        hasPermissions: false,
+        loadingUser: false,
+        currentUser: {email: 'mail@example.com'},
+      };
+    } else {
+      this.state = {
+        hasPermissions: false,
+        loadingUser: true,
+        currentUser: null,
+      };
+    }
+
+    this.db = new PouchDB('thera', {adapter: 'asyncstorage'});
   }
 
   askForPermissions = async () => {
@@ -90,13 +118,93 @@ export default class App extends React.Component {
       });
   };
 
+  setCurrentUser = async () => {
+    try {
+      this.setState({
+        currentUser: await this.db.get('current'),
+        loadingUser: false,
+      });
+    } catch (error) {
+      this.setState({loadingUser: false});
+    }
+  };
+
   async componentDidMount() {
     tf.setBackend(BACKEND_TO_USE);
     await tf.ready();
 
     this.loadDetectors();
+    // this.logout();
+    !IGNORE_LOGIN && this.setCurrentUser();
     this.askForPermissions();
   }
+
+  async getJsonApiCurrentUser() {
+    const client = new ApiClient({
+      url: API_URL,
+      schema,
+      // headers: {
+      //   'X-CSRF-Token': token,
+      // },
+    });
+    const {data, error} = await client.fetch(['users', 'current']);
+    console.log(data, error);
+  }
+
+  logout = () => {
+    // Clear cookies
+    RCTNetworking.clearCookies(() => {});
+
+    // This clears the async storage
+    // AsyncStorage.clear().then(() => console.log('Cleared'));
+
+    this.db.get('current').then((doc) => {
+      return this.db.remove(doc);
+    });
+  };
+
+  onLoggedIn = async (response) => {
+    const currentUser = {
+      _id: 'current',
+      data: response.data,
+      token: response.headers['x-csrf-token'],
+    };
+
+    await this.db.put(currentUser);
+
+    this.setState({currentUser});
+  };
+
+  renderAppNavigator = () => {
+    return (
+      <AppNavigator
+        faceDetector={this.state.faceDetector}
+        mobilenetDetector={this.state.mobilenetDetector}
+      />
+    );
+  };
+
+  renderLoginScreen = () => {
+    return <LoginScreen onLoggedIn={this.onLoggedIn} />;
+  };
+
+  renderBrand = () => {
+    return (
+      <Layout
+        style={{
+          flex: 1,
+          flexDirection: 'column',
+          alignContent: 'center',
+          justifyContent: 'center',
+        }}>
+        <AnimatableView animation="fadeIn">
+          <Text category="h1" style={{textAlign: 'center'}}>
+            Thera Project
+          </Text>
+        </AnimatableView>
+      </Layout>
+    );
+  };
 
   render() {
     return (
@@ -106,27 +214,13 @@ export default class App extends React.Component {
           {...eva}
           customMapping={mapping}
           theme={{...eva.light, ...theme}}>
-          {/* {this.state.mobilenetDetector && this.state.faceDetector && ( */}
-          <AppNavigator
-            faceDetector={this.state.faceDetector}
-            mobilenetDetector={this.state.mobilenetDetector}
-          />
-          {/* )} */}
-          {/* {!(this.state.mobilenetDetector && this.state.faceDetector) && (
-            <Layout
-              style={{
-                flex: 1,
-                flexDirection: 'column',
-                alignContent: 'center',
-                justifyContent: 'center',
-              }}>
-              <AnimatableView animation="fadeIn">
-                <Text category="h1" style={{textAlign: 'center'}}>
-                  Thera Project
-                </Text>
-              </AnimatableView>
-            </Layout>
-          )} */}
+          {!this.state.loadingUser &&
+            this.state.currentUser &&
+            this.renderAppNavigator()}
+          {!this.state.loadingUser &&
+            !this.state.currentUser &&
+            this.renderLoginScreen()}
+          {this.state.loadingUser && this.renderBrand()}
         </ApplicationProvider>
       </SafeAreaProvider>
     );

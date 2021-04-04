@@ -1,16 +1,35 @@
 import React from 'react';
 import {StyleSheet} from 'react-native';
-import {Layout, Text} from '@ui-kitten/components';
+import {
+  Icon,
+  Layout,
+  Text,
+  TopNavigation,
+  TopNavigationAction,
+} from '@ui-kitten/components';
 
 import ExerciseList from '../components/ExerciseList';
 
+const BackIcon = (props) => <Icon {...props} name="arrow-back" />;
+
 export default class GlossaryScreen extends React.Component {
+  renderBackAction = () => (
+    <TopNavigationAction
+      icon={BackIcon}
+      onPress={() => this.props.navigation.goBack()}
+    />
+  );
   render() {
     return (
-      <Layout style={styles.layout}>
-        <Text category="h3">GlossaryScreen</Text>
+      <React.Fragment>
+        <TopNavigation
+          title="Thera Project"
+          subtitle="GlossaryScreen"
+          alignment="center"
+          accessoryLeft={this.renderBackAction}
+        />
         <ExerciseList />
-      </Layout>
+      </React.Fragment>
     );
   }
 }
