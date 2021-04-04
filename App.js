@@ -56,15 +56,25 @@ PouchDB.plugin(require('pouchdb-adapter-asyncstorage').default);
 
 import RCTNetworking from 'react-native/Libraries/Network/RCTNetworking';
 
+const IGNORE_LOGIN = false;
+
 export default class App extends React.Component {
   constructor(props) {
     super(props);
 
-    this.state = {
-      hasPermissions: false,
-      loadingUser: true,
-      currentUser: null,
-    };
+    if (IGNORE_LOGIN) {
+      this.state = {
+        hasPermissions: false,
+        loadingUser: false,
+        currentUser: {email: 'mail@example.com'},
+      };
+    } else {
+      this.state = {
+        hasPermissions: false,
+        loadingUser: true,
+        currentUser: null,
+      };
+    }
 
     this.db = new PouchDB('thera', {adapter: 'asyncstorage'});
   }
@@ -124,8 +134,8 @@ export default class App extends React.Component {
     await tf.ready();
 
     this.loadDetectors();
-    //this.logout();
-    this.setCurrentUser();
+    // this.logout();
+    !IGNORE_LOGIN && this.setCurrentUser();
     this.askForPermissions();
   }
 
