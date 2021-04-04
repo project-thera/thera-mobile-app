@@ -7,10 +7,6 @@ export default class HomeScreen extends React.Component {
     super(props);
   }
 
-  navigateExercises = () => {
-    this.props.navigation.navigate('exercises');
-  };
-
   render() {
     return (
       <SafeAreaView style={{flex: 1}}>
@@ -18,7 +14,8 @@ export default class HomeScreen extends React.Component {
         <Divider />
         <Layout
           style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-          <Button onPress={this.navigateExercises}>Ejercicios</Button>
+          <Button onPress={() => this.props.navigation.navigate('exercises')}>Ejercicios</Button>
+          <Button onPress={() => this.props.navigation.navigate('lab')}>Enter the lab!</Button>
         </Layout>
       </SafeAreaView>
     );
