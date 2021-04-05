@@ -1,6 +1,7 @@
 import React from 'react';
 import {
   Button,
+  Card,
   Icon,
   Layout,
   MenuItem,
@@ -15,6 +16,8 @@ import {
 import {SafeAreaView} from 'react-native-safe-area-context';
 
 import ViewPagerTab from '../components/base/ViewPagerTab';
+
+import ShopModal from './ShopModal';
 
 const BackIcon = (props) => <Icon {...props} name="arrow-back" />;
 const InfoIcon = (props) => <Icon {...props} name="info" />;
@@ -36,6 +39,10 @@ export default class HomeScreen extends React.Component {
   toggleMenu = () => {
     this.setState({menuVisible: !this.state.menuVisible});
   };
+
+  showShopModal = (value) => {
+    this.setState({shopVisible: value});
+  }
 
   navigateTo = (route) => {
     this.toggleMenu();
@@ -102,7 +109,7 @@ export default class HomeScreen extends React.Component {
             </Button>
             <Button
               style={{marginBottom: 8}}
-              onPress={() => this.props.navigation.navigate('shop')}>
+              onPress={() => this.showShopModal(true)}>
               ShopScreen
             </Button>
           </ViewPagerTab>
@@ -113,6 +120,10 @@ export default class HomeScreen extends React.Component {
             </Button>
           </ViewPagerTab>
         </ViewPager>
+
+        <ShopModal
+          visible={this.state.shopVisible}
+          onBackdropPress={() => this.showShopModal(false)} />
       </SafeAreaView>
     );
   }

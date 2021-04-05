@@ -16,6 +16,8 @@ import {
 import exercises from '../data/exercises.json';
 
 const BackIcon = (props) => <Icon {...props} name="arrow-back" />;
+const FilmIcon = (props) => <Icon {...props} name="film" />;
+const FlashIcon = (props) => <Icon {...props} name="flash" />;
 
 export default class GlossaryScreen extends React.Component {
   constructor(props) {
@@ -40,12 +42,18 @@ export default class GlossaryScreen extends React.Component {
   );
 
   renderItemFooter = (footerProps, info) => (
-    <View {...footerProps}>
+    <View {...footerProps} style={[footerProps.style, styles.footerContainer]}>
+      <Button style={styles.footerControl} size="small" status="basic" accessoryLeft={FilmIcon}>
+        Watch!
+      </Button>
       <Button
-      style={{alignSelf: 'flex-end'}}
+        style={styles.footerControl}
         size="small"
-        onPress={() => this.props.navigation.navigate('exercise-intent', { object: info.item })}>
-        TRY!
+        accessoryLeft={FlashIcon}
+        onPress={() =>
+          this.props.navigation.navigate('exercise-intent', {object: info.item})
+        }>
+        Play!
       </Button>
     </View>
   );
@@ -54,7 +62,7 @@ export default class GlossaryScreen extends React.Component {
     return (
       <Card
         style={styles.item}
-        status="basic"
+        status="primary"
         header={(headerProps) => this.renderItemHeader(headerProps, info)}
         footer={(footerProps) => this.renderItemFooter(footerProps, info)}>
         <Text>{info.item.description}</Text>
@@ -111,5 +119,12 @@ const styles = StyleSheet.create({
     backgroundColor: 'blueviolet',
     // flex: 1,
     // padding: 15,
+  },
+  footerContainer: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+  },
+  footerControl: {
+    marginHorizontal: 2,
   },
 });

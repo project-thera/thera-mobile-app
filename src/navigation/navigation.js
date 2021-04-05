@@ -10,7 +10,6 @@ import ExerciseIntentScreen from '../containers/ExerciseIntentScreen';
 import GlossaryScreen from '../containers/GlossaryScreen';
 import RoutinesScreen from '../containers/RoutinesScreen';
 import LoginScreen from '../containers/LoginScreen';
-import ShopScreen from '../containers/ShopScreen';
 
 const {Navigator, Screen} = createStackNavigator();
 
@@ -27,7 +26,6 @@ const HomeNavigator = (parentProps) => {
       <Screen name="glossary" component={GlossaryScreen} />
       <Screen name="login" component={LoginScreen} />
       <Screen name="routines" component={RoutinesScreen} />
-      <Screen name="shop" component={ShopScreen} />
     </Navigator>
   );
 };
