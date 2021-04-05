@@ -8,9 +8,7 @@ import {
   TopNavigationAction,
 } from '@ui-kitten/components';
 
-const BackIcon = (props) => <Icon {...props} name="arrow-back" />;
-
-export default class RoutinesScreen extends React.Component {
+export default class ShopScreen extends React.Component {
   renderBackAction = () => (
     <TopNavigationAction
       icon={BackIcon}
@@ -22,10 +20,11 @@ export default class RoutinesScreen extends React.Component {
       <React.Fragment>
         <TopNavigation
           title="Thera Project"
-          subtitle="RoutinesScreen"
+          subtitle="ShopScreen"
           alignment="center"
           accessoryLeft={this.renderBackAction}
         />
+        {/* <ExerciseList /> */}
       </React.Fragment>
     );
   }

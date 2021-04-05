@@ -6,10 +6,11 @@ import {createStackNavigator} from '@react-navigation/stack';
 import HomeScreen from '../containers/HomeScreen';
 import ExercisesScreen from '../containers/ExercisesScreen';
 
-// import LabScreen from '../containers/LabScreen';
+import ExerciseIntentScreen from '../containers/ExerciseIntentScreen';
 import GlossaryScreen from '../containers/GlossaryScreen';
 import RoutinesScreen from '../containers/RoutinesScreen';
 import LoginScreen from '../containers/LoginScreen';
+import ShopScreen from '../containers/ShopScreen';
 
 const {Navigator, Screen} = createStackNavigator();
 
@@ -20,12 +21,13 @@ const HomeNavigator = (parentProps) => {
       <Screen name="exercises">
         {(props) => <ExercisesScreen {...props} {...parentProps} />}
       </Screen>
-      {/* <Screen name="lab">
-        {(props) => <LabScreen {...props} {...parentProps} />}
-      </Screen> */}
+      <Screen name="exercise-intent">
+        {(props) => <ExerciseIntentScreen {...props} {...parentProps} />}
+      </Screen>
       <Screen name="glossary" component={GlossaryScreen} />
-      <Screen name="routines" component={RoutinesScreen} />
       <Screen name="login" component={LoginScreen} />
+      <Screen name="routines" component={RoutinesScreen} />
+      <Screen name="shop" component={ShopScreen} />
     </Navigator>
   );
 };
