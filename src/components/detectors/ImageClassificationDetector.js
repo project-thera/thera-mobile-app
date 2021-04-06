@@ -38,7 +38,7 @@ const textureDims = {
 
 const AUTORENDER = true;
 const MIN_BRIGHTNESS = 110;
-const DETECTION_THRESHOLD = 0.11;
+const DETECTION_THRESHOLD = 0.07;
 const NOSE_DISTANCE_THRESHOLD = 0.1;
 
 // tslint:disable-next-line: variable-name

@@ -45,6 +45,7 @@
     "react-native-safe-area-context": "^3.2.0",
     "react-native-screens": "^2.18.1",
     "react-native-svg": "^12.1.0",
+    "react-native-toast-message": "^1.4.9",
     "react-native-unimodules": "^0.12.0",
     "react-swipeable-views": "^0.13.9",
     "react-swipeable-views-native": "^0.13.2"

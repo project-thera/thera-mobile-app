@@ -1,3 +1,3 @@
 export default [
-  'boca abierta lengua abajo', 'boca abierta lengua paladar', 'boca cerrada', 'boca derecha', 'conejo', 'inflar cachete derecho', 'inflar cachetes', 'lengua afuera', 'lengua arriba', 'lengua derecha', 'protuir abierta', 'protuir cerrada'
+  'boca_abierta_lengua_abajo', 'boca_abierta_lengua_arriba', 'caramelo_abajo', 'caramelo_arriba', 'caramelo_derecha', 'caramelo_izquierda', 'conejito', 'inflar_cachete_derecho', 'inflar_cachete_izquierdo', 'inflar_cachetes', 'lateralizar_boca_derecha', 'lateralizar_boca_izquierda', 'lengua_abajo', 'lengua_arriba', 'lengua_derecha', 'lengua_izquierda', 'morder_labio_inferior', 'morder_labio_superior', 'protruir_boca_abierta', 'protruir_boca_cerrada', 'reposo', 'retruir_abierta', 'retruir_cerrada'
 ];

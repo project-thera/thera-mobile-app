@@ -18,19 +18,18 @@ import {Formik} from 'formik';
 import Toast from 'react-native-toast-message';
 
 import axios from 'axios';
-import {SIGN_UP_URL} from '../../config/config';
+import {RESET_PASSWORD_URL} from '../../config/config';
 
 import errorField from '../components/base/errorField';
 
 const BackIcon = (props) => <Icon {...props} name="arrow-back" />;
 
-export default class SignUpScreen extends React.Component {
+export default class ResetPasswordScreen extends React.Component {
   constructor(props) {
     super(props);
 
     this.state = {
       loading: false,
-      secureTextEntry: true,
     };
   }
 
@@ -55,17 +54,19 @@ export default class SignUpScreen extends React.Component {
 
     axios({
       method: 'post',
-      url: SIGN_UP_URL,
+      url: RESET_PASSWORD_URL,
       data: {
         api_v1_user: values,
       },
     }).then(
       (response) => {
+        console.log(response?.data);
+
         if (response?.data?.id) {
           Toast.show({
             type: 'success',
             position: 'bottom',
-            text1: `Se ha enviado un mensaje a la dirección de correo ${response?.data?.email} para continuar con el registro`,
+            text1: `Se ha enviado un mensaje a la dirección de correo ${response?.data?.email} para continuar`,
           });
 
           this.props.navigation.navigate('home');
@@ -101,32 +102,14 @@ export default class SignUpScreen extends React.Component {
         />
         <Divider />
         <Layout style={styles.container}>
-          <Text category="h1">Registrarse</Text>
+          <Text category="h2">Recuperar Contraseña</Text>
           <Formik
             initialValues={{
-              username: '',
-              fullname: '',
               email: '',
-              password: '',
-              password_confirmation: '',
             }}
             onSubmit={this.handleSubmit}>
             {({handleChange, handleBlur, handleSubmit, values, errors}) => (
               <View>
-                <Input
-                  onChangeText={handleChange('username')}
-                  onBlur={handleBlur('username')}
-                  value={values.username}
-                  placeholder="Nombre de usuario"
-                  {...errorField({error: errors.username})}
-                />
-                <Input
-                  onChangeText={handleChange('fullname')}
-                  onBlur={handleBlur('fullname')}
-                  value={values.fullname}
-                  placeholder="Nombre y apellido"
-                  {...errorField({error: errors.fullname})}
-                />
                 <Input
                   onChangeText={handleChange('email')}
                   onBlur={handleBlur('email')}
@@ -134,26 +117,7 @@ export default class SignUpScreen extends React.Component {
                   placeholder="Dirección de correo electrónico"
                   {...errorField({error: errors.email})}
                 />
-                <Input
-                  value={values.password}
-                  placeholder="Contraseña"
-                  onChangeText={handleChange('password')}
-                  onBlur={handleBlur('password')}
-                  // caption="Should contain at least 8 symbols"
-                  accessoryRight={this.renderIcon}
-                  secureTextEntry={this.state.secureTextEntry}
-                  {...errorField({error: errors.password})}
-                />
-                <Input
-                  value={values.password_confirmation}
-                  placeholder="Confirmar Contraseña"
-                  onChangeText={handleChange('password_confirmation')}
-                  onBlur={handleBlur('password_confirmation')}
-                  // caption="Should contain at least 8 symbols"
-                  accessoryRight={this.renderIcon}
-                  secureTextEntry={this.state.secureTextEntry}
-                  {...errorField({error: errors.password_confirmation})}
-                />
+
                 <Button
                   style={styles.button}
                   onPress={handleSubmit}

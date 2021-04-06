@@ -3,7 +3,7 @@ import {TouchableWithoutFeedback, StyleSheet, View} from 'react-native';
 import {Icon, Input, Button, Spinner, Text} from '@ui-kitten/components';
 
 import {SafeAreaView} from 'react-native-safe-area-context';
-
+import Toast from 'react-native-toast-message';
 import {Formik} from 'formik';
 
 import axios from 'axios';
@@ -29,6 +29,14 @@ export default class LoginScreen extends React.Component {
     </TouchableWithoutFeedback>
   );
 
+  navigateToSignUp = () => {
+    this.props.navigation.navigate('sign-up');
+  };
+
+  navigateToResetPassword = () => {
+    this.props.navigation.navigate('reset-password');
+  };
+
   login = (values) => {
     this.setState({
       loading: true,
@@ -42,9 +50,21 @@ export default class LoginScreen extends React.Component {
       },
     }).then(
       (response) => {
-        if (response?.data?.success) {
+        if (response?.data?.id) {
+          Toast.show({
+            type: 'success',
+            position: 'bottom',
+            text1: 'Te damos la bienvenida',
+          });
+
           this.props.onLoggedIn(response);
         } else {
+          Toast.show({
+            type: 'error',
+            position: 'bottom',
+            text1: 'Los datos son incorrectos.',
+          });
+
           this.setState({
             loading: false,
           });
@@ -90,6 +110,13 @@ export default class LoginScreen extends React.Component {
                 {this.state.loading && (
                   <Spinner size="small" status="primary" />
                 )}
+              </Button>
+
+              <Button appearance="ghost" onPress={this.navigateToSignUp}>
+                Registrarse
+              </Button>
+              <Button appearance="ghost" onPress={this.navigateToResetPassword}>
+                ¿Olvidaste tu contraseña?
               </Button>
             </View>
           )}
