@@ -3,11 +3,8 @@ import {StyleSheet, View} from 'react-native';
 import {
   Button,
   Card,
-  Divider,
   Icon,
-  Layout,
   List,
-  ListItem,
   Text,
   TopNavigation,
   TopNavigationAction,
@@ -43,7 +40,11 @@ export default class GlossaryScreen extends React.Component {
 
   renderItemFooter = (footerProps, info) => (
     <View {...footerProps} style={[footerProps.style, styles.footerContainer]}>
-      <Button style={styles.footerControl} size="small" status="basic" accessoryLeft={FilmIcon}>
+      <Button
+        style={styles.footerControl}
+        size="small"
+        status="basic"
+        accessoryLeft={FilmIcon}>
         Watch!
       </Button>
       <Button

@@ -1,4 +1,6 @@
 import React from 'react';
+import {Image, StyleSheet, TouchableOpacity} from 'react-native';
+import {SafeAreaView} from 'react-native-safe-area-context';
 import {
   Button,
   Card,
@@ -13,11 +15,10 @@ import {
   ViewPager,
 } from '@ui-kitten/components';
 
-import {SafeAreaView} from 'react-native-safe-area-context';
-
 import ViewPagerTab from '../components/base/ViewPagerTab';
 
 import ShopModal from './ShopModal';
+import RoundedOpacity from '../components/base/RoundedOpacity';
 
 const BackIcon = (props) => <Icon {...props} name="arrow-back" />;
 const InfoIcon = (props) => <Icon {...props} name="info" />;
@@ -42,7 +43,7 @@ export default class HomeScreen extends React.Component {
 
   showShopModal = (value) => {
     this.setState({shopVisible: value});
-  }
+  };
 
   navigateTo = (route) => {
     this.toggleMenu();
@@ -89,24 +90,26 @@ export default class HomeScreen extends React.Component {
           // accessoryLeft={this.renderBackAction}
         />
         <ViewPager
+          style={{flex: 1}}
           selectedIndex={this.state.selectedIndex}
           onSelect={(index) => {
             this.setState({selectedIndex: index});
           }}>
           <ViewPagerTab
             backgroundImage={require('../assets/images/lab2-bg0.jpg')}>
-            <Button onPress={() => this.props.navigation.navigate('glossary')}>
-              GlossaryScreen
-            </Button>
+            <RoundedOpacity
+              action={() => this.props.navigation.navigate('glossary')}
+              icon={require('../assets/images/icons/computer.png')}
+              text="GlossaryScreen"
+            />
           </ViewPagerTab>
           <ViewPagerTab
             backgroundImage={require('../assets/images/lab2-bg1.jpg')}>
-            <Text>my Progress</Text>
-            <Button
-              style={{marginBottom: 8}}
-              onPress={() => this.props.navigation.navigate('exercises')}>
-              ExercisesScreen
-            </Button>
+            <RoundedOpacity
+              action={() => this.props.navigation.navigate('exercises')}
+              icon={require('../assets/images/icons/robot.png')}
+              text="ExercisesScreen"
+            />
             <Button
               style={{marginBottom: 8}}
               onPress={() => this.showShopModal(true)}>
@@ -115,16 +118,21 @@ export default class HomeScreen extends React.Component {
           </ViewPagerTab>
           <ViewPagerTab
             backgroundImage={require('../assets/images/lab2-bg2.jpg')}>
-            <Button onPress={() => this.props.navigation.navigate('routines')}>
-              RoutinesScreen
-            </Button>
+            <RoundedOpacity
+              action={() => this.props.navigation.navigate('routines')}
+              icon={require('../assets/images/icons/chatbot.png')}
+              text="RoutinesScreen"
+            />
           </ViewPagerTab>
         </ViewPager>
 
         <ShopModal
           visible={this.state.shopVisible}
-          onBackdropPress={() => this.showShopModal(false)} />
+          onBackdropPress={() => this.showShopModal(false)}
+        />
       </SafeAreaView>
     );
   }
 }
+
+const styles = StyleSheet.create({});

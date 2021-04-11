@@ -2,15 +2,15 @@ import React from 'react';
 import {ImageBackground, StyleSheet} from 'react-native';
 import {Button, Icon, Layout, Text, ViewPager} from '@ui-kitten/components';
 
+import TriptychBackground from './TriptychBackground';
+
 export default class ViewPagerTab extends React.Component {
   render() {
     return (
       <Layout style={styles.tab}>
-        <ImageBackground
-          source={this.props.backgroundImage}
-          style={styles.backgroundImage}>
+        <TriptychBackground backgroundImage={this.props.backgroundImage}>
           <Layout style={styles.innerLayout}>{this.props.children}</Layout>
-        </ImageBackground>
+        </TriptychBackground>
       </Layout>
     );
   }
@@ -18,19 +18,13 @@ export default class ViewPagerTab extends React.Component {
 
 const styles = StyleSheet.create({
   tab: {
-    height: '100%',
-  },
-  backgroundImage: {
-    // alignItems: 'center',
-    height: '100%',
     flex: 1,
-    justifyContent: 'center',
-    resizeMode: 'stretch',
-    width: '100%',
   },
   innerLayout: {
-    backgroundColor: 'rgba(0, 0, 0, 0.2)',
-    padding: 40,
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0)',
     flex: 1,
+    justifyContent: 'center',
+    padding: 20,
   },
 });
