@@ -19,6 +19,7 @@ import ViewPagerTab from '../components/base/ViewPagerTab';
 
 import ShopModal from './ShopModal';
 import RoundedOpacity from '../components/base/RoundedOpacity';
+import LabBackground from '../components/base/LabBackground';
 
 const BackIcon = (props) => <Icon {...props} name="arrow-back" />;
 const InfoIcon = (props) => <Icon {...props} name="info" />;
@@ -35,7 +36,26 @@ export default class HomeScreen extends React.Component {
       menuVisible: false,
       shopVisible: false,
     };
+
+    this.bg = new LabBackground(0);
   }
+
+  componentDidMount() {
+    const {navigation} = this.props;
+
+    this.focusListener = navigation.addListener(
+      'focus',
+      () => {
+        this.bg = new LabBackground(0);
+        this.forceUpdate();
+      },
+      [navigation],
+    );
+  }
+
+  // componentWillUnmount() {
+  //   this.focusListener.remove();
+  // }
 
   toggleMenu = () => {
     this.setState({menuVisible: !this.state.menuVisible});
@@ -95,41 +115,28 @@ export default class HomeScreen extends React.Component {
           onSelect={(index) => {
             this.setState({selectedIndex: index});
           }}>
-          <ViewPagerTab
-            backgroundImage={require('../assets/images/lab2-bg0.jpg')}>
+          <ViewPagerTab backgroundImage={this.bg.getImage(0)}>
             <RoundedOpacity
               action={() => this.props.navigation.navigate('glossary')}
               icon={require('../assets/images/icons/computer.png')}
               text="GlossaryScreen"
             />
           </ViewPagerTab>
-          <ViewPagerTab
-            backgroundImage={require('../assets/images/lab2-bg1.jpg')}>
-            <RoundedOpacity
-              action={() => this.props.navigation.navigate('exercises')}
-              icon={require('../assets/images/icons/robot.png')}
-              text="ExercisesScreen"
-            />
-            <Button
-              style={{marginBottom: 8}}
-              onPress={() => this.showShopModal(true)}>
-              ShopScreen
-            </Button>
-          </ViewPagerTab>
-          <ViewPagerTab
-            backgroundImage={require('../assets/images/lab2-bg2.jpg')}>
+          <ViewPagerTab backgroundImage={this.bg.getImage(1)}>
             <RoundedOpacity
               action={() => this.props.navigation.navigate('routines')}
               icon={require('../assets/images/icons/chatbot.png')}
               text="RoutinesScreen"
             />
           </ViewPagerTab>
+          <ViewPagerTab backgroundImage={this.bg.getImage(2)}>
+            <RoundedOpacity
+              action={() => this.props.navigation.navigate('shop')}
+              icon={require('../assets/images/icons/robot.png')}
+              text="ShopScreen2"
+            />
+          </ViewPagerTab>
         </ViewPager>
-
-        <ShopModal
-          visible={this.state.shopVisible}
-          onBackdropPress={() => this.showShopModal(false)}
-        />
       </SafeAreaView>
     );
   }

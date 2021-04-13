@@ -13,6 +13,7 @@ import RoutinesScreen from '../containers/RoutinesScreen';
 import LoginScreen from '../containers/LoginScreen';
 import SignUpScreen from '../containers/SignUpScreen';
 import ResetPasswordScreen from '../containers/ResetPasswordScreen';
+import ShopScreen from '../containers/ShopScreen';
 
 const {Navigator, Screen} = createStackNavigator();
 
@@ -31,6 +32,7 @@ const HomeNavigator = (parentProps) => {
       <Screen name="sign-up" component={SignUpScreen} />
       <Screen name="reset-password" component={ResetPasswordScreen} />
       <Screen name="routines" component={RoutinesScreen} />
+      <Screen name="shop" component={ShopScreen } />
     </Navigator>
   );
 };
