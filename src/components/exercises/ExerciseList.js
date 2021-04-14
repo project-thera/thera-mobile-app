@@ -92,7 +92,7 @@ class ExerciseList extends React.Component {
           animation="zoomIn"
           duration={1000}
           useNativeDriver={true}>
-          <Bar
+          {/* <Bar
             progress={this.state.exerciseIndex / this.props.exercises.length}
             animationConfig={{speed: 5, bounciness: 10}}
             animationType={'spring'}
@@ -104,7 +104,7 @@ class ExerciseList extends React.Component {
             style={{margin: 25}}
             color={this.props.eva.theme['color-primary-default']}
             unfilledColor="#d6d6d6"
-          />
+          /> */}
         </AnimatableView>
         <Exercise
           {...exerciseProps}

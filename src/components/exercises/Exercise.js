@@ -4,7 +4,7 @@ import {SafeAreaView} from 'react-native-safe-area-context';
 import {Pie, Circle} from 'react-native-progress';
 import {View as AnimatableView} from 'react-native-animatable';
 
-import {Button} from '@ui-kitten/components';
+import {Button, Layout} from '@ui-kitten/components';
 
 import ImageClassificationDetector from '../detectors/ImageClassificationDetector';
 import BlowDetector from '../detectors/BlowDetector';
@@ -63,11 +63,18 @@ export default class Exercise extends React.Component {
   onStepCompleted = async () => {
     this.pause();
 
-    let result = await this.progressView.bounce(STEP_ANIMATION_TIME);
+    // let result = await this.progressView.bounce(STEP_ANIMATION_TIME);
+
+    this.props.onStepCompleted();
+
+    let result = {
+      finished: true,
+    };
 
     if (result.finished) {
+      console.log('im here!')
       if (this.state.stepIndex + 1 >= this.props.steps.length) {
-        this.props.exerciseCompletedSound?.replayAsync();
+        this.props.exerciseCompletedSound?.replayAsync();        
 
         if (AUTO_EXERCISE_ADVANCE) {
           this.advanceExercise();
@@ -159,69 +166,87 @@ export default class Exercise extends React.Component {
     return `${(this.state.remainingTime / 1000).toFixed(1)}`;
   };
 
+  renderNextButton = () => {
+    if (!AUTO_EXERCISE_ADVANCE) {
+      return (
+        <Button
+          onPress={this.advanceExercise}
+          disabled={this.state.buttonDisabled}
+          // style={{marginTop: 10, width: '100%'}}
+        >
+          Continuar
+        </Button>
+      );
+    }
+  };
+
   render() {
     return (
-      <>
-        {/* <Text>
-          Paso {this.state.stepIndex + 1}/{this.props.steps.length}
-        </Text> */}
-        {this.renderContent()}
-        <SafeAreaView style={styles.floating} pointerEvents="box-none">
-          <AnimatableView
-            animation="bounceInRight"
-            duration={500}
-            useNativeDriver={true}
-            ref={(ref) => (this.progressView = ref)}>
-            <Pie
-              animated={true}
-              size={60}
-              borderWidth={1}
-              useNativeDriver={true}
-              progress={
-                (this.state.stepIndex + this.state.stepProgress) /
-                this.props.steps.length
-              }
-            />
-            {/* <Circle
-              animated={true}
-              size={75}
-              borderWidth={1}
-              thickness={10}
-              showsText={true}
-              formatText={this.formatProgress}
-              strokeCap="butt"
-              useNativeDriver={true}
-              endAngle={0.99}
-              progress={
-                (this.state.stepIndex + this.state.stepProgress) /
-                this.props.steps.length
-              }
-            /> */}
-          </AnimatableView>
-          {!AUTO_EXERCISE_ADVANCE && (
-            <Button
-              onPress={this.advanceExercise}
-              disabled={this.state.buttonDisabled}
-              style={{marginTop: 10, width: '100%'}}>
-              Continuar
-            </Button>
-          )}
-        </SafeAreaView>
-      </>
+      <Layout style={styles.container}>
+        <Layout style={styles.contentContainer}>{this.renderContent()}</Layout>
+        <Layout style={{padding: 10}}>{this.renderNextButton()}</Layout>
+      </Layout>
+      // {/*
+      //   {/* <Text>
+      //     Paso {this.state.stepIndex + 1}/{this.props.steps.length}
+      //   </Text> */}
+      //   // {this.renderContent()}
+      //   // {this.renderNextButton()}
+      //   {/* <SafeAreaView style={styles.floating} pointerEvents="box-none">
+      //     <AnimatableView
+      //       animation="bounceInRight"
+      //       duration={500}
+      //       useNativeDriver={true}
+      //       ref={(ref) => (this.progressView = ref)}> */}
+      //   {/* <Pie
+      //         animated={true}
+      //         size={60}
+      //         borderWidth={1}
+      //         useNativeDriver={true}
+      //         progress={
+      //           (this.state.stepIndex + this.state.stepProgress) /
+      //           this.props.steps.length
+      //         }
+      //       /> */}
+      //   {/* <Circle
+      //         animated={true}
+      //         size={75}
+      //         borderWidth={1}
+      //         thickness={10}
+      //         showsText={true}
+      //         formatText={this.formatProgress}
+      //         strokeCap="butt"
+      //         useNativeDriver={true}
+      //         endAngle={0.99}
+      //         progress={
+      //           (this.state.stepIndex + this.state.stepProgress) /
+      //           this.props.steps.length
+      //         }
+      //       /> */}
+      //   {/* </AnimatableView>
+      //     {this.renderNextButton()}
+      //   </SafeAreaView> */}
     );
   }
 }
 
 const styles = StyleSheet.create({
-  floating: {
-    position: 'absolute',
-    zIndex: 1,
+  container: {
     flex: 1,
-    width: '100%',
-    height: '100%',
-    alignContent: 'center',
-    alignItems: 'flex-end',
-    justifyContent: 'flex-end',
-    padding: 20,
+    justifyContent: 'space-between',
   },
+  contentContainer: {
+    flex: 1,
+  }
+  // floating: {
+  //   position: 'absolute',
+  //   zIndex: 1,
+  //   flex: 1,
+  //   width: '100%',
+  //   height: '100%',
+  //   alignContent: 'center',
+  //   alignItems: 'flex-end',
+  //   justifyContent: 'flex-end',
+  //   padding: 20,
+  // },
 });

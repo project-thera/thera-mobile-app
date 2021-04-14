@@ -3,7 +3,12 @@ import {StyleSheet} from 'react-native';
 
 import {Text, Button, Icon, Layout, Spinner} from '@ui-kitten/components';
 
+import Toast from 'react-native-toast-message';
+
 import Voice from '@react-native-voice/voice';
+import Word from '../base/Word';
+
+import Messages from '../base/Messages';
 
 const LOCALE = 'es-AR';
 
@@ -41,6 +46,7 @@ export default class SpeechRecognition extends React.Component {
       messageStatus: 'primary',
       showSpinner: false,
       showButton: true,
+      showSkipButton: true,
     };
   }
 
@@ -83,6 +89,13 @@ export default class SpeechRecognition extends React.Component {
       showButton: true,
       message: 'No puedo oirte bien, intentalo de nuevo',
       messageStatus: 'danger',
+    });
+
+    Toast.show({
+      position: 'bottom',
+      type: 'error',
+      text1: 'Eso no sonó bien.',
+      text2: 'Por favor, intentalo de nuevo.',
     });
   };
 
@@ -142,10 +155,20 @@ export default class SpeechRecognition extends React.Component {
       showButton: false,
     });
 
+    Toast.show({
+      position: 'bottom',
+      type: 'success',
+      text1: Messages.successTitle(),
+      text2: Messages.successSubtitle(),
+      visibilityTime: 2000,
+    });
+
     this.props.onStepCompleted();
   };
 
   _startRecognizing = async () => {
+    Toast.hide();
+
     this.setState({
       error: '',
       end: false,
@@ -193,61 +216,93 @@ export default class SpeechRecognition extends React.Component {
     });
   }
 
+  renderSpinner = () => {
+    if (this.state.showSpinner) {
+      return (
+        <Layout style={{padding: 20}}>
+          <Spinner size="galactic" 
+          style={{width: 200, height: 200, borderRadius: 100, marginBottom: 16}}/>
+        </Layout>
+      );
+    }
+  };
+
+  renderButton = () => {
+    if (this.state.showButton) {
+      return (
+        <Button
+          size="giant"
+          accessibilityLabel="Empezar detección"
+          onPress={this._startRecognizing}
+          appearance="outline"
+          style={{width: 200, height: 200, borderRadius: 100, marginBottom: 16}}
+          accessoryLeft={(props) => {
+            let recording = false
+            if (!recording) return (
+              <Icon
+                {...props}
+                animationConfig={{ cycles: Infinity }}
+                animation='shake'
+                style={[props.style, {width: 120, height: 120 }]}
+                name="mic"
+              />)
+            if (recording) return (
+            <Icon
+              {...props}
+              style={[props.style, {width: 120, height: 120 }]}
+              name="mic"
+            />
+          )}}
+        />
+      );
+    }
+  };
+
+  renderSkipButton = () => {
+    if (this.state.showSkipButton) {
+      return (
+        <Button style={{width: '100%'}} appearance="ghost" status="basic">
+          No puedo hablar en este momento
+        </Button>
+      );
+    }
+  };
+
   render() {
     return (
       <Layout style={styles.container}>
-        <Text style={styles.centerText} category="h2">
-          Deci la frase:
+        <Text category="h2" style={styles.title}>
+          Pronunciá la palabra
         </Text>
-        <Text style={styles.centerText} category="h1">
-          {this.props.currentStep.sentence}
-        </Text>
-        <Text style={styles.centerText} category="s1">
-          Presiona el boton y empieza a hablar.
-        </Text>
-        <Layout style={{paddingTop: 100}}>
-          {this.state.showSpinner && (
-            <Layout style={{padding: 20}}>
-              <Spinner size="galactic" />
-            </Layout>
-          )}
-          {this.state.showButton && (
-            <Button
-              size="giant"
-              accessibilityLabel="Empezar detección"
-              onPress={this._startRecognizing}
-              appearance="ghost"
-              accessoryLeft={(props) => (
-                <Icon
-                  {...props}
-                  style={[props.style, {width: 75, height: 75}]}
-                  name="mic"
-                />
-              )}
-            />
-          )}
+        <Word word={this.props.currentStep.sentence} />
+        <Layout style={styles.controlContainer}>
+          {this.renderSpinner()}
+          {this.renderButton()}
+          {this.renderSkipButton()}
         </Layout>
 
-        <Text
+        {/* <Text
           style={styles.centerText}
           status={this.state.messageStatus}
           category="s1">
           {this.state.message}
-        </Text>
+        </Text> */}
       </Layout>
     );
   }
 }
 
 const styles = StyleSheet.create({
-  centerText: {
-    textAlign: 'center',
-  },
   container: {
     flex: 1,
+    justifyContent: 'space-between',
+  },
+  title: {
+    fontWeight: 'bold',
+    paddingHorizontal: 24,
+  },
+  controlContainer: {
     alignItems: 'center',
-    flexDirection: 'column',
-    justifyContent: 'flex-start',
-    height: '100%',
+    paddingHorizontal: 24,
   },
 });

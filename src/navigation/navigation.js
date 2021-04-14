@@ -27,12 +27,14 @@ const HomeNavigator = (parentProps) => {
       <Screen name="exercise-intent">
         {(props) => <ExerciseIntentScreen {...props} {...parentProps} />}
       </Screen>
-      <Screen name="glossary" component={GlossaryScreen} />
+      <Screen name="glossary">
+        {(props) => <GlossaryScreen {...props} {...parentProps} />}
+      </Screen>
       <Screen name="login" component={LoginScreen} />
       <Screen name="sign-up" component={SignUpScreen} />
       <Screen name="reset-password" component={ResetPasswordScreen} />
       <Screen name="routines" component={RoutinesScreen} />
-      <Screen name="shop" component={ShopScreen } />
+      <Screen name="shop" component={ShopScreen} />
     </Navigator>
   );
 };
