@@ -1,13 +1,10 @@
 import React from 'react';
 import {StyleSheet} from 'react-native';
-
-import {Text, Button, Icon, Layout, Spinner} from '@ui-kitten/components';
-
+import {Button, Icon, Layout, Text} from '@ui-kitten/components';
 import Toast from 'react-native-toast-message';
-
 import Voice from '@react-native-voice/voice';
-import Word from '../base/Word';
 
+import Word from '../base/Word';
 import Messages from '../base/Messages';
 
 const LOCALE = 'es-AR';
@@ -27,9 +24,6 @@ export default class SpeechRecognition extends React.Component {
     Voice.onSpeechEnd = this.onSpeechEnd;
     Voice.onSpeechError = this.onSpeechError;
     Voice.onSpeechResults = this.onSpeechResults;
-    // Voice.onSpeechRecognized = this.onSpeechRecognized;
-    // Voice.onSpeechPartialResults = this.onSpeechPartialResults;
-    // Voice.onSpeechVolumeChanged = this.onSpeechVolumeChanged;
   }
 
   componentWillUnmount() {
@@ -38,14 +32,12 @@ export default class SpeechRecognition extends React.Component {
 
   defaultState() {
     return {
-      error: '',
-      end: false,
-      started: false,
+      errorMessage: '',
+      isRecognizing: false,
+      speakButtonAppearance: 'filled',
+      speakButtonStatus: 'primary',
       results: [],
-      message: '',
-      messageStatus: 'primary',
-      showSpinner: false,
-      showButton: true,
+      showSpeakButton: true,
       showSkipButton: true,
     };
   }
@@ -71,6 +63,8 @@ export default class SpeechRecognition extends React.Component {
   };
 
   detect = (prediction) => {
+    console.log('SpeechRecognitionDetector/detect');
+
     if (
       prediction[0].toLowerCase() ===
       this.props.currentStep.sentence.toLowerCase()
@@ -82,16 +76,14 @@ export default class SpeechRecognition extends React.Component {
   };
 
   onFail = () => {
+    console.log('SpeechRecognitionDetector/onFail');
+
     this.setState({
-      started: false,
-      end: false,
-      showSpinner: false,
-      showButton: true,
-      message: 'No puedo oirte bien, intentalo de nuevo',
-      messageStatus: 'danger',
+      showSpeakButton: true,
     });
 
     Toast.show({
+      duration: 2000,
       position: 'bottom',
       type: 'error',
       text1: 'Eso no sonó bien.',
@@ -100,34 +92,42 @@ export default class SpeechRecognition extends React.Component {
   };
 
   onSpeechStart = (e) => {
+    console.log('SpeechRecognitionDetector/onSpeechStart');
+
+    this.speakIconRef.startAnimation();
+
     this.setState({
-      started: true,
-      showSpinner: true,
-      showButton: false,
-      message: '',
+      isRecognizing: true,
+      speakButtonAppearance: 'outline',
+      speakButtonStatus: 'danger',
+      // showSpeakButton: false,
     });
   };
 
-  // onSpeechRecognized = (e) => {
-  //   console.log('RECOGNIZED');
-  //   this.setState({
-  //     recognized: '√',
-  //   });
-  // };
-
   onSpeechEnd = (e) => {
+    console.log('SpeechRecognitionDetector/onSpeechEnd');
+
+    this.speakIconRef.stopAnimation();
+
     this.setState({
+      isRecognizing: false,
+      speakButtonAppearance: 'filled',
+      speakButtonStatus: 'primary',
       end: true,
     });
   };
 
   onSpeechError = (e) => {
+    console.log('SpeechRecognitionDetector/onSpeechError');
+
     this.setState({
-      error: JSON.stringify(e.error),
+      errorMessage: JSON.stringify(e.error),
     });
   };
 
   onSpeechResults = (e) => {
+    console.log('SpeechRecognitionDetector/onSpeechResults');
+
     this.setState({
       results: e.value,
     });
@@ -135,24 +135,11 @@ export default class SpeechRecognition extends React.Component {
     this.detect(e.value);
   };
 
-  // onSpeechPartialResults = (e) => {
-  //   this.setState({
-  //     partialResults: e.value,
-  //   });
-  // };
-
-  // onSpeechVolumeChanged = (e) => {
-  //   this.setState({
-  //     pitch: e.value,
-  //   });
-  // };
-
   onCompleted = () => {
+    console.log('SpeechRecognitionDetector/onCompleted');
+
     this.setState({
-      message: 'Muy bien',
-      messageStatus: 'success',
-      showSpinner: false,
-      showButton: false,
+      showSpeakButton: false,
     });
 
     Toast.show({
@@ -166,14 +153,26 @@ export default class SpeechRecognition extends React.Component {
     this.props.onStepCompleted();
   };
 
+  onSpeakButtonPressed = () => {
+    console.log('SpeechRecognitionDetector/onPressSpeakButton');
+
+    if (this.state.isRecognizing) {
+      this._cancelRecognizing();
+    } else {
+      this._startRecognizing();
+    }
+  };
+
   _startRecognizing = async () => {
+    console.log('SpeechRecognitionDetector/_startRecognizing');
+
     Toast.hide();
 
     this.setState({
-      error: '',
-      end: false,
-      started: false,
+      errorMessage: '',
       results: [],
+      speakButtonAppearance: 'outline',
+      speakButtonStatus: 'danger',
     });
 
     try {
@@ -183,7 +182,9 @@ export default class SpeechRecognition extends React.Component {
     }
   };
 
-  async _stopRecognizing() {
+  _stopRecognizing = async () =>  {
+    console.log('SpeechRecognitionDetector/_stopRecognizing');
+
     try {
       await Voice.stop();
     } catch (e) {
@@ -191,7 +192,17 @@ export default class SpeechRecognition extends React.Component {
     }
   }
 
-  async _cancelRecognizing() {
+  _cancelRecognizing = async () =>  {
+    console.log('SpeechRecognitionDetector/_cancelRecognizing');
+
+    this.speakIconRef.stopAnimation();
+
+    this.setState({
+      isRecognizing: false,
+      speakButtonAppearance: 'filled',
+      speakButtonStatus: 'primary',
+    });
+
     try {
       await Voice.cancel();
     } catch (e) {
@@ -199,7 +210,7 @@ export default class SpeechRecognition extends React.Component {
     }
   }
 
-  async _destroyRecognizer() {
+  _destroyRecognizer = async () => {
     try {
       await Voice.destroy();
     } catch (e) {
@@ -208,7 +219,7 @@ export default class SpeechRecognition extends React.Component {
     this.setState({
       recognized: '',
       pitch: '',
-      error: '',
+      errorMessage: '',
       started: '',
       results: [],
       partialResults: [],
@@ -216,43 +227,30 @@ export default class SpeechRecognition extends React.Component {
     });
   }
 
-  renderSpinner = () => {
-    if (this.state.showSpinner) {
-      return (
-        <Layout style={{padding: 20}}>
-          <Spinner size="galactic" 
-          style={{width: 200, height: 200, borderRadius: 100, marginBottom: 16}}/>
-        </Layout>
-      );
-    }
+  renderSpeakButtonIcon = (props) => {
+    return (
+      <Icon
+        {...props}
+        animationConfig={{cycles: Infinity}}
+        animation="pulse"
+        style={[props.style, styles.speakButtonIcon]}
+        ref={(ref) => (this.speakIconRef = ref)}
+        name="mic"
+      />
+    );
   };
 
-  renderButton = () => {
-    if (this.state.showButton) {
+  renderSpeakButton = () => {
+    if (this.state.showSpeakButton) {
       return (
         <Button
           size="giant"
           accessibilityLabel="Empezar detección"
-          onPress={this._startRecognizing}
-          appearance="outline"
-          style={{width: 200, height: 200, borderRadius: 100, marginBottom: 16}}
-          accessoryLeft={(props) => {
-            let recording = false
-            if (!recording) return (
-              <Icon
-                {...props}
-                animationConfig={{ cycles: Infinity }}
-                animation='shake'
-                style={[props.style, {width: 120, height: 120 }]}
-                name="mic"
-              />)
-            if (recording) return (
-            <Icon
-              {...props}
-              style={[props.style, {width: 120, height: 120 }]}
-              name="mic"
-            />
-          )}}
+          onPress={this.onSpeakButtonPressed}
+          appearance={this.state.speakButtonAppearance}
+          status={this.state.speakButtonStatus}
+          style={styles.speakButton}
+          accessoryLeft={this.renderSpeakButtonIcon}
         />
       );
     }
@@ -276,17 +274,9 @@ export default class SpeechRecognition extends React.Component {
         </Text>
         <Word word={this.props.currentStep.sentence} />
         <Layout style={styles.controlContainer}>
-          {this.renderSpinner()}
-          {this.renderButton()}
+          {this.renderSpeakButton()}
           {this.renderSkipButton()}
         </Layout>
-
-        {/* <Text
-          style={styles.centerText}
-          status={this.state.messageStatus}
-          category="s1">
-          {this.state.message}
-        </Text> */}
       </Layout>
     );
   }
@@ -304,5 +294,15 @@ const styles = StyleSheet.create({
   controlContainer: {
     alignItems: 'center',
     paddingHorizontal: 24,
+  },
+  speakButton: {
+    borderRadius: 100,
+    marginBottom: 16,
+    height: 200,
+    width: 200,
+  },
+  speakButtonIcon: {
+    height: 120,
+    width: 120,
   },
 });

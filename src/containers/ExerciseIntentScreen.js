@@ -2,29 +2,17 @@ import React from 'react';
 import {AppState, StyleSheet} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {
-  Button,
-  Divider,
   Icon,
-  Layout,
-  List,
-  ListItem,
-  Text,
   TopNavigation,
   TopNavigationAction,
   withStyles,
 } from '@ui-kitten/components';
-
 import {Bar} from 'react-native-progress';
-
-import Exercises from '../components/exercises/ExerciseList';
-import Exercise from '../components/exercises/Exercise';
-
-import exercises from '../data/exercises.json';
+import {Audio} from 'expo-av';
 
 import sounds from '../assets/sounds';
-
+import Exercise from '../components/exercises/Exercise';
 import handleAppStateChange from '../components/utils/handleAppStateChange';
-import {Audio} from 'expo-av';
 
 const BackIcon = (props) => <Icon {...props} name="arrow-back" />;
 const CloseIcon = (props) => <Icon {...props} name="close" />;
@@ -41,16 +29,18 @@ class ExerciseIntentScreen extends React.Component {
 
     this.state = {
       appState: AppState.currentState,
-      exerciseIndex: 0,
-      exerciseCompleteSound: null,
       currentStep: 0,
+      exerciseIndex: 0,
+      exerciseCompletedSound: null,
+      hasUnsavedChanges: true,
+      stepCompletedSound: null,
     };
   }
 
   onExerciseCompleted = () => {
     console.log('ExerciseIntentScreen/onExerciseCompleted');
 
-    this.currentExercise.stop();
+    // this.currentExercise.stop();
 
     this.props.navigation.goBack();
 
@@ -90,19 +80,45 @@ class ExerciseIntentScreen extends React.Component {
 
     this.currentExercise.start();
 
-    Audio.Sound.createAsync(
-      // require('../../assets/sounds/exercise_completed.wav'),
-      sounds.exerciseCompleted,
-    ).then(({sound}) => {
+    Audio.Sound.createAsync(sounds.exerciseCompleted).then(({sound}) => {
       this.setState({exerciseCompletedSound: sound});
     });
 
-    Audio.Sound.createAsync(
-      // require('../../assets/sounds/step_completed.wav'),
-      sounds.stepCompleted,
-    ).then(({sound}) => {
+    Audio.Sound.createAsync(sounds.stepCompleted).then(({sound}) => {
       this.setState({stepCompletedSound: sound});
     });
+
+    // const {navigation} = this.props;
+
+    // this.beforeRemoveListener = navigation.addListener(
+    //   'beforeRemove',
+    //   (e) => {
+    //     if (!this.state.hasUnsavedChanges) {
+    //       // If we don't have unsaved changes, then we don't need to do anything
+    //       return;
+    //     }
+
+    //     // Prevent default behavior of leaving the screen
+    //     e.preventDefault();
+
+    //     // Prompt the user before leaving the screen
+    //     Alert.alert(
+    //       'Discard changes?',
+    //       'You have unsaved changes. Are you sure to discard them and leave the screen?',
+    //       [
+    //         {text: "Don't leave", style: 'cancel', onPress: () => {}},
+    //         {
+    //           text: 'Discard',
+    //           style: 'destructive',
+    //           // If the user confirmed, then we dispatch the action we blocked earlier
+    //           // This will continue the action that had triggered the removal of the screen
+    //           onPress: () => navigation.dispatch(e.data.action),
+    //         },
+    //       ],
+    //     );
+    //   },
+    //   [navigation, hasUnsavedChanges],
+    // );
   }
 
   componentWillUnmount() {
@@ -110,10 +126,6 @@ class ExerciseIntentScreen extends React.Component {
 
     this.currentExercise.stop();
   }
-
-  // getExercises = () => {
-  //   return [this.exercise];
-  // };
 
   renderBackAction = () => (
     <TopNavigationAction

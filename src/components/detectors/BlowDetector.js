@@ -1,12 +1,11 @@
 import React from 'react';
-import {View, StyleSheet} from 'react-native';
-
-import {Text} from '@ui-kitten/components';
-
+import {Image, StyleSheet} from 'react-native';
+import {Layout, Text} from '@ui-kitten/components';
 import Recording from 'react-native-recording';
 import {amplitudeSpectrum} from 'fftjs-supplements';
 
 import DetectorTimerConfidence from './DetectorTimerConfidence';
+import Balloon from '../base/Balloon';
 
 function _frequencyToIndex(frequency, bufferSize, sampleRate) {
   return Math.ceil((frequency * bufferSize) / sampleRate);
@@ -19,7 +18,8 @@ const AMPLITUDE_THRESHOLD = 2000;
 const ENERGY_AVERAGE_THRESHOLD = 700;
 const REQUIRED_INTEGRAL = 8;
 // const FFT_SIZE = BUFFER_SIZE / 2;
-const SAMPLE_RATE = 8000;
+// const SAMPLE_RATE = 8000;
+const SAMPLE_RATE = 14000;
 const MIN_FREQ_INDEX = _frequencyToIndex(MIN_FREQ, BUFFER_SIZE, SAMPLE_RATE);
 const MAX_FREQ_INDEX = _frequencyToIndex(MAX_FREQ, BUFFER_SIZE, SAMPLE_RATE);
 
@@ -32,8 +32,8 @@ export default class BlowDetector extends React.Component {
 
   defaultState = () => {
     return {
-      remainingTime: this.props.currentStep.time,
       progress: 0,
+      remainingTime: this.props.currentStep.time,
     };
   };
 
@@ -56,6 +56,8 @@ export default class BlowDetector extends React.Component {
 
   // Needed because access to props to set instance variable
   componentDidUpdate(prevProps) {
+    // console.log('BlowDetector/componentDidUpdate');
+
     if (prevProps.currentStep !== this.props.currentStep) {
       this.setDetectorTimerConfidence();
       this.reset();
@@ -64,25 +66,35 @@ export default class BlowDetector extends React.Component {
 
   // TODO check if do this on unmount or in stop or both
   componentWillUnmount() {
-    // Recording.stop();
-    // this.listener.remove();
+    Recording.stop();
+
+    if (this.listener) this.listener.remove();
   }
 
   onProgress = (data) => {
-    this.setState({remainingTime: data.remainingTime});
+    this.setState({
+      progress: data.progress,
+      remainingTime: data.remainingTime,
+    });
 
     this.props.onProgress(data);
   };
 
   onStoppedDetection = () => {
+    // console.log('BlowDetector/onStoppedDetection');
+
     this.props.onStoppedDetection();
   };
 
   onCompleted = () => {
-    this.props.onStepCompleted();
+    console.log('BlowDetector/onCompleted');
+
+    this.props.onStepCompleted({
+      shouldPlaySound: !this._shouldBlow(),
+    });
   };
 
-  _start = () => {
+  _start = async () => {
     Recording.init({
       bufferSize: BUFFER_SIZE,
       sampleRate: SAMPLE_RATE,
@@ -99,7 +111,8 @@ export default class BlowDetector extends React.Component {
 
   _stop = () => {
     Recording.stop();
-    this.listener.remove();
+
+    if (this.listener) this.listener.remove();
   };
 
   start = () => {
@@ -149,29 +162,38 @@ export default class BlowDetector extends React.Component {
     );
   };
 
+  _shouldBlow = () => this.props.currentStep.detected;
+
   render() {
     return (
-      <View style={styles.flex}>
-        <Text category="h1" style={styles.centerText}>
-          {this.props.currentStep.detected
-            ? 'Sopla durante'
-            : 'Deja de soplar durante'}
+      <Layout style={styles.container}>
+        <Text category="h2" style={styles.title}>
+          Soplá tu pantalla
         </Text>
-        <Text category="h2" style={styles.centerText}>
-          {`${(this.state.remainingTime / 1000).toFixed(1)} segundos`}
-        </Text>
-      </View>
+        <Layout style={styles.controlContainer}>
+          <Balloon
+            popped={!this._shouldBlow()}
+            progress={this.state.progress}
+          />
+        </Layout>
+      </Layout>
     );
   }
 }
 
 const styles = StyleSheet.create({
-  flex: {
+  container: {
     flex: 1,
-    justifyContent: 'center',
-    flexDirection: 'column',
+    justifyContent: 'space-between',
   },
-  centerText: {
-    textAlign: 'center',
+  title: {
+    fontWeight: 'bold',
+    paddingHorizontal: 24,
+  },
+  controlContainer: {
+    alignItems: 'center',
+    flex: 1,
+    justifyContent: 'space-around',
+    paddingHorizontal: 24,
   },
 });

@@ -26,15 +26,43 @@
     "description": "Soplá la pantalla durante 3s",
     "steps": [
       {
-        "time": 3000,
+        "time": 1000,
         "detected": true,
         "requiredConfidence": 2,
         "penalizeStep": 2,
         "maxConfidence": 5
       },
       {
-        "time": 1000,
+        "time": 2000,
         "detected": false,
+        "requiredConfidence": 2,
+        "penalizeStep": 2,
+        "maxConfidence": 5
+      },
+      {
+        "time": 1000,
+        "detected": true,
+        "requiredConfidence": 2,
+        "penalizeStep": 2,
+        "maxConfidence": 5
+      },
+      {
+        "time": 2000,
+        "detected": false,
+        "requiredConfidence": 2,
+        "penalizeStep": 2,
+        "maxConfidence": 5
+      }
+    ]
+  },
+  {
+    "type": "blow",
+    "title": "Soplido #3",
+    "description": "Soplá la pantalla durante 5s",
+    "steps": [
+      {
+        "time": 5000,
+        "detected": true,
         "requiredConfidence": 2,
         "penalizeStep": 2,
         "maxConfidence": 5

@@ -4,6 +4,7 @@ import {Layout, Text} from '@ui-kitten/components';
 
 export default class Word extends React.Component {
 
+  // FIXME
   renderImage = () => {
     if (this.props.word) return (<Image style={styles.image} source={require("../../assets/images/animals/dog.png")} />);
   }
