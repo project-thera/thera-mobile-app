@@ -40,7 +40,7 @@ export default class Database {
 
     console.log('Set current');
 
-    const currentUser = {...user, _id: LOCAL_USER_KEY};
+    const currentUser = {...user, routineIntents: [], _id: LOCAL_USER_KEY};
     const output = await this.localDatabase.put(currentUser);
 
     return output;
@@ -75,24 +75,59 @@ export default class Database {
   }
 
   async getRoutines() {
-    const {data, error} = await (await this.getApiClient()).fetch(['routines']);
+    const currentUser = await this.getCurrentUser();
 
-    return data;
+    return currentUser.routines;
   }
 
-  syncRoutines() {}
+  async getRoutineIntent(routine) {
+    return {
+      routineId: routine.id,
+      startedAt: new Date().toISOString(), // TODO check this
+      finishedAt: null,
+      routineIntentExercises: [],
+    };
+  }
 
-  syncRoutineIntents() {}
+  async addRoutineIntent(routineIntent) {
+    const currentUser = await this.getCurrentUser();
 
-  // async getJsonApiCurrentUser() {
-  //   const client = new ApiClient({
-  //     url: API_URL,
-  //     schema,
-  //     // headers: {
-  //     //   'X-CSRF-Token': token,
-  //     // },
-  //   });
-  //   const {data, error} = await client.fetch(['users', 'current']);
-  //   console.log(data, error);
-  // }
+    currentUser.routineIntents.push(routineIntent);
+
+    return this.localDatabase.put(currentUser);
+  }
+
+  async syncRoutines() {
+    const currentUser = await this.getCurrentUser();
+    const apiClient = await this.getApiClient();
+
+    const {data, error} = await apiClient.fetch([
+      'routines',
+      {
+        include: ['routine_exercises.exercise'],
+      },
+    ]);
+
+    if (!error) {
+      currentUser.routines = data;
+
+      return this.localDatabase.put(currentUser);
+    }
+
+    return null;
+  }
+
+  async syncRoutineIntents() {
+    const currentUser = await this.getCurrentUser();
+    const apiClient = await this.getApiClient();
+
+    for (const routineIntent in currentUser.routineIntents) {
+      await apiClient.mutate(['routineIntents'], routineIntent);
+    }
+  }
+
+  async sync() {
+    await this.syncRoutineIntents();
+    return await this.syncRoutines();
+  }
 }
