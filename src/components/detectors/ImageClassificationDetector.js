@@ -13,6 +13,8 @@ import DetectorTimerConfidence from './DetectorTimerConfidence';
 
 import {IMAGE_SIZE} from '../../models/mobilenet/Mobilenet';
 
+import encodeJpeg from '../utils/encodeJpeg';
+
 import {
   POINT_X,
   POINT_Y,
@@ -26,15 +28,32 @@ import {
   BLACK,
 } from '../utils/constants';
 
-const inputTensorWidth = 120; // 180; // 180 144 120
-const inputTensorHeight = 214; // 320; // 320 256 214
+const resolutions = [
+  // {height: 360, width: 640},
+  // {height: 540, width: 960},
+  {height: 720, width: 1280},
+  // {height: 768, width: 1366},
+  // {height: 900, width: 1600},
+  {height: 1080, width: 1920},
+  // {height: 1440, width: 2160},
+  {height: 2160, width: 3840},
+];
+
+// const inputTensorWidth = 120; // 180; // 180 144 120
+// const inputTensorHeight = 214; // 320; // 320 256 214
+// const inputTensorWidth = resolution.width; // 180; // 180 144 120
+// const inputTensorHeight = resolution.height; // 320; // 320 256 214
+// const inputTensorWidth = 144; // 180; // 180 144 120
+// const inputTensorHeight = 256; // 320; // 320 256 214
 
 const RATIO = '16:9';
+const inputTensorWidth = 144;
+const inputTensorHeight = 256;
 
-const textureDims = {
-  height: 720,
-  width: 1280,
-};
+// const RATIO = '4:3';
+// const inputTensorWidth = 240;
+// const inputTensorHeight = 320;
+// const textureDims = { height: 1440, width: 1920 }; // optimal
 
 const AUTORENDER = true;
 const MIN_BRIGHTNESS = 110;
@@ -57,6 +76,81 @@ export default class ImageClassificationDetector extends React.Component {
 
     this.time = performance.now();
   }
+
+  // deprecated
+  calibrateCamera = async (imageTensor) => {
+    console.log('calibrateCamera');
+
+    if (!this.shouldCalibrate) return;
+
+    let brightness =
+      imageTensor.sum().dataSync() /
+      (imageTensor.shape[SHAPE_HEIGHT] *
+        imageTensor.shape[SHAPE_WIDTH] *
+        imageTensor.shape[SHAPE_CHANNELS]);
+
+    console.log('brightness: ' + brightness);
+
+    if (brightness < 60) return;
+
+    await encodeJpeg(imageTensor, true);
+
+    let slice = tf.reverse(imageTensor).slice([0, 0], [3, 3]);
+    let sum = slice.sum().dataSync();
+
+    console.log(this.state.cameraStep);
+    console.log(this.cameraResolution().height);
+    console.log(this.cameraResolution().width);
+    console.log('sum:' + sum);
+
+    if (sum > 0) {
+      console.log('stepUp');
+
+      this.shouldCalibrate = this.state.cameraStep + 1 < resolutions.length;
+
+      if (!this.shouldCalibrate) return;
+
+      this.setState({
+        cameraStep: this.state.cameraStep + 1,
+      });
+    } else {
+      console.log('stepDown');
+
+      this.shouldCalibrate = false;
+
+      let canCalibrate = this.state.cameraStep - 1 > 0;
+
+      if (!canCalibrate) return;
+
+      this.setState({
+        cameraStep: this.state.cameraStep - 1,
+      });
+    }
+
+    // if (sum > 0) {
+    //   console.log('stepUp');
+
+    //   this.setState(
+    //     {
+    //       cameraHeight: this.state.cameraHeight + 36,
+    //       cameraWidth: this.state.cameraWidth + 64,
+    //     },
+    //     () => {
+    //       console.log('new resolution');
+    //       console.log(this.state.cameraHeight);
+    //       console.log(this.state.cameraWidth);
+    //     },
+    //   );
+    // } else {
+    //   console.log('stepDown');
+
+    //   this.setState({
+    //     cameraHeight: this.state.cameraHeight - 36,
+    //     cameraWidth: this.state.cameraWidth - 64,
+    //     shouldCalibrate: false,
+    //   });
+    // }
+  };
 
   componentWillUnmount() {
     if (this.rafID) {
@@ -270,14 +364,26 @@ export default class ImageClassificationDetector extends React.Component {
 
   // 20 ms
   hasEnoughBrightness = (cropped) => {
+    return true;
     // this.countTime('Enought brightness 0');
     // value between 0 and 255
+    const lightMetric =
+      cropped.sum().dataSync() /
+      (cropped.shape[SHAPE_HEIGHT] *
+        cropped.shape[SHAPE_WIDTH] *
+        cropped.shape[SHAPE_CHANNELS]);
+
     const enough =
       cropped.sum().dataSync() /
         (cropped.shape[SHAPE_HEIGHT] *
           cropped.shape[SHAPE_WIDTH] *
           cropped.shape[SHAPE_CHANNELS]) >
       MIN_BRIGHTNESS;
+
+    // console.log(`lightMetric: ${lightMetric}`);
+    // console.log(`cropped: ${cropped.shape}`);
+    // console.log(`enough: ${enough}`);
+    // console.log(`MIN_BRIGHTNESS: ${MIN_BRIGHTNESS}`);
 
     if (!enough) {
       this.setState({
@@ -321,22 +427,33 @@ export default class ImageClassificationDetector extends React.Component {
 
         // 40 ms
         const imageTensor = images.next().value;
-        updateView();
+        // updateView();
 
-        this.detectFaces(imageTensor, updateView).then((faces) => {
+        // this.calibrateCamera(imageTensor);
+
+        // await encodeJpeg(imageTensor, true);
+        // this.checkImage(imageTensor);
+        // console.log(this.checkImage(imageTensor))
+
+        this.detectFaces(imageTensor, updateView).then(async (faces) => {
           if (faces.length > 0 && this.isFrontFace(faces[0])) {
-            updateView();
+            // console.log('face detected');
+            // updateView();
 
             // this.countTime('Detect face 1');
 
+            // await encodeJpeg(imageTensor, true);
+
             const cropped = this.cropFaceRotateAndResize(imageTensor, faces[0]);
 
-            updateView();
+            // await encodeJpeg(cropped, true);
+
+            // updateView();
 
             if (this.hasEnoughBrightness(cropped)) {
               this.classify(cropped, updateView).then((prediction) => {
                 // this.countTime('Predict');
-                updateView();
+                // updateView();
 
                 // this.countTime('Total time end');
                 this.detect(prediction);
@@ -371,15 +488,23 @@ export default class ImageClassificationDetector extends React.Component {
             {this.state.message}
           </Text>
           <View style={styles.cameraContainer}>
+            {/* {this.renderTensorCamera()} */}
             <TensorCamera
+              key={`tensor-camera-${this.state.cameraStep}`}
               type={CAMERA_TYPE}
               zoom={0}
               ratio={RATIO}
               style={styles.camera}
               // onCameraReady={this.setTextureDims}
               // tensor related props
-              cameraTextureHeight={textureDims.height}
-              cameraTextureWidth={textureDims.width}
+              // cameraTextureHeight={textureDims.height}
+              // cameraTextureWidth={textureDims.width}
+              // cameraTextureHeight={this.state.cameraHeight}
+              // cameraTextureWidth={this.state.cameraWidth}
+              // cameraTextureHeight={this.cameraResolution().height}
+              // cameraTextureWidth={this.cameraResolution().width}
+              cameraTextureHeight={1080}
+              cameraTextureWidth={1920}
               resizeHeight={inputTensorHeight}
               resizeWidth={inputTensorWidth}
               resizeDepth={3}
@@ -406,21 +531,25 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   cameraContainer: {
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'flex-start',
-    width: '100%',
-    height: '100%',
+    flex: 1,
+    // display: 'flex',
+    // flexDirection: 'row',
+    // justifyContent: 'center',
+    // alignItems: 'flex-start',
+    // width: '100%',
+    // height: '100%',
     backgroundColor: '#fff',
   },
   camera: {
-    position: 'relative',
-    width: '100%', // textureDims.height / 2.5
-    height: textureDims.width / 2.5,
-    zIndex: 1,
-    borderWidth: 1,
-    borderColor: 'black',
-    borderRadius: 0,
+    flex: 1,
+    // width: textureDims.height,
+    // height: textureDims.width,
+    // position: 'relative',
+    // width: '100%', // textureDims.height / 2.5
+    // height: textureDims.width / 2.5,
+    // zIndex: 1,
+    // borderWidth: 1,
+    // borderColor: 'black',
+    // borderRadius: 0,
   },
 });

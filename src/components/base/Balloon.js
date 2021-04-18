@@ -3,49 +3,55 @@ import {Image, StyleSheet} from 'react-native';
 import {Layout, Text} from '@ui-kitten/components';
 import {Audio} from 'expo-av';
 
-import balloons from '../../assets/images/balloons';
+import BalloonLib from '../../assets/images/balloons';
 import sounds from '../../assets/sounds';
 
 export default class Balloon extends React.Component {
   constructor(props) {
     super(props);
 
-    this.state = this.defaultState();
+    this.state = {
+      balloon: BalloonLib.getRandomBalloon(),
+      balloonPoppingSound: null,
+      isPopped: false,
+    };
   }
 
-  defaultState = () => {
-    return {
-      balloonPoppingSound: null,
-    };
-  };
-
-  async componentDidMount() {
+  componentDidMount() {
     Audio.Sound.createAsync(sounds.balloonPopping).then(({sound}) => {
       this.setState({balloonPoppingSound: sound});
     });
   }
 
-  componentDidUpdate = (prevProps) => {
-    console.log('update')
-    if (!this.props.popped && (this.props.progress == 100)) {
-      this.state.balloonPoppingSound?.replayAsync();
-    }
+  pop = () => {
+    this.state.balloonPoppingSound?.replayAsync();
+
+    this.setState({
+      isPopped: true,
+    });
   };
 
-  balloonPopped = () => this.props.popped || (this.props.progress == 100)
+  reset = () => {
+    this.setState({
+      balloon: BalloonLib.getRandomBalloon(),
+      isPopped: false,
+    });
+  };
 
   balloonWidth = () => {
     return 40 + Math.floor(2.8 * this.props.progress);
   };
 
   renderImage = () => {
-    if (this.balloonPopped()) {
-      return <Image style={[styles.image]} source={balloons.poppedBalloon} />;
+    if (this.state.isPopped) {
+      return (
+        <Image style={[styles.image]} source={BalloonLib.getPoppedBalloon()} />
+      );
     } else {
       return (
         <Image
           style={[styles.image, {width: this.balloonWidth()}]}
-          source={balloons.purpleBalloon}
+          source={this.state.balloon}
         />
       );
     }

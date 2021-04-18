@@ -78,8 +78,6 @@ class ExerciseIntentScreen extends React.Component {
   async componentDidMount() {
     AppState.addEventListener('change', this.handleAppStateChange);
 
-    this.currentExercise.start();
-
     Audio.Sound.createAsync(sounds.exerciseCompleted).then(({sound}) => {
       this.setState({exerciseCompletedSound: sound});
     });
@@ -87,6 +85,8 @@ class ExerciseIntentScreen extends React.Component {
     Audio.Sound.createAsync(sounds.stepCompleted).then(({sound}) => {
       this.setState({stepCompletedSound: sound});
     });
+
+    this.currentExercise.start();
 
     // const {navigation} = this.props;
 

@@ -1,5 +1,20 @@
 [
   {
+    "type": "classification",
+    "title": "Inflar cachetes",
+    "description": "Inflá ambos cachetes",
+    "steps": [
+      {
+        "time": 1000,
+        "label": "boca cerrada"
+      },
+      {
+        "time": 1000,
+        "label": "inflar cachetes"
+      }
+    ]
+  },
+  {
     "type": "blow",
     "title": "Soplido #1",
     "description": "Soplá la pantalla durante 1s",
@@ -26,29 +41,29 @@
     "description": "Soplá la pantalla durante 3s",
     "steps": [
       {
-        "time": 1000,
+        "time": 3000,
         "detected": true,
         "requiredConfidence": 2,
         "penalizeStep": 2,
         "maxConfidence": 5
       },
       {
-        "time": 2000,
-        "detected": false,
-        "requiredConfidence": 2,
-        "penalizeStep": 2,
-        "maxConfidence": 5
-      },
-      {
-        "time": 1000,
+        "time": 3000,
         "detected": true,
         "requiredConfidence": 2,
         "penalizeStep": 2,
         "maxConfidence": 5
       },
       {
-        "time": 2000,
-        "detected": false,
+        "time": 3000,
+        "detected": true,
+        "requiredConfidence": 2,
+        "penalizeStep": 2,
+        "maxConfidence": 5
+      },
+      {
+        "time": 3000,
+        "detected": true,
         "requiredConfidence": 2,
         "penalizeStep": 2,
         "maxConfidence": 5
@@ -117,21 +132,6 @@
       },
       {
         "sentence": "tornillo"
-      }
-    ]
-  },
-  {
-    "type": "classification",
-    "title": "Inflar cachetes",
-    "description": "Inflá ambos cachetes",
-    "steps": [
-      {
-        "time": 1000,
-        "label": "boca cerrada"
-      },
-      {
-        "time": 1000,
-        "label": "inflar cachetes"
       }
     ]
   },
