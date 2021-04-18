@@ -1,5 +1,8 @@
 export default {
-  groups: {
-    type: 'groups',
+  routines: {
+    type: 'routines',
+  },
+  routineIntents: {
+    type: 'routinesIntents',
   },
 };

@@ -15,11 +15,16 @@ import {
   ViewPager,
 } from '@ui-kitten/components';
 
+import Toast from 'react-native-toast-message';
+
 import ViewPagerTab from '../components/base/ViewPagerTab';
 
 import ShopModal from './ShopModal';
 import RoundedOpacity from '../components/base/RoundedOpacity';
 import LabBackground from '../components/base/LabBackground';
+
+import RCTNetworking from 'react-native/Libraries/Network/RCTNetworking';
+import Database from '../storage/Database';
 
 const BackIcon = (props) => <Icon {...props} name="arrow-back" />;
 const InfoIcon = (props) => <Icon {...props} name="info" />;
@@ -40,7 +45,7 @@ export default class HomeScreen extends React.Component {
     this.bg = new LabBackground(0);
   }
 
-  componentDidMount() {
+  async componentDidMount() {
     const {navigation} = this.props;
 
     this.focusListener = navigation.addListener(
@@ -59,6 +64,22 @@ export default class HomeScreen extends React.Component {
 
   toggleMenu = () => {
     this.setState({menuVisible: !this.state.menuVisible});
+  };
+
+  logout = () => {
+    // Clear cookies
+    RCTNetworking.clearCookies(() => {});
+
+    // This clears the async storage
+    // AsyncStorage.clear().then(() => console.log('Cleared'));
+
+    Database.getInstance().removeCurrentUser();
+
+    Toast.show({
+      type: 'success',
+      position: 'bottom',
+      text1: 'Vuelve pronto',
+    });
   };
 
   showShopModal = (value) => {
@@ -93,7 +114,11 @@ export default class HomeScreen extends React.Component {
           title="Login"
           onPress={() => this.navigateTo('login')}
         />
-        <MenuItem accessoryLeft={LogoutIcon} title="Logout" />
+        <MenuItem
+          accessoryLeft={LogoutIcon}
+          title="Logout"
+          onPress={this.logout}
+        />
       </OverflowMenu>
     </React.Fragment>
   );

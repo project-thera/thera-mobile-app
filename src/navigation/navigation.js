@@ -20,21 +20,35 @@ const {Navigator, Screen} = createStackNavigator();
 const HomeNavigator = (parentProps) => {
   return (
     <Navigator headerMode="none">
-      <Screen name="home" component={HomeScreen} />
-      <Screen name="exercises">
-        {(props) => <ExercisesScreen {...props} {...parentProps} />}
-      </Screen>
-      <Screen name="exercise-intent">
-        {(props) => <ExerciseIntentScreen {...props} {...parentProps} />}
-      </Screen>
-      <Screen name="glossary">
-        {(props) => <GlossaryScreen {...props} {...parentProps} />}
-      </Screen>
-      <Screen name="login" component={LoginScreen} />
-      <Screen name="sign-up" component={SignUpScreen} />
-      <Screen name="reset-password" component={ResetPasswordScreen} />
-      <Screen name="routines" component={RoutinesScreen} />
-      <Screen name="shop" component={ShopScreen} />
+      {parentProps.currentUser ? (
+        <>
+          <Screen name="home" component={HomeScreen} />
+          <Screen name="exercises">
+            {(props) => <ExercisesScreen {...props} {...parentProps} />}
+          </Screen>
+          <Screen name="exercise-intent">
+            {(props) => <ExerciseIntentScreen {...props} {...parentProps} />}
+          </Screen>
+          <Screen name="glossary">
+            {(props) => <GlossaryScreen {...props} {...parentProps} />}
+          </Screen>
+          <Screen name="routines" component={RoutinesScreen} />
+          <Screen name="shop" component={ShopScreen} />
+          <Screen name="login">
+            {(props) => <LoginScreen {...props} {...parentProps} />}
+          </Screen>
+          <Screen name="sign-up" component={SignUpScreen} />
+          <Screen name="reset-password" component={ResetPasswordScreen} />
+        </>
+      ) : (
+        <>
+          <Screen name="login">
+            {(props) => <LoginScreen {...props} {...parentProps} />}
+          </Screen>
+          <Screen name="sign-up" component={SignUpScreen} />
+          <Screen name="reset-password" component={ResetPasswordScreen} />
+        </>
+      )}
     </Navigator>
   );
 };
