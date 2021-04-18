@@ -117,6 +117,7 @@ export default class Database {
     return null;
   }
 
+  // TODO check if this method is working
   async syncRoutineIntents() {
     const currentUser = await this.getCurrentUser();
     const apiClient = await this.getApiClient();
