@@ -13,10 +13,10 @@ export default {
     },
   },
   routineIntents: {
-    type: 'routines_intents',
+    type: 'routine_intents',
     relationships: {
       routineIntentExercises: {
-        type: 'routines_Intent_exercises',
+        type: 'routines_intent_exercises',
       },
     },
   },

@@ -9,6 +9,9 @@ import {API_URL} from '../../config/config';
 const LOCAL_USER_KEY = 'current';
 const LOCAL_DATABASE_NAME = 'thera';
 
+const ROUTINE_INTENT_EXERCISE_COMPLETED = 1;
+const ROUTINE_INTENT_EXERCISE_SKIPPED = 0;
+
 export default class Database {
   static instance = null;
   static apiClient = null;
@@ -38,8 +41,6 @@ export default class Database {
       await this.removeCurrentUser();
     } catch {}
 
-    console.log('Set current');
-
     const currentUser = {...user, routineIntents: [], _id: LOCAL_USER_KEY};
     const output = await this.localDatabase.put(currentUser);
 
@@ -66,9 +67,9 @@ export default class Database {
       headers: {
         'X-CSRF-Token': currentUser.token,
       },
-      fetchOptions: {
-        credentials: 'include',
-      },
+      // fetchOptions: {
+      //   credentials: 'include',
+      // },
     });
 
     return Database.apiClient;
@@ -80,12 +81,12 @@ export default class Database {
     return currentUser.routines;
   }
 
-  async getRoutineIntent(routine) {
+  getRoutineIntent(routine) {
     return {
-      routineId: routine.id,
-      startedAt: new Date().toISOString(), // TODO check this
-      finishedAt: null,
-      routineIntentExercises: [],
+      routine_id: routine.id,
+      started_at: new Date().toISOString(), // TODO check this
+      finished_at: null,
+      routine_intent_exercises_attributes: [],
     };
   }
 
@@ -117,18 +118,50 @@ export default class Database {
     return null;
   }
 
-  // TODO check if this method is working
   async syncRoutineIntents() {
     const currentUser = await this.getCurrentUser();
     const apiClient = await this.getApiClient();
 
-    for (const routineIntent in currentUser.routineIntents) {
-      await apiClient.mutate(['routineIntents'], routineIntent);
+    for (const routineIntent of currentUser.routineIntents) {
+      await apiClient.mutate(['routine_intents'], routineIntent);
     }
+
+    // TODO handle errors
+    currentUser.routineIntents = [];
+
+    return this.localDatabase.put(currentUser);
   }
 
   async sync() {
     await this.syncRoutineIntents();
     return await this.syncRoutines();
+  }
+
+  async testAddRoutineIntent() {
+    await this.syncRoutines();
+
+    const currentUser = await this.getCurrentUser();
+    const routine = currentUser.routines[0];
+
+    // console.log('routine');
+    // console.log(routine);
+
+    const routineIntent = this.getRoutineIntent(routine);
+    const routineExercise = routine.routine_exercises[0];
+
+    // console.log('routineIntent');
+    // console.log(routineIntent);
+
+    routineIntent.routine_intent_exercises_attributes.push({
+      exercise_id: routineExercise.exercise_id,
+      status: ROUTINE_INTENT_EXERCISE_COMPLETED,
+    });
+
+    // console.log('routineIntent2');
+    // console.log(routineIntent);
+
+    await this.addRoutineIntent(routineIntent);
+
+    await this.syncRoutineIntents();
   }
 }
