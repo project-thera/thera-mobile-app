@@ -5,12 +5,61 @@
     "description": "Inflá ambos cachetes",
     "steps": [
       {
+        "time": 5000,
+        "label": "inflar_cachete_derecho",
+        "instructions": "Inflá tu cachete derecho."
+      },
+      {
+        "time": 5000,
+        "label": "inflar_cachete_izquierdo",
+        "instructions": "Inflá tu cachete izquierdo."
+      },
+      {
+        "time": 5000,
+        "label": "inflar_cachetes",
+        "instructions": "Inflá ambos cachetes."
+      },
+      {
+        "time": 2000,
+        "label": "inflar_cachete_derecho",
+        "instructions": "Inflá tu cachete derecho."
+      },
+      {
+        "time": 2000,
+        "label": "inflar_cachete_izquierdo",
+        "instructions": "Inflá tu cachete izquierdo."
+      },
+      {
+        "time": 2000,
+        "label": "inflar_cachetes",
+        "instructions": "Inflá ambos cachetes."
+      }
+    ]
+  },
+  {
+    "type": "classification",
+    "title": "Caramelo",
+    "description": "Jugá con un caramelo imaginario",
+    "steps": [
+      {
         "time": 1000,
-        "label": "boca cerrada"
+        "label": "caramelo_abajo"
       },
       {
         "time": 1000,
-        "label": "inflar cachetes"
+        "label": "caramelo_derecha"
+      },
+      {
+        "time": 1000,
+        "label": "caramelo_arriba"
+      },
+      {
+        "time": 1000,
+        "label": "caramelo_izquierda"
+      },
+      {
+        "time": 1000,
+        "label": "reposo"
       }
     ]
   },

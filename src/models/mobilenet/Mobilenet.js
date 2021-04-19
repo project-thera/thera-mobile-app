@@ -46,7 +46,7 @@ for (const [i, label] of labels.entries()) {
 const MODEL_INFO = {
   '1.00': {
     // eslint-disable-next-line prettier/prettier
-    '0.25': {
+    0.25: {
       url:
         'https://tfhub.dev/google/imagenet/mobilenet_v1_025_224/classification/1',
       inputRange: [0, 1],
@@ -57,7 +57,7 @@ const MODEL_INFO = {
       inputRange: [0, 1],
     },
     // eslint-disable-next-line prettier/prettier
-    '0.75': {
+    0.75: {
       url:
         'https://tfhub.dev/google/imagenet/mobilenet_v1_075_224/classification/1',
       inputRange: [0, 1],
@@ -75,7 +75,7 @@ const MODEL_INFO = {
       inputRange: [0, 1],
     },
     // eslint-disable-next-line prettier/prettier
-    '0.75': {
+    0.75: {
       url:
         'https://tfhub.dev/google/imagenet/mobilenet_v2_075_224/classification/2',
       inputRange: [0, 1],
@@ -256,5 +256,6 @@ async function getTopKClasses(logits, topK) {
       probability: topkValues[i],
     });
   }
+
   return topClassesAndProbs;
 }
