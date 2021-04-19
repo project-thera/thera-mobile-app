@@ -49,7 +49,7 @@ import LoginScreen from './src/containers/LoginScreen';
 import RCTNetworking from 'react-native/Libraries/Network/RCTNetworking';
 import Database from './src/storage/Database';
 
-const IGNORE_LOGIN = false;
+const IGNORE_LOGIN = true;
 
 export default class App extends React.Component {
   constructor(props) {
