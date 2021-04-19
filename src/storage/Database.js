@@ -39,12 +39,13 @@ export default class Database {
   async setCurrentUser(user) {
     try {
       await this.removeCurrentUser();
-    } catch {}
+    } catch {
+      // Do nothing, no user was found to remove
+    }
 
     const currentUser = {...user, routineIntents: [], _id: LOCAL_USER_KEY};
-    const output = await this.localDatabase.put(currentUser);
 
-    return output;
+    return await this.localDatabase.put(currentUser);
   }
 
   async removeCurrentUser() {
