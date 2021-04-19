@@ -30,10 +30,8 @@ export default class Database {
     return this.instance;
   }
 
-  async getCurrentUser() {
-    const currentUser = await this.localDatabase.get(LOCAL_USER_KEY);
-
-    return currentUser;
+  getCurrentUser() {
+    return this.localDatabase.get(LOCAL_USER_KEY);
   }
 
   async setCurrentUser(user) {
@@ -45,7 +43,7 @@ export default class Database {
 
     const currentUser = {...user, routineIntents: [], _id: LOCAL_USER_KEY};
 
-    return await this.localDatabase.put(currentUser);
+    return this.localDatabase.put(currentUser);
   }
 
   async removeCurrentUser() {
@@ -135,7 +133,8 @@ export default class Database {
 
   async sync() {
     await this.syncRoutineIntents();
-    return await this.syncRoutines();
+
+    return this.syncRoutines();
   }
 
   async testAddRoutineIntent() {
@@ -163,6 +162,6 @@ export default class Database {
 
     await this.addRoutineIntent(routineIntent);
 
-    await this.syncRoutineIntents();
+    return this.syncRoutineIntents();
   }
 }
