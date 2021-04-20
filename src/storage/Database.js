@@ -9,8 +9,8 @@ import {API_URL} from '../../config/config';
 const LOCAL_USER_KEY = 'current';
 const LOCAL_DATABASE_NAME = 'thera';
 
-const ROUTINE_INTENT_EXERCISE_COMPLETED = 1;
-const ROUTINE_INTENT_EXERCISE_SKIPPED = 0;
+export const ROUTINE_INTENT_EXERCISE_COMPLETED = 1;
+export const ROUTINE_INTENT_EXERCISE_SKIPPED = 0;
 
 export default class Database {
   static instance = null;
