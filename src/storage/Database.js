@@ -15,6 +15,7 @@ export const ROUTINE_INTENT_EXERCISE_SKIPPED = 0;
 export default class Database {
   static instance = null;
   static apiClient = null;
+  static gameReward = null;
 
   constructor() {
     this.localDatabase = new PouchDB(LOCAL_DATABASE_NAME, {
@@ -28,6 +29,24 @@ export default class Database {
     }
 
     return this.instance;
+  }
+
+  async getApiClient() {
+    if (Database.apiClient) {
+      return Database.apiClient;
+    }
+
+    const currentUser = await this.getCurrentUser();
+
+    Database.apiClient = new ApiClient({
+      url: API_URL,
+      schema,
+      headers: {
+        'X-CSRF-Token': currentUser.token,
+      },
+    });
+
+    return Database.apiClient;
   }
 
   getCurrentUser() {
@@ -51,27 +70,6 @@ export default class Database {
     const currentUser = await this.localDatabase.get(LOCAL_USER_KEY);
 
     return this.localDatabase.remove(currentUser);
-  }
-
-  async getApiClient() {
-    if (Database.apiClient) {
-      return Database.apiClient;
-    }
-
-    const currentUser = await this.getCurrentUser();
-
-    Database.apiClient = new ApiClient({
-      url: API_URL,
-      schema,
-      headers: {
-        'X-CSRF-Token': currentUser.token,
-      },
-      // fetchOptions: {
-      //   credentials: 'include',
-      // },
-    });
-
-    return Database.apiClient;
   }
 
   async getRoutines() {
@@ -131,8 +129,47 @@ export default class Database {
     return this.localDatabase.put(currentUser);
   }
 
+  async getGameReward() {
+    const currentUser = await this.getCurrentUser();
+    const apiClient = await this.getApiClient();
+
+    if (currentUser.gameReward) {
+      return currentUser.gameReward;
+    }
+
+    const {data, errors} = await apiClient.fetch([
+      'users',
+      currentUser.data.id,
+      {
+        include: ['game_reward'],
+      },
+    ]);
+
+    currentUser.gameReward = data.game_reward;
+
+    await this.localDatabase.put(currentUser);
+
+    return currentUser.gameReward;
+  }
+
+  async updateGameReward(gameReward) {
+    const currentUser = await this.getCurrentUser();
+
+    currentUser.gameReward = gameReward;
+
+    return this.localDatabase.put(currentUser);
+  }
+
+  async syncGameRewards() {
+    const apiClient = await this.getApiClient();
+    const gameReward = await this.getGameReward();
+
+    return apiClient.mutate(['game_rewards', gameReward.id], gameReward);
+  }
+
   async sync() {
     await this.syncRoutineIntents();
+    await this.syncGameRewards();
 
     return this.syncRoutines();
   }
@@ -163,5 +200,16 @@ export default class Database {
     await this.addRoutineIntent(routineIntent);
 
     return this.syncRoutineIntents();
+  }
+
+  async testGameReward() {
+    const gameReward = await this.getGameReward();
+
+    // console.log(gameReward);
+
+    gameReward.credits = 10;
+
+    await this.updateGameReward(gameReward);
+    await this.syncGameRewards();
   }
 }

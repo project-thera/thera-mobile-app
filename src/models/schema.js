@@ -20,4 +20,15 @@ export default {
       },
     },
   },
+  user: {
+    type: 'users',
+    relationships: {
+      gameReward: {
+        type: 'game_rewards',
+      },
+    },
+  },
+  gameRewards: {
+    type: 'game_rewards',
+  },
 };
