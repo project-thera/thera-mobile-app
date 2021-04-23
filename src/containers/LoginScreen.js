@@ -9,6 +9,8 @@ import {Formik} from 'formik';
 import axios from 'axios';
 import {LOGIN_URL} from '../../config/config';
 
+import Database from '../storage/Database';
+
 export default class LoginScreen extends React.Component {
   constructor(props) {
     super(props);
@@ -46,10 +48,10 @@ export default class LoginScreen extends React.Component {
       method: 'post',
       url: LOGIN_URL,
       data: {
-        api_v1_user: values,
+        user: values,
       },
     }).then(
-      (response) => {
+      async (response) => {
         if (response?.data?.id) {
           Toast.show({
             type: 'success',
@@ -57,7 +59,16 @@ export default class LoginScreen extends React.Component {
             text1: 'Te damos la bienvenida',
           });
 
-          this.props.onLoggedIn(response);
+          const currentUser = {
+            data: response.data,
+            token: response.headers['x-csrf-token'],
+          };
+
+          await Database.getInstance().setCurrentUser(currentUser);
+
+          this.props.onLoggedIn(currentUser, () =>
+            this.props.navigation.navigate('home'),
+          );
         } else {
           Toast.show({
             type: 'error',

@@ -71,7 +71,9 @@ export default class BlowDetector extends React.Component {
 
     Recording.stop();
 
-    if (this.listener) this.listener.remove();
+    if (this.listener) {
+      this.listener.remove();
+    }
   }
 
   onProgress = (data) => {
@@ -123,7 +125,9 @@ export default class BlowDetector extends React.Component {
   _stop = () => {
     Recording.stop();
 
-    if (this.listener) this.listener.remove();
+    if (this.listener) {
+      this.listener.remove();
+    }
   };
 
   start = () => {

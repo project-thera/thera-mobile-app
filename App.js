@@ -46,15 +46,8 @@ const BACKEND_TO_USE = 'rn-webgl';
 
 import LoginScreen from './src/containers/LoginScreen';
 
-import {ApiClient} from 'jsonapi-react-native';
-import schema from './src/models/schema';
-
-import {API_URL} from './config/config';
-
-import PouchDB from 'pouchdb-core';
-PouchDB.plugin(require('pouchdb-adapter-asyncstorage').default);
-
 import RCTNetworking from 'react-native/Libraries/Network/RCTNetworking';
+import Database from './src/storage/Database';
 
 const IGNORE_LOGIN = true;
 
@@ -75,8 +68,6 @@ export default class App extends React.Component {
         currentUser: null,
       };
     }
-
-    this.db = new PouchDB('thera', {adapter: 'asyncstorage'});
   }
 
   askForPermissions = async () => {
@@ -121,10 +112,12 @@ export default class App extends React.Component {
   setCurrentUser = async () => {
     try {
       this.setState({
-        currentUser: await this.db.get('current'),
+        currentUser: await Database.getInstance().getCurrentUser(),
         loadingUser: false,
       });
     } catch (error) {
+      console.log(error);
+
       this.setState({loadingUser: false});
     }
   };
@@ -139,18 +132,6 @@ export default class App extends React.Component {
     this.askForPermissions();
   }
 
-  async getJsonApiCurrentUser() {
-    const client = new ApiClient({
-      url: API_URL,
-      schema,
-      // headers: {
-      //   'X-CSRF-Token': token,
-      // },
-    });
-    const {data, error} = await client.fetch(['users', 'current']);
-    console.log(data, error);
-  }
-
   logout = () => {
     // Clear cookies
     RCTNetworking.clearCookies(() => {});
@@ -158,21 +139,11 @@ export default class App extends React.Component {
     // This clears the async storage
     // AsyncStorage.clear().then(() => console.log('Cleared'));
 
-    this.db.get('current').then((doc) => {
-      return this.db.remove(doc);
-    });
+    Database.getInstance().removeCurrentUser();
   };
 
-  onLoggedIn = async (response) => {
-    const currentUser = {
-      _id: 'current',
-      data: response.data,
-      token: response.headers['x-csrf-token'],
-    };
-
-    await this.db.put(currentUser);
-
-    this.setState({currentUser});
+  onLoggedIn = (currentUser, callback) => {
+    this.setState({currentUser}, callback);
   };
 
   renderAppNavigator = () => {
@@ -180,6 +151,8 @@ export default class App extends React.Component {
       <AppNavigator
         faceDetector={this.state.faceDetector}
         mobilenetDetector={this.state.mobilenetDetector}
+        onLoggedIn={this.onLoggedIn}
+        currentUser={this.state.currentUser}
       />
     );
   };
@@ -214,12 +187,7 @@ export default class App extends React.Component {
           {...eva}
           customMapping={mapping}
           theme={{...eva.light, ...theme}}>
-          {!this.state.loadingUser &&
-            this.state.currentUser &&
-            this.renderAppNavigator()}
-          {!this.state.loadingUser &&
-            !this.state.currentUser &&
-            this.renderLoginScreen()}
+          {!this.state.loadingUser && this.renderAppNavigator()}
           {this.state.loadingUser && this.renderBrand()}
         </ApplicationProvider>
       </SafeAreaProvider>
