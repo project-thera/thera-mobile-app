@@ -1,0 +1,11 @@
+{
+  "lateralizar_boca_derecha": {
+    "instructions": "Mové tu boca hacia la derecha."
+  },
+  "lateralizar_boca_izquierda": {
+    "instructions": "Mové tu boca hacia la izquierda."
+  },
+  "reposo": {
+    "instructions": "Dejá tu rostro en reposo."
+  }
+}

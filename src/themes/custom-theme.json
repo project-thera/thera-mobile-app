@@ -3,7 +3,9 @@
   "color-primary-200": "#A4D7FF",
   "color-primary-300": "#77BEFF",
   "color-primary-400": "#55A6FF",
-  "color-primary-500": "#1D7FFF",
+
+  "color-primary-500": "#089de3",
+
   "color-primary-600": "#1562DB",
   "color-primary-700": "#0E49B7",
   "color-primary-800": "#093393",

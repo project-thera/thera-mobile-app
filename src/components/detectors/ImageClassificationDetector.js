@@ -26,6 +26,8 @@ import {
   BLACK,
 } from '../utils/constants';
 
+import steps from '../../data/steps.json';
+
 const resolutions = [
   {height: 360, width: 640},
   {height: 540, width: 960},
@@ -125,7 +127,6 @@ class ImageClassificationDetector extends React.Component {
    * @param {float} predictions[].probability - The probability of the class.
    */
   detect = (predictions) => {
-    // console.log(predictions);
     this.setState({
       message: `${
         predictions[0].className
@@ -134,7 +135,7 @@ class ImageClassificationDetector extends React.Component {
     });
 
     this.detectorTimerConfidence.update(
-      predictions[0].className === this.props.currentStep.label &&
+      predictions[0].className === this.props.currentStep.goal &&
         predictions[0].probability > DETECTION_THRESHOLD,
     );
   };
@@ -305,18 +306,13 @@ class ImageClassificationDetector extends React.Component {
           cropped.shape[SHAPE_CHANNELS]) >
       MIN_BRIGHTNESS;
 
-    // console.log(`lightMetric: ${lightMetric}`);
-    // console.log(`cropped: ${cropped.shape}`);
-    // console.log(`enough: ${enough}`);
-    // console.log(`MIN_BRIGHTNESS: ${MIN_BRIGHTNESS}`);
-
     if (!enough) {
       this.setState({
         message: 'No hay suficiente luz',
         messageStatus: 'danger',
       });
     }
-    // this.countTime('Enought brightness 1');
+
     return enough;
   };
 
@@ -407,6 +403,12 @@ class ImageClassificationDetector extends React.Component {
     />
   );
 
+  renderInstructions = () => {
+    let instructions = steps[this.props.currentStep.goal]['instructions'];
+
+    return <Text style={styles.description}>{instructions}</Text>;
+  };
+
   render() {
     if (this.detectorsLoaded()) {
       return (
@@ -421,9 +423,7 @@ class ImageClassificationDetector extends React.Component {
             {this.state.message}
           </Text> */}
           <Layout style={styles.controlContainer}>
-            <Text style={styles.instructions}>
-              {this.props.currentStep.instructions}
-            </Text>
+            {this.renderInstructions()}
             <TensorCamera
               type={CAMERA_TYPE}
               zoom={0}
@@ -464,7 +464,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     justifyContent: 'space-around',
   },
-  instructions: {
+  description: {
     alignSelf: 'flex-start',
     fontSize: 20,
   },

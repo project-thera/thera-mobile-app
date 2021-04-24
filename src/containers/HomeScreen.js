@@ -26,11 +26,14 @@ import LabBackground from '../components/base/LabBackground';
 import RCTNetworking from 'react-native/Libraries/Network/RCTNetworking';
 import Database from '../storage/Database';
 
+import icons from '../assets/images/icons';
+
 const BackIcon = (props) => <Icon {...props} name="arrow-back" />;
 const InfoIcon = (props) => <Icon {...props} name="info" />;
 const LoginIcon = (props) => <Icon {...props} name="log-in" />;
 const LogoutIcon = (props) => <Icon {...props} name="log-out" />;
 const MenuIcon = (props) => <Icon {...props} name="more-vertical" />;
+const PersonIcon = (props) => <Icon {...props} name="person" />;
 
 export default class HomeScreen extends React.Component {
   constructor(props) {
@@ -58,9 +61,9 @@ export default class HomeScreen extends React.Component {
     );
   }
 
-  // componentWillUnmount() {
-  //   this.focusListener.remove();
-  // }
+  componentWillUnmount() {
+    if (this.focusListener) this.focusListener.remove();
+  }
 
   toggleMenu = () => {
     this.setState({menuVisible: !this.state.menuVisible});
@@ -108,6 +111,7 @@ export default class HomeScreen extends React.Component {
         anchor={this.renderMenuAction}
         visible={this.state.menuVisible}
         onBackdropPress={this.toggleMenu}>
+        <MenuItem accessoryLeft={PersonIcon} title="My Account" />
         <MenuItem accessoryLeft={InfoIcon} title="About" />
         <MenuItem
           accessoryLeft={LoginIcon}
@@ -128,11 +132,10 @@ export default class HomeScreen extends React.Component {
       <SafeAreaView style={{flex: 1}}>
         {/* <Navigation /> */}
         <TopNavigation
-          title="Thera Project"
-          subtitle="HomeScreen"
-          alignment="center"
+          title="Proyecto Thera"
+          subtitle="Inicio"
           accessoryRight={this.renderRightActions}
-          // accessoryLeft={this.renderBackAction}
+          accessoryLeft={() => <Image style={{height: 40, width: 40, marginRight: 8, resizeMode: 'contain'}} source={icons.projectTheraIcon} />}
         />
         <ViewPager
           style={{flex: 1}}

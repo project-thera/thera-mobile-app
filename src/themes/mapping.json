@@ -1,3 +1,5 @@
+
+
 {
   "components": {
     "Spinner": {
@@ -5,7 +7,7 @@
         "variantGroups": {
           "size": {
             "galactic": {
-              "default": false
+              "default": true
             }
           }
         }
@@ -19,6 +21,54 @@
                 "height": 64,
                 "borderRadius": 32,
                 "borderWidth": 5.5
+              }
+            }
+          }
+        }
+      }
+    },
+    "TopNavigation": {
+      "meta": {
+        "appearances": {
+          "inverted": {
+            "default": false
+          }
+        }
+      },
+      "appearances": {
+        "default": {
+          "mapping": {
+            "backgroundColor": "color-primary-default",
+            "titleColor": "#ffffff",
+            "subtitleColor": "#ffffff"
+          }
+        },
+        "inverted": {
+          "mapping": {
+            "backgroundColor": "#3333333",
+            "titleColor": "#000000",
+            "subtitleColor": "#000000"
+          }
+        }
+      }
+    },
+    "TopNavigationAction": {
+      "appearances": {
+        "default": {
+          "mapping": {
+            "iconTintColor": "#ffffff",
+            "state": {
+              "hover": {
+                "iconTintColor": "text-hint-color"
+              },
+              "focused": {
+                "iconTintColor": "text-hint-color"
+              },
+              "active": {
+                "iconTintColor": "text-hint-color"
+              },
+              "disabled": {
+                "iconTintColor": "text-hint-color"
               }
             }
           }

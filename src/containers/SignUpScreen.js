@@ -49,9 +49,13 @@ export default class SignUpScreen extends React.Component {
   );
 
   handleSubmit = (values, {setErrors}) => {
+    console.log('SignUpScreen/handleSubmit');
+
     this.setState({
       loading: true,
     });
+
+    console.log(SIGN_UP_URL);
 
     axios({
       method: 'post',
@@ -59,8 +63,9 @@ export default class SignUpScreen extends React.Component {
       data: {
         api_v1_user: values,
       },
-    }).then(
+    }).then(      
       (response) => {
+        console.log(response);
         if (response?.data?.id) {
           Toast.show({
             type: 'success',
@@ -128,6 +133,7 @@ export default class SignUpScreen extends React.Component {
                   {...errorField({error: errors.fullname})}
                 />
                 <Input
+                  keyboardType='email-address'
                   onChangeText={handleChange('email')}
                   onBlur={handleBlur('email')}
                   value={values.email}
@@ -176,10 +182,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     flexDirection: 'column',
-    alignItems: 'center',
+    // alignItems: 'center',
     justifyContent: 'space-evenly',
-    paddingLeft: 20,
-    paddingRight: 20,
+    // paddingLeft: 20,
+    // paddingRight: 20,
   },
   button: {
     marginTop: 40,

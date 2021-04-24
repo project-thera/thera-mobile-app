@@ -180,22 +180,13 @@ export default class Database {
     const currentUser = await this.getCurrentUser();
     const routine = currentUser.routines[0];
 
-    // console.log('routine');
-    // console.log(routine);
-
     const routineIntent = this.getRoutineIntent(routine);
     const routineExercise = routine.routine_exercises[0];
-
-    // console.log('routineIntent');
-    // console.log(routineIntent);
 
     routineIntent.routine_intent_exercises_attributes.push({
       exercise_id: routineExercise.exercise_id,
       status: ROUTINE_INTENT_EXERCISE_COMPLETED,
     });
-
-    // console.log('routineIntent2');
-    // console.log(routineIntent);
 
     await this.addRoutineIntent(routineIntent);
 
@@ -204,8 +195,6 @@ export default class Database {
 
   async testGameReward() {
     const gameReward = await this.getGameReward();
-
-    // console.log(gameReward);
 
     gameReward.credits = 10;
 

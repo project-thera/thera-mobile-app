@@ -115,7 +115,7 @@ export default class ImageClassificationDetector extends React.Component {
     });
 
     this.detectorTimerConfidence.update(
-      predictions[0].className === this.props.currentStep.label &&
+      predictions[0].className === this.props.currentStep.goal &&
         predictions[0].probability > DETECTION_THRESHOLD,
     );
   };
@@ -271,7 +271,7 @@ export default class ImageClassificationDetector extends React.Component {
       return (
         <>
           <Text category="h3" style={styles.centerText}>
-            {this.ucfirst(this.props.currentStep.label)}
+            {this.ucfirst(this.props.currentStep.goal)}
           </Text>
           <Text status="danger" style={styles.centerText}>
             {this.state.message}
