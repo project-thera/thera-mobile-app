@@ -1,7 +1,31 @@
-
-
 {
+  "strict": {
+    "size-galactic": 64
+  },
   "components": {
+    "Avatar": {
+      "meta": {
+        "variantGroups": {
+          "size": {
+            "galactic": {
+              "default": true
+            }
+          }
+        }
+      },
+      "appearances": {
+        "default": {
+          "variantGroups": {
+            "size": {
+              "galactic": {
+                "width": "size-galactic",
+                "height": "size-galactic"
+              }
+            }
+          }
+        }
+      }
+    },
     "Spinner": {
       "meta": {
         "variantGroups": {
@@ -17,8 +41,8 @@
           "variantGroups": {
             "size": {
               "galactic": {
-                "width": 64,
-                "height": 64,
+                "width": "size-galactic",
+                "height": "size-galactic",
                 "borderRadius": 32,
                 "borderWidth": 5.5
               }
