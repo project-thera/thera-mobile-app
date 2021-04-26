@@ -12,6 +12,8 @@ const LOCAL_DATABASE_NAME = 'thera';
 export const ROUTINE_INTENT_EXERCISE_COMPLETED = 1;
 export const ROUTINE_INTENT_EXERCISE_SKIPPED = 0;
 
+const BASE_64_VIDEO_PREFIX = 'data:video/mp4;base64,';
+
 export default class Database {
   static instance = null;
   static apiClient = null;
@@ -174,6 +176,14 @@ export default class Database {
     return this.syncRoutines();
   }
 
+  async addPatientVideo(base64video) {
+    const apiClient = await this.getApiClient();
+
+    return apiClient.mutate(['patient_videos'], {
+      video: `${BASE_64_VIDEO_PREFIX}${base64video}`,
+    });
+  }
+
   async testAddRoutineIntent() {
     await this.syncRoutines();
 
@@ -211,5 +221,13 @@ export default class Database {
 
     await this.updateGameReward(gameReward);
     await this.syncGameRewards();
+  }
+
+  async testPatientVideos() {
+    const apiClient = await this.getApiClient();
+
+    await apiClient.mutate(['patient_videos'], {
+      video: 'data:video/mp4;base64,hola',
+    });
   }
 }

@@ -14,6 +14,7 @@ import LoginScreen from '../containers/LoginScreen';
 import SignUpScreen from '../containers/SignUpScreen';
 import ResetPasswordScreen from '../containers/ResetPasswordScreen';
 import ShopScreen from '../containers/ShopScreen';
+import RecordScreen from '../containers/RecordScreen';
 
 const {Navigator, Screen} = createStackNavigator();
 
@@ -34,6 +35,7 @@ const HomeNavigator = (parentProps) => {
           </Screen>
           <Screen name="routines" component={RoutinesScreen} />
           <Screen name="shop" component={ShopScreen} />
+          <Screen name="record" component={RecordScreen} />
           <Screen name="login">
             {(props) => <LoginScreen {...props} {...parentProps} />}
           </Screen>
