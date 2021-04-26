@@ -112,6 +112,10 @@ export default class HomeScreen extends React.Component {
         visible={this.state.menuVisible}
         onBackdropPress={this.toggleMenu}>
         <MenuItem accessoryLeft={PersonIcon} title="My Account" />
+        <MenuItem
+          title="Grabar video"
+          onPress={() => this.navigateTo('record')}
+        />
         <MenuItem accessoryLeft={InfoIcon} title="About" />
         <MenuItem
           accessoryLeft={LoginIcon}

@@ -2,7 +2,7 @@ export default {
   routines: {
     type: 'routines',
     relationships: {
-      routineExercises: {
+      routine_exercises: {
         type: 'routine_exercises',
         relationships: {
           exercises: {
@@ -12,10 +12,10 @@ export default {
       },
     },
   },
-  routineIntents: {
+  routine_intents: {
     type: 'routine_intents',
     relationships: {
-      routineIntentExercises: {
+      routine_intent_exercises: {
         type: 'routines_intent_exercises',
       },
     },
@@ -23,12 +23,15 @@ export default {
   user: {
     type: 'users',
     relationships: {
-      gameReward: {
+      game_reward: {
         type: 'game_rewards',
       },
     },
   },
-  gameRewards: {
+  patient_videos: {
+    type: 'patient_videos',
+  },
+  game_rewards: {
     type: 'game_rewards',
   },
 };
