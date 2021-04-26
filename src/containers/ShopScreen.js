@@ -42,9 +42,9 @@ class ShopScreen extends React.Component {
   componentDidMount = async () => {
     let gameReward = await Database.getInstance().getGameReward();
 
-    // gameReward.credits = 1000;
-    // gameReward.current_robot = 4;
-    // gameReward.robots = 20;
+    gameReward.credits = 1000;
+    gameReward.current_robot = 0;
+    gameReward.robots = 20;
 
     this.setState(gameReward);
   };
