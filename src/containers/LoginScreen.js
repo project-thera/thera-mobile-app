@@ -57,7 +57,7 @@ export default class LoginScreen extends React.Component {
             type: 'success',
             position: 'bottom',
             text1: 'Acceso permitido.',
-            text2: '¡Hoy es un gran día para practicar!'
+            text2: '¡Hoy es un gran día para practicar!',
           });
 
           const currentUser = {
@@ -67,15 +67,16 @@ export default class LoginScreen extends React.Component {
 
           await Database.getInstance().setCurrentUser(currentUser);
 
-          this.props.onLoggedIn(currentUser, () =>
-            this.props.navigation.navigate('home'),
-          );
+          this.props.onLoggedIn(currentUser, () => {
+            // we need to reset the stack when the user is logged in
+            this.props.navigation.reset({routes: [{name: 'home'}]});
+          });
         } else {
           Toast.show({
             type: 'error',
             position: 'bottom',
             text1: 'Los datos ingresados son incorrectos.',
-            text2: 'Por favor, revisalos y volvé a intentar.'
+            text2: 'Por favor, revisalos y volvé a intentar.',
           });
 
           this.setState({
@@ -127,10 +128,7 @@ export default class LoginScreen extends React.Component {
                   disabled={this.state.loading}>
                   {!this.state.loading && 'Ingresar'}
                   {this.state.loading && (
-                    <Spinner
-                      size="small"
-                      status="primary"
-                    />
+                    <Spinner size="small" status="primary" />
                   )}
                 </Button>
               </Layout>

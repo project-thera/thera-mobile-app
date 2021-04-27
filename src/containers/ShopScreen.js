@@ -1,5 +1,5 @@
 import React from 'react';
-import {StyleSheet} from 'react-native';
+import {Image, StyleSheet} from 'react-native';
 import {
   Card,
   Divider,
@@ -25,6 +25,8 @@ const ShoppingCartIcon = (props) => (
   <Icon {...props} name="shopping-cart-outline" />
 );
 
+const TOTAL_STEPS = 8;
+
 class ShopScreen extends React.Component {
   constructor(props) {
     super(props);
@@ -42,10 +44,6 @@ class ShopScreen extends React.Component {
   componentDidMount = async () => {
     let gameReward = await Database.getInstance().getGameReward();
 
-    gameReward.credits = 1000;
-    gameReward.current_robot = 0;
-    gameReward.robots = 20;
-
     this.setState(gameReward);
   };
 
@@ -54,8 +52,6 @@ class ShopScreen extends React.Component {
   };
 
   _exchange = (step) => {
-    console.log('ShopScreen/_exchange');
-
     Toast.hide();
 
     if (this.state.credits >= step.price) {
@@ -68,11 +64,7 @@ class ShopScreen extends React.Component {
         () => {
           this._showModal(true);
 
-          this.database.updateGameReward({
-            credits: this.state.credits,
-            current_robot: this.state.current_robot,
-            robots: this.state.robots,
-          });
+          this._updateDatabase();
 
           setTimeout(() => {
             this._showModal(false);
@@ -100,6 +92,26 @@ class ShopScreen extends React.Component {
   _showModal = (value) => {
     this.setState({
       showModal: value,
+    });
+  };
+
+  _assemblyAndroid = () => {
+    this.setState(
+      {
+        current_robot: 0,
+        robots: this.state.robots + 1,
+      },
+      () => {
+        this._updateDatabase();
+      },
+    );
+  };
+
+  _updateDatabase = () => {
+    this.database.updateGameReward({
+      credits: this.state.credits,
+      current_robot: this.state.current_robot,
+      robots: this.state.robots,
     });
   };
 
@@ -184,6 +196,52 @@ class ShopScreen extends React.Component {
     }
   };
 
+  renderList = () => {
+    if (this.state.current_robot < TOTAL_STEPS) {
+      return (
+        <List
+          data={steps}
+          renderItem={this.renderListItem}
+          ItemSeparatorComponent={Divider}
+        />
+      );
+    } else {
+      return (
+        <Layout
+          style={{
+            // alignItems: 'center',
+            flex: 1,
+            justifyContent: 'center',
+            padding: 24,
+          }}>
+          <Image
+            source={icons.profTheralovJumping}
+            style={{
+              // backgroundColor: 'red',
+              flex: 1,
+              width: '100%',
+              resizeMode: 'contain',
+            }}
+          />
+          <Layout style={{flex: 1}}>
+            <Text category="h3" style={{paddingBottom: 12}}>
+              ¡Felicitaciones!
+            </Text>
+            <Text category="h6" style={{paddingBottom: 12}}>
+              ¡Completaste una nueva unidad del androide Thera!
+            </Text>
+            <Text category="h6" style={{paddingBottom: 12}}>
+              ¿Te gustaría ensamblarlo y comenzar uno nuevo?
+            </Text>
+            <Button onPress={this._assemblyAndroid}>
+              ¡Ensamblar androide!
+            </Button>
+          </Layout>
+        </Layout>
+      );
+    }
+  };
+
   render() {
     return (
       <React.Fragment>
@@ -200,13 +258,8 @@ class ShopScreen extends React.Component {
           )}
           {this.renderStatusItem(this.state.robots, icons.robot)}
         </Layout>
-        <List
-          style={styles.container}
-          contentContainerStyle={styles.contentContainer}
-          data={steps}
-          renderItem={this.renderListItem}
-          ItemSeparatorComponent={Divider}
-        />
+        <Divider />
+        {this.renderList()}
         <Modal
           style={{width: '80%'}}
           visible={this.state.showModal}
@@ -224,25 +277,6 @@ const styles = StyleSheet.create({
   },
   backdrop: {
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  },
-  contentContainer: {
-    // paddingHorizontal: 8,
-    // paddingVertical: 4,
-  },
-  item: {
-    marginVertical: 4,
-  },
-  layout: {
-    backgroundColor: 'blueviolet',
-    // flex: 1,
-    // padding: 15,
-  },
-  footerContainer: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-  },
-  footerControl: {
-    marginHorizontal: 2,
   },
   statusContainer: {
     flexDirection: 'row',

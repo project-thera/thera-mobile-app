@@ -19,7 +19,6 @@ import Toast from 'react-native-toast-message';
 
 import ViewPagerTab from '../components/base/ViewPagerTab';
 
-import ShopModal from './ShopModal';
 import RoundedOpacity from '../components/base/RoundedOpacity';
 import LabBackground from '../components/base/LabBackground';
 
@@ -30,10 +29,10 @@ import icons from '../assets/images/icons';
 
 const BackIcon = (props) => <Icon {...props} name="arrow-back" />;
 const InfoIcon = (props) => <Icon {...props} name="info" />;
-const LoginIcon = (props) => <Icon {...props} name="log-in" />;
 const LogoutIcon = (props) => <Icon {...props} name="log-out" />;
 const MenuIcon = (props) => <Icon {...props} name="more-vertical" />;
 const PersonIcon = (props) => <Icon {...props} name="person" />;
+const SyncIcon = (props) => <Icon {...props} name="sync" />;
 
 export default class HomeScreen extends React.Component {
   constructor(props) {
@@ -53,10 +52,7 @@ export default class HomeScreen extends React.Component {
 
     this.focusListener = navigation.addListener(
       'focus',
-      () => {
-        this.bg = new LabBackground(0);
-        this.forceUpdate();
-      },
+      () => this._updateBackground(),
       [navigation],
     );
   };
@@ -64,6 +60,14 @@ export default class HomeScreen extends React.Component {
   componentWillUnmount = () => {
     if (this.focusListener && this.focusListener.remove)
       this.focusListener.remove();
+  };
+
+  _updateBackground = async () => {
+    let gameReward = await Database.getInstance().getGameReward();
+
+    this.bg.refresh(gameReward.current_robot);
+
+    this.forceUpdate();
   };
 
   toggleMenu = () => {
@@ -83,7 +87,7 @@ export default class HomeScreen extends React.Component {
       type: 'success',
       position: 'bottom',
       text1: '¡Hasta luego!',
-      text2: 'Te esperamos pronto para seguir practicando.'
+      text2: 'Te esperamos pronto para seguir practicando.',
     });
 
     this.props.navigation.reset({routes: [{name: 'login'}]});
@@ -118,12 +122,9 @@ export default class HomeScreen extends React.Component {
       anchor={this.renderMenuAction}
       visible={this.state.menuVisible}
       onBackdropPress={this.toggleMenu}>
-      <MenuItem accessoryLeft={PersonIcon} title="My Account" />
-      <MenuItem
-        title="Grabar video"
-        onPress={() => this.navigateTo('record')}
-      />
-      <MenuItem accessoryLeft={InfoIcon} title="About" />
+      <MenuItem accessoryLeft={PersonIcon} title="Mi cuenta" />
+      <MenuItem accessoryLeft={SyncIcon} title="Sincronizar" />
+      <MenuItem accessoryLeft={InfoIcon} title="Acerca del Proyecto Thera" />
       <MenuItem
         accessoryLeft={LogoutIcon}
         title="Cerrar sesión"
@@ -135,7 +136,6 @@ export default class HomeScreen extends React.Component {
   render() {
     return (
       <SafeAreaView style={{flex: 1}}>
-        {/* <Navigation /> */}
         <TopNavigation
           title="Proyecto Thera"
           subtitle="Inicio"
@@ -152,21 +152,21 @@ export default class HomeScreen extends React.Component {
             <RoundedOpacity
               action={() => this.props.navigation.navigate('glossary')}
               icon={require('../assets/images/icons/computer.png')}
-              text="GlossaryScreen"
+              text="Base de Conocimiento"
             />
           </ViewPagerTab>
           <ViewPagerTab backgroundImage={this.bg.getImage(1)}>
             <RoundedOpacity
-              action={() => this.props.navigation.navigate('routines')}
-              icon={require('../assets/images/icons/chatbot.png')}
-              text="RoutinesScreen"
+              action={() => this.props.navigation.navigate('shop')}
+              // icon={require('../assets/images/icons/robot.png')}
+              text="¡Presioná para ingresar al taller!"
             />
           </ViewPagerTab>
           <ViewPagerTab backgroundImage={this.bg.getImage(2)}>
             <RoundedOpacity
-              action={() => this.props.navigation.navigate('shop')}
-              icon={require('../assets/images/icons/robot.png')}
-              text="ShopScreen2"
+              action={() => this.props.navigation.navigate('routines')}
+              icon={require('../assets/images/icons/chatbot.png')}
+              text="Mis Rutinas"
             />
           </ViewPagerTab>
         </ViewPager>

@@ -90,8 +90,8 @@ export default class GlossaryScreen extends React.Component {
     return (
       <React.Fragment>
         <TopNavigation
-          title="Thera Project"
-          subtitle="GlossaryScreen"
+          title="Proyecto Thera"
+          subtitle="Base de conocimiento"
           accessoryLeft={this.renderBackAction}
         />
         <List
