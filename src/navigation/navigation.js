@@ -14,11 +14,8 @@ import ResetPasswordScreen from '../containers/ResetPasswordScreen';
 import RoutinesScreen from '../containers/RoutinesScreen';
 import RoutineIntentScreen from '../containers/RoutineIntentScreen';
 import ShopScreen from '../containers/ShopScreen';
-<<<<<<< HEAD
 import SignUpScreen from '../containers/SignUpScreen';
-=======
 import RecordScreen from '../containers/RecordScreen';
->>>>>>> development
 
 const {Navigator, Screen} = createStackNavigator();
 
@@ -37,15 +34,13 @@ const HomeNavigator = (parentProps) => {
           <Screen name="glossary">
             {(props) => <GlossaryScreen {...props} {...parentProps} />}
           </Screen>
-          <Screen name="routines" component={RoutinesScreen} />
-          <Screen name="shop" component={ShopScreen} />
-          <Screen name="record" component={RecordScreen} />
           <Screen name="login">
             {(props) => <LoginScreen {...props} {...parentProps} />}
           </Screen>
           <Screen name="my-account">
             {(props) => <MyAccountScreen {...props} {...parentProps} />}
           </Screen>
+          <Screen name="record" component={RecordScreen} />
           <Screen name="reset-password" component={ResetPasswordScreen} />
           <Screen name="routines">
             {(props) => <RoutinesScreen {...props} {...parentProps} />}

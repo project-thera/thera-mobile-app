@@ -96,13 +96,17 @@ export default class ResetPasswordScreen extends React.Component {
     return (
       <SafeAreaView style={{flex: 1}}>
         <TopNavigation
-          title="Thera Project"
-          alignment="center"
+          title="Proyecto Thera"
+          subtitle="Recuperar contraseña"
           accessoryLeft={BackAction}
         />
         <Divider />
         <Layout style={styles.container}>
-          <Text category="h2">Recuperar Contraseña</Text>
+          <Text category="h2">Recuperar contraseña</Text>
+          <Text style={{paddingBottom: 12}}>
+            Ingresá tu dirección de correo electrónico para que podamos enviarte
+            las instrucciones para reestablecer tu contraseña.
+          </Text>
           <Formik
             initialValues={{
               email: '',
@@ -111,15 +115,17 @@ export default class ResetPasswordScreen extends React.Component {
             {({handleChange, handleBlur, handleSubmit, values, errors}) => (
               <View>
                 <Input
+                  style={{marginTop: 8}}
                   onChangeText={handleChange('email')}
                   onBlur={handleBlur('email')}
                   value={values.email}
                   placeholder="Dirección de correo electrónico"
                   {...errorField({error: errors.email})}
+                  autoCapitalize="none"
                 />
 
                 <Button
-                  style={styles.button}
+                  style={{marginTop: 8}}
                   onPress={handleSubmit}
                   disabled={this.state.loading}>
                   {!this.state.loading && 'Continuar'}
@@ -138,18 +144,8 @@ export default class ResetPasswordScreen extends React.Component {
 
 const styles = StyleSheet.create({
   container: {
+    backgroundColor: 'transparent',
     flex: 1,
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'space-evenly',
-    paddingLeft: 20,
-    paddingRight: 20,
-  },
-  button: {
-    marginTop: 40,
-  },
-  indicator: {
-    justifyContent: 'center',
-    alignItems: 'center',
+    padding: 24,
   },
 });

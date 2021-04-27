@@ -48,7 +48,7 @@ export default class HomeScreen extends React.Component {
     this.bg = new LabBackground(0);
   }
 
-  async componentDidMount() {
+  componentDidMount = () => {
     const {navigation} = this.props;
 
     this.focusListener = navigation.addListener(
@@ -59,11 +59,12 @@ export default class HomeScreen extends React.Component {
       },
       [navigation],
     );
-  }
+  };
 
-  componentWillUnmount() {
-    if (this.focusListener) this.focusListener.remove();
-  }
+  componentWillUnmount = () => {
+    if (this.focusListener && this.focusListener.remove)
+      this.focusListener.remove();
+  };
 
   toggleMenu = () => {
     this.setState({menuVisible: !this.state.menuVisible});
@@ -81,8 +82,11 @@ export default class HomeScreen extends React.Component {
     Toast.show({
       type: 'success',
       position: 'bottom',
-      text1: 'Vuelve pronto',
+      text1: '¡Hasta luego!',
+      text2: 'Te esperamos pronto para seguir practicando.'
     });
+
+    this.props.navigation.reset({routes: [{name: 'login'}]});
   };
 
   showShopModal = (value) => {
@@ -105,30 +109,27 @@ export default class HomeScreen extends React.Component {
     <TopNavigationAction icon={MenuIcon} onPress={this.toggleMenu} />
   );
 
+  renderAvatar = () => (
+    <Image style={styles.avatar} source={icons.projectTheraIcon} />
+  );
+
   renderRightActions = () => (
-    <React.Fragment>
-      <OverflowMenu
-        anchor={this.renderMenuAction}
-        visible={this.state.menuVisible}
-        onBackdropPress={this.toggleMenu}>
-        <MenuItem accessoryLeft={PersonIcon} title="My Account" />
-        <MenuItem
-          title="Grabar video"
-          onPress={() => this.navigateTo('record')}
-        />
-        <MenuItem accessoryLeft={InfoIcon} title="About" />
-        <MenuItem
-          accessoryLeft={LoginIcon}
-          title="Login"
-          onPress={() => this.navigateTo('login')}
-        />
-        <MenuItem
-          accessoryLeft={LogoutIcon}
-          title="Logout"
-          onPress={this.logout}
-        />
-      </OverflowMenu>
-    </React.Fragment>
+    <OverflowMenu
+      anchor={this.renderMenuAction}
+      visible={this.state.menuVisible}
+      onBackdropPress={this.toggleMenu}>
+      <MenuItem accessoryLeft={PersonIcon} title="My Account" />
+      <MenuItem
+        title="Grabar video"
+        onPress={() => this.navigateTo('record')}
+      />
+      <MenuItem accessoryLeft={InfoIcon} title="About" />
+      <MenuItem
+        accessoryLeft={LogoutIcon}
+        title="Cerrar sesión"
+        onPress={this.logout}
+      />
+    </OverflowMenu>
   );
 
   render() {
@@ -138,8 +139,8 @@ export default class HomeScreen extends React.Component {
         <TopNavigation
           title="Proyecto Thera"
           subtitle="Inicio"
+          accessoryLeft={this.renderAvatar}
           accessoryRight={this.renderRightActions}
-          accessoryLeft={() => <Image style={{height: 40, width: 40, marginRight: 8, resizeMode: 'contain'}} source={icons.projectTheraIcon} />}
         />
         <ViewPager
           style={{flex: 1}}
@@ -174,4 +175,11 @@ export default class HomeScreen extends React.Component {
   }
 }
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  avatar: {
+    height: 40,
+    width: 40,
+    marginRight: 8,
+    resizeMode: 'contain',
+  },
+});

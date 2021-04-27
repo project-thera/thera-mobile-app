@@ -26,8 +26,64 @@
         }
       }
     },
+    "Button": {
+      "meta": {
+        "appearances": {
+          "theraFilled": {
+            "default": false
+          },
+          "theraGhost": {
+            "default": false
+          }
+        }
+      },
+      "appearances": {
+        "theraFilled": {
+          "variantGroups": {
+            "status": {
+              "primary": {
+                "backgroundColor": "#527590",
+                "borderColor": "#4a4241",
+                "state": {
+                  "active": {
+                    "backgroundColor": "#fcb040",
+                    "borderColor": "#a78358"
+                  },
+                  "focused": {
+                    "backgroundColor": "#fcb040",
+                    "borderColor": "#a78358"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "theraGhost": {
+          "variantGroups": {
+            "status": {
+              "primary": {
+                "backgroundColor": "none",
+                "state": {
+                  "active": {
+                    "backgroundColor": "none",
+                    "borderColor": "none",
+                    "textColor": "#fcb040"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+
+    },
     "Spinner": {
       "meta": {
+        "appearances": {
+          "theraFilled": {
+            "default": false
+          }
+        },
         "variantGroups": {
           "size": {
             "galactic": {

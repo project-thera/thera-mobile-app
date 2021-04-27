@@ -1,14 +1,22 @@
 import React from 'react';
-import {TouchableWithoutFeedback, StyleSheet, View} from 'react-native';
-import {Icon, Input, Button, Spinner, Text} from '@ui-kitten/components';
+import {Image, TouchableWithoutFeedback, StyleSheet, View} from 'react-native';
+import {
+  Icon,
+  Input,
+  Button,
+  Spinner,
+  Text,
+  Layout,
+} from '@ui-kitten/components';
 
 import {SafeAreaView} from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import {Formik} from 'formik';
 
 import axios from 'axios';
-import {LOGIN_URL} from '../../config/config';
 
+import icons from '../assets/images/icons';
+import {LOGIN_URL} from '../../config/config';
 import Database from '../storage/Database';
 
 export default class LoginScreen extends React.Component {
@@ -31,14 +39,6 @@ export default class LoginScreen extends React.Component {
     </TouchableWithoutFeedback>
   );
 
-  navigateToSignUp = () => {
-    this.props.navigation.navigate('sign-up');
-  };
-
-  navigateToResetPassword = () => {
-    this.props.navigation.navigate('reset-password');
-  };
-
   login = (values) => {
     this.setState({
       loading: true,
@@ -56,7 +56,8 @@ export default class LoginScreen extends React.Component {
           Toast.show({
             type: 'success',
             position: 'bottom',
-            text1: 'Te damos la bienvenida',
+            text1: 'Acceso permitido.',
+            text2: '¡Hoy es un gran día para practicar!'
           });
 
           const currentUser = {
@@ -73,7 +74,8 @@ export default class LoginScreen extends React.Component {
           Toast.show({
             type: 'error',
             position: 'bottom',
-            text1: 'Los datos son incorrectos.',
+            text1: 'Los datos ingresados son incorrectos.',
+            text2: 'Por favor, revisalos y volvé a intentar.'
           });
 
           this.setState({
@@ -94,42 +96,62 @@ export default class LoginScreen extends React.Component {
   render() {
     return (
       <SafeAreaView style={styles.container}>
-        <Text category="h1">Thera Project</Text>
+        <Layout style={styles.appLogoContainer}>
+          <Image style={styles.appLogoImage} source={icons.projectTheraIcon} />
+          <Text category="h1" style={styles.appLogoText}>
+            Proyecto Thera
+          </Text>
+        </Layout>
         <Formik initialValues={{email: '', password: ''}} onSubmit={this.login}>
           {({handleChange, handleBlur, handleSubmit, values}) => (
-            <View>
-              <Input
-                onChangeText={handleChange('email')}
-                onBlur={handleBlur('email')}
-                value={values.email}
-                placeholder="Dirección de correo electrónico"
-              />
-              <Input
-                value={values.password}
-                placeholder="Contraseña"
-                onChangeText={handleChange('password')}
-                onBlur={handleBlur('password')}
-                // caption="Should contain at least 8 symbols"
-                accessoryRight={this.renderIcon}
-                secureTextEntry={this.state.secureTextEntry}
-              />
-              <Button
-                style={styles.button}
-                onPress={handleSubmit}
-                disabled={this.state.loading}>
-                {!this.state.loading && 'Ingresar'}
-                {this.state.loading && (
-                  <Spinner size="small" status="primary" />
-                )}
-              </Button>
+            <Layout style={styles.loginContainer}>
+              <Layout style={{backgroundColor: 'transparent'}}>
+                <Input
+                  onChangeText={handleChange('email')}
+                  onBlur={handleBlur('email')}
+                  value={values.email}
+                  placeholder="Dirección de correo electrónico"
+                  autoCapitalize="none"
+                />
+                <Input
+                  value={values.password}
+                  placeholder="Contraseña"
+                  onChangeText={handleChange('password')}
+                  onBlur={handleBlur('password')}
+                  accessoryRight={this.renderIcon}
+                  secureTextEntry={this.state.secureTextEntry}
+                />
+                <Button
+                  style={{marginTop: 8}}
+                  onPress={handleSubmit}
+                  disabled={this.state.loading}>
+                  {!this.state.loading && 'Ingresar'}
+                  {this.state.loading && (
+                    <Spinner
+                      size="small"
+                      status="primary"
+                    />
+                  )}
+                </Button>
+              </Layout>
 
-              <Button appearance="ghost" onPress={this.navigateToSignUp}>
-                Registrarse
-              </Button>
-              <Button appearance="ghost" onPress={this.navigateToResetPassword}>
-                ¿Olvidaste tu contraseña?
-              </Button>
-            </View>
+              <Layout style={{backgroundColor: 'transparent'}}>
+                <Button
+                  appearance="ghost"
+                  style={styles.ghostButton}
+                  onPress={() => this.props.navigation.navigate('sign-up')}>
+                  Creá tu cuenta
+                </Button>
+                <Button
+                  appearance="ghost"
+                  style={styles.ghostButton}
+                  onPress={() =>
+                    this.props.navigation.navigate('reset-password')
+                  }>
+                  ¿Olvidaste tu contraseña?
+                </Button>
+              </Layout>
+            </Layout>
           )}
         </Formik>
       </SafeAreaView>
@@ -140,12 +162,25 @@ export default class LoginScreen extends React.Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    flexDirection: 'column',
-    alignItems: 'center',
     justifyContent: 'space-evenly',
+    padding: 24,
   },
-  button: {
-    marginTop: 40,
+  appLogoContainer: {
+    alignItems: 'center',
+    backgroundColor: 'transparent',
+    flex: 1,
+  },
+  appLogoImage: {
+    flex: 2,
+    resizeMode: 'contain',
+  },
+  appLogoText: {
+    flex: 1,
+  },
+  loginContainer: {
+    backgroundColor: 'transparent',
+    flex: 1,
+    justifyContent: 'space-between',
   },
   indicator: {
     justifyContent: 'center',
