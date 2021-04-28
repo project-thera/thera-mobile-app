@@ -2,6 +2,7 @@ import React from 'react';
 import {SafeAreaView, StyleSheet} from 'react-native';
 import {
   Icon,
+  Layout,
   Text,
   TopNavigation,
   TopNavigationAction,
@@ -48,7 +49,7 @@ class RoutineIntentScreen extends React.Component {
 
   onRoutineCompleted = () => {
     console.log('RoutineIntentScreen/onRoutineCompleted');
-  }
+  };
 
   onExerciseSkipped = () => {
     console.log('RoutineIntentScreen/onExerciseSkipped');
@@ -93,8 +94,7 @@ class RoutineIntentScreen extends React.Component {
       width={null}
       height={12}
       style={{flex: 1, marginRight: 18}}
-      color="#000000"
-      // color={this.props.eva.theme['color-primary-default']}
+      color="#fcb040"
       unfilledColor="#eeeeee"
       useNativeDriver={true}
       borderWidth={0}
@@ -131,12 +131,11 @@ class RoutineIntentScreen extends React.Component {
       <SafeAreaView style={styles.container}>
         <TopNavigation
           accessoryRight={this.renderBar}
-          // title="Proyecto Thera"
-          // subtitle={`Rutina #${this.routine.id}`}
           accessoryLeft={this.renderBackAction}
-          appearance="inverted"
         />
-        {this.renderExercise()}
+        <Layout style={styles.controlContainer}>
+          {this.renderExercise()}
+        </Layout>
       </SafeAreaView>
     );
   }
@@ -145,6 +144,10 @@ class RoutineIntentScreen extends React.Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  controlContainer: {
+    flex: 1,
+    padding: 24,
   },
 });
 

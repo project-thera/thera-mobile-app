@@ -19,7 +19,7 @@ const database = Database.getInstance();
 
 const BackIcon = (props) => <Icon {...props} name="arrow-back" />;
 const CloudUploadIcon = (props) => <Icon {...props} name="cloud-upload" />;
-const RecordingIcon = (props) => <Icon {...props} name="recording" />;
+const SyncIcon = (props) => <Icon {...props} name="sync" />;
 
 class RoutinesScreen extends React.Component {
   constructor(props) {
@@ -32,10 +32,30 @@ class RoutinesScreen extends React.Component {
   }
 
   componentDidMount = async () => {
+    let routines = await database.getRoutines();
+
     this.setState({
       loading: false,
-      routines: await database.getRoutines(),
+      routines: routines,
     });
+  };
+
+  _updateRoutines = async () => {
+    this.setState(
+      {
+        loading: true,
+      },
+      async () => {
+        await database.sync();
+
+        let routines = await database.getRoutines();
+
+        this.setState({
+          loading: false,
+          routines: routines,
+        });
+      },
+    );
   };
 
   renderBackAction = () => (
@@ -47,7 +67,19 @@ class RoutinesScreen extends React.Component {
 
   renderStatusItem = (text, image) => {
     return (
-      <Layout style={{flex: 1, alignItems: 'flex-end'}}>
+      <Layout
+        style={{
+          alignItems: 'flex-end',
+          justifyContent: 'space-around',
+          flex: 1,
+          flexDirection: 'row',
+        }}>
+        <Button
+          accessoryLeft={SyncIcon}
+          onPress={() => this._updateRoutines()}
+          size="small">
+          Actualizar
+        </Button>
         <Button
           accessoryLeft={CloudUploadIcon}
           onPress={() => this.navigateTo('record')}

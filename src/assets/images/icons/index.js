@@ -1,4 +1,6 @@
 export default icons = {
+  arrowheadLeft: require('./arrowhead-left.png'),
+  arrowheadRight: require('./arrowhead-right.png'),
   cogwheelRobot: require('./cogwheel-robot.png'),
   microprocessor: require('./microprocessor.png'),
   projectTheraIcon: require('./project-thera-icon.png'),

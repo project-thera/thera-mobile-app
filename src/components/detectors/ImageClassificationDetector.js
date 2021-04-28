@@ -404,7 +404,13 @@ class ImageClassificationDetector extends React.Component {
   );
 
   renderInstructions = () => {
-    let instructions = steps[this.props.currentStep.goal]['instructions'];
+    let instructions = ''
+
+    if (steps[this.props.currentStep.goal])
+      instructions = steps[this.props.currentStep.goal]['instructions'];
+    else {
+      console.log(this.props.currentStep.goal);
+    }
 
     return <Text style={styles.description}>{instructions}</Text>;
   };
@@ -456,27 +462,17 @@ const styles = StyleSheet.create({
   },
   title: {
     fontWeight: 'bold',
-    paddingHorizontal: 24,
   },
   controlContainer: {
     alignItems: 'center',
     flex: 1,
-    paddingHorizontal: 24,
     justifyContent: 'space-around',
   },
   description: {
     alignSelf: 'flex-start',
     fontSize: 20,
   },
-  loadingIndicator: {
-    // position: 'absolute',
-    // top: 20,
-    // right: 20,
-    // zIndex: 200,
-  },
   camera: {
-    // flex: 1,
-    backgroundColor: 'green',
     width: 1080 / 4,
     height: 1920 / 4,
   },

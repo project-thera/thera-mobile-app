@@ -106,20 +106,6 @@ export default class Exercise2 extends React.Component {
         }
       },
     );
-
-    // if (this._hasMoreSteps()) {
-    //   if (shouldPlaySound) this.stepCompletedSound?.replayAsync();
-
-    //   this._nextStep();
-    // } else {
-    //   if (this._hasMoreRepetitions()) {
-    //     this._nextRepetition();
-    //   } else {
-    //     if (shouldPlaySound) this.exerciseCompletedSound?.replayAsync();
-
-    //     this._nextExercise();
-    //   }
-    // }
   };
 
   _currentStep = () => {
@@ -227,7 +213,6 @@ export default class Exercise2 extends React.Component {
       <Layout style={styles.container}>
         <Layout style={styles.contentContainer}>{this.renderContent()}</Layout>
         <Layout style={{padding: 10}}>{this.renderSkipButton()}</Layout>
-        {/* <Layout style={{padding: 10}}>{this.renderNextButton()}</Layout> */}
       </Layout>
     );
   }

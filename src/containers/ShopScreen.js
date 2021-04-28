@@ -301,7 +301,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
   },
   listItemTitle: {
-    // paddingHorizontal: 8,
     fontSize: 14,
   },
   listItemDescription: {

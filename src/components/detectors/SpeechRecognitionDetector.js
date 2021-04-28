@@ -254,11 +254,9 @@ const styles = StyleSheet.create({
   },
   title: {
     fontWeight: 'bold',
-    paddingHorizontal: 24,
   },
   controlContainer: {
     alignItems: 'center',
-    paddingHorizontal: 24,
   },
   speakButton: {
     borderRadius: 100,
