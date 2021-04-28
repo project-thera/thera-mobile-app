@@ -46,21 +46,12 @@ const getRandomInt = (min, max) => {
   return Math.floor(Math.random() * (max - min)) + min;
 };
 
+const positions = 2;
+const modes = {0: 3, 1: 3, 2: 5};
+
 export default class LabBackground {
   constructor(step) {
-    const positions = 2;
-    const modes = {0: 3, 1: 3, 2: 5};
-
-    this.step = step;
-    this.present = getRandomInt(0, 10) > 0;
-
-    this.pos = 0;
-    this.mode = 0;
-
-    if (this.present > 0) {
-      this.pos = getRandomInt(0, positions + 1);
-      this.mode = getRandomInt(1, modes[this.pos]);
-    }
+    this.refresh(step);
   }
 
   getImage = (frame) => {
@@ -73,4 +64,17 @@ export default class LabBackground {
 
     return `bg-lab${frame}${step}-prof${mode}`;
   };
+
+  refresh = (step) => {
+    this.step = step;
+    this.present = getRandomInt(0, 10) > 0;
+
+    this.pos = 0;
+    this.mode = 0;
+
+    if (this.present > 0) {
+      this.pos = getRandomInt(0, positions + 1);
+      this.mode = getRandomInt(1, modes[this.pos]);
+    }
+  }
 }

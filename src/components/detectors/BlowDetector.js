@@ -1,5 +1,5 @@
 import React from 'react';
-import {Image, StyleSheet} from 'react-native';
+import {StyleSheet} from 'react-native';
 import {Layout, Text} from '@ui-kitten/components';
 import Recording from 'react-native-recording';
 import {amplitudeSpectrum} from 'fftjs-supplements';
@@ -12,14 +12,13 @@ function _frequencyToIndex(frequency, bufferSize, sampleRate) {
 }
 
 const BUFFER_SIZE = 1024;
-const MIN_FREQ = 1;
+const MIN_FREQ = 20;
 const MAX_FREQ = 600;
-const AMPLITUDE_THRESHOLD = 2000;
+const AMPLITUDE_THRESHOLD = 1000;
 const ENERGY_AVERAGE_THRESHOLD = 700;
-const REQUIRED_INTEGRAL = 8;
+const REQUIRED_INTEGRAL = 16;
 // const FFT_SIZE = BUFFER_SIZE / 2;
-// const SAMPLE_RATE = 8000;
-const SAMPLE_RATE = 14000;
+const SAMPLE_RATE = 16000;
 const MIN_FREQ_INDEX = _frequencyToIndex(MIN_FREQ, BUFFER_SIZE, SAMPLE_RATE);
 const MAX_FREQ_INDEX = _frequencyToIndex(MAX_FREQ, BUFFER_SIZE, SAMPLE_RATE);
 
@@ -51,6 +50,8 @@ export default class BlowDetector extends React.Component {
   };
 
   componentDidMount() {
+    console.log('BlowDetector/componentDidMount');
+
     this.setDetectorTimerConfidence();
   }
 
@@ -66,6 +67,8 @@ export default class BlowDetector extends React.Component {
 
   // TODO check if do this on unmount or in stop or both
   componentWillUnmount() {
+    console.log('BlowDetector/componentWillUnmount');
+
     Recording.stop();
 
     if (this.listener) {
@@ -74,12 +77,13 @@ export default class BlowDetector extends React.Component {
   }
 
   onProgress = (data) => {
-    this.setState({
-      progress: data.progress,
-      remainingTime: data.remainingTime,
-    });
-
-    this.props.onProgress(data);
+    this.setState(
+      {
+        progress: data.progress,
+        remainingTime: data.remainingTime,
+      },
+      () => this.props.onProgress(data),
+    );
   };
 
   onStoppedDetection = () => {
@@ -91,12 +95,19 @@ export default class BlowDetector extends React.Component {
   onCompleted = () => {
     console.log('BlowDetector/onCompleted');
 
-    this.props.onStepCompleted({
-      shouldPlaySound: !this._shouldBlow(),
-    });
+    this.stop();
+    this.balloonRef.pop();
+
+    setTimeout(() => {
+      this.props.onStepCompleted();
+    }, 2000);
   };
 
   _start = async () => {
+    console.log('BlowDetector/_start');
+
+    this.balloonRef.reset();
+
     Recording.init({
       bufferSize: BUFFER_SIZE,
       sampleRate: SAMPLE_RATE,
@@ -166,8 +177,6 @@ export default class BlowDetector extends React.Component {
     );
   };
 
-  _shouldBlow = () => this.props.currentStep.detected;
-
   render() {
     return (
       <Layout style={styles.container}>
@@ -176,8 +185,8 @@ export default class BlowDetector extends React.Component {
         </Text>
         <Layout style={styles.controlContainer}>
           <Balloon
-            popped={!this._shouldBlow()}
             progress={this.state.progress}
+            ref={(ref) => (this.balloonRef = ref)}
           />
         </Layout>
       </Layout>
@@ -192,12 +201,10 @@ const styles = StyleSheet.create({
   },
   title: {
     fontWeight: 'bold',
-    paddingHorizontal: 24,
   },
   controlContainer: {
     alignItems: 'center',
     flex: 1,
     justifyContent: 'space-around',
-    paddingHorizontal: 24,
   },
 });

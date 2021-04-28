@@ -78,8 +78,6 @@ export default class SignUpScreen extends React.Component {
         }
       },
       (error) => {
-        console.log(JSON.stringify(error));
-
         this.setState({
           loading: false,
         });
@@ -95,13 +93,14 @@ export default class SignUpScreen extends React.Component {
     return (
       <SafeAreaView style={{flex: 1}}>
         <TopNavigation
-          title="Thera Project"
-          alignment="center"
+          title="Proyecto Thera"
+          subtitle="Creá tu cuenta"
           accessoryLeft={BackAction}
         />
-        <Divider />
         <Layout style={styles.container}>
-          <Text category="h1">Registrarse</Text>
+          <Text category="h1" style={{paddingBottom: 12}}>
+            Completá tus datos
+          </Text>
           <Formik
             initialValues={{
               username: '',
@@ -112,7 +111,7 @@ export default class SignUpScreen extends React.Component {
             }}
             onSubmit={this.handleSubmit}>
             {({handleChange, handleBlur, handleSubmit, values, errors}) => (
-              <View>
+              <Layout style={{backgroundColor: 'transparent'}}>
                 <Input
                   onChangeText={handleChange('username')}
                   onBlur={handleBlur('username')}
@@ -128,6 +127,8 @@ export default class SignUpScreen extends React.Component {
                   {...errorField({error: errors.fullname})}
                 />
                 <Input
+                  autoCapitalize="none"
+                  keyboardType="email-address"
                   onChangeText={handleChange('email')}
                   onBlur={handleBlur('email')}
                   value={values.email}
@@ -155,7 +156,7 @@ export default class SignUpScreen extends React.Component {
                   {...errorField({error: errors.password_confirmation})}
                 />
                 <Button
-                  style={styles.button}
+                  style={{marginTop: 8}}
                   onPress={handleSubmit}
                   disabled={this.state.loading}>
                   {!this.state.loading && 'Continuar'}
@@ -163,7 +164,7 @@ export default class SignUpScreen extends React.Component {
                     <Spinner size="small" status="primary" />
                   )}
                 </Button>
-              </View>
+              </Layout>
             )}
           </Formik>
         </Layout>
@@ -174,18 +175,8 @@ export default class SignUpScreen extends React.Component {
 
 const styles = StyleSheet.create({
   container: {
+    backgroundColor: 'transparent',
     flex: 1,
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'space-evenly',
-    paddingLeft: 20,
-    paddingRight: 20,
-  },
-  button: {
-    marginTop: 40,
-  },
-  indicator: {
-    justifyContent: 'center',
-    alignItems: 'center',
+    padding: 24,
   },
 });

@@ -16,10 +16,7 @@ import {SafeAreaView} from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import Database from '../storage/Database';
 
-const TIME_FORMAT_OPTIONS = {
-  hour: '2-digit',
-  minute: '2-digit',
-};
+const database = Database.getInstance();
 
 const BackIcon = (props) => <Icon {...props} name="arrow-back" />;
 
@@ -38,7 +35,7 @@ export default class NotificationsScreen extends React.Component {
 
   loadReminder = async () => {
     this.setState({
-      reminder: await Database.getInstance().getReminder(),
+      reminder: await database.getReminder(),
     });
   };
 
@@ -70,7 +67,24 @@ export default class NotificationsScreen extends React.Component {
       loading: true,
     });
 
-    await Database.getInstance().removeReminder();
+    try {
+      await database.removeReminder();
+
+      Toast.show({
+        type: 'success',
+        position: 'bottom',
+        text1: 'Se ha quitado el recordatorio diario',
+      });
+    } catch (error) {
+      console.log(error);
+
+      Toast.show({
+        type: 'error',
+        position: 'bottom',
+        text1:
+          'No se ha podido quitar el recordatorio, por favor intentelo de nuevo',
+      });
+    }
 
     this.setState({
       loading: false,
@@ -88,7 +102,7 @@ export default class NotificationsScreen extends React.Component {
     time.setSeconds(0, 0);
 
     try {
-      await Database.getInstance().updateReminder(time);
+      await database.updateReminder(time);
 
       this.setState({
         reminder: time,

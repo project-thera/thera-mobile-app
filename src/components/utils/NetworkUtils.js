@@ -1,0 +1,1 @@
+// https://stackoverflow.com/questions/57296756/how-to-check-internet-connection-in-react-native-application-for-both-ios-and-an

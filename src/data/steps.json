@@ -1,0 +1,35 @@
+{
+  "caramelo_abajo": {
+    "instructions": "¡Caramelo abajo!"
+  },
+  "caramelo_arriba": {
+    "instructions": "¡Caramelo arriba!"
+  },
+  "conejito": {
+    "instructions": "¡Conejito!"
+  },
+  "inflar_cachetes": {
+    "instructions": "Inflá tus cachetes."
+  },  
+  "lateralizar_boca_derecha": {
+    "instructions": "Mové tu boca hacia la derecha."
+  },
+  "lateralizar_boca_izquierda": {
+    "instructions": "Mové tu boca hacia la izquierda."
+  },
+  "lengua_derecha": {
+    "instructions": "Sacá la lengua hacia la derecha."
+  },  
+  "morder_labio_inferior": {
+    "instructions": "Mordé tu labio inferior."
+  },
+  "morder_labio_superior": {
+    "instructions": "Mordé tu labio superior."
+  },
+  "reposo": {
+    "instructions": "Dejá tu rostro en reposo."
+  },
+  "retruir_abierta": {
+    "instructions": "Retruí con la boca abierta."
+  }
+}

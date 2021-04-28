@@ -1,7 +1,7 @@
 import React from 'react';
-import {View, StyleSheet} from 'react-native';
-
-import {Text} from '@ui-kitten/components';
+import {StyleSheet} from 'react-native';
+import {Layout, Text, withStyles} from '@ui-kitten/components';
+import {Bar, Pie} from 'react-native-progress';
 
 import {Camera} from 'expo-camera';
 
@@ -26,15 +26,26 @@ import {
   BLACK,
 } from '../utils/constants';
 
-const inputTensorWidth = 120; // 180; // 180 144 120
-const inputTensorHeight = 214; // 320; // 320 256 214
+import steps from '../../data/steps.json';
+
+const resolutions = [
+  {height: 360, width: 640},
+  {height: 540, width: 960},
+  {height: 720, width: 1280},
+  {height: 768, width: 1366},
+  {height: 900, width: 1600},
+  {height: 1080, width: 1920},
+  {height: 1440, width: 2160},
+  {height: 2160, width: 3840},
+];
 
 const RATIO = '16:9';
+const inputTensorWidth = 144;
+const inputTensorHeight = 256;
 
-const textureDims = {
-  height: 720,
-  width: 1280,
-};
+// const RATIO = '4:3';
+// const inputTensorWidth = 240;
+// const inputTensorHeight = 320;
 
 const AUTORENDER = true;
 const MIN_BRIGHTNESS = 110;
@@ -45,7 +56,7 @@ const NOSE_DISTANCE_THRESHOLD = 0.1;
 const TensorCamera = cameraWithTensors(Camera);
 const CAMERA_TYPE = Camera.Constants.Type.front;
 
-export default class ImageClassificationDetector extends React.Component {
+class ImageClassificationDetector extends React.Component {
   constructor(props) {
     super(props);
 
@@ -53,14 +64,26 @@ export default class ImageClassificationDetector extends React.Component {
       active: false,
       message: '',
       messageStatus: 'primary',
+      progress: 0,
     };
 
     this.time = performance.now();
   }
 
+  componentDidMount() {
+    this.setDetectorTimerConfidence();
+  }
+
   componentWillUnmount() {
     if (this.rafID) {
       cancelAnimationFrame(this.rafID);
+    }
+  }
+
+  // Needed because access to props to set instance variable
+  componentDidUpdate(prevProps) {
+    if (prevProps.currentStep !== this.props.currentStep) {
+      this.setDetectorTimerConfidence();
     }
   }
 
@@ -72,17 +95,6 @@ export default class ImageClassificationDetector extends React.Component {
       onCompleted: this.onCompleted,
     });
   };
-
-  componentDidMount() {
-    this.setDetectorTimerConfidence();
-  }
-
-  // Needed because access to props to set instance variable
-  componentDidUpdate(prevProps) {
-    if (prevProps.currentStep !== this.props.currentStep) {
-      this.setDetectorTimerConfidence();
-    }
-  }
 
   start = () => {
     this.setState({
@@ -105,6 +117,7 @@ export default class ImageClassificationDetector extends React.Component {
   stop = () => {
     this.setState({
       active: false,
+      progress: 0,
     });
   };
 
@@ -122,13 +135,20 @@ export default class ImageClassificationDetector extends React.Component {
     });
 
     this.detectorTimerConfidence.update(
-      predictions[0].className === this.props.currentStep.label &&
+      predictions[0].className === this.props.currentStep.goal &&
         predictions[0].probability > DETECTION_THRESHOLD,
     );
   };
 
   onProgress = (percentage) => {
-    this.props.onProgress(percentage);
+    this.setState(
+      {
+        progress: percentage.progress / 100,
+      },
+      () => {
+        this.props.onProgress(percentage);
+      },
+    );
   };
 
   onStoppedDetection = () => {
@@ -270,8 +290,15 @@ export default class ImageClassificationDetector extends React.Component {
 
   // 20 ms
   hasEnoughBrightness = (cropped) => {
+    return true;
     // this.countTime('Enought brightness 0');
     // value between 0 and 255
+    const lightMetric =
+      cropped.sum().dataSync() /
+      (cropped.shape[SHAPE_HEIGHT] *
+        cropped.shape[SHAPE_WIDTH] *
+        cropped.shape[SHAPE_CHANNELS]);
+
     const enough =
       cropped.sum().dataSync() /
         (cropped.shape[SHAPE_HEIGHT] *
@@ -285,7 +312,7 @@ export default class ImageClassificationDetector extends React.Component {
         messageStatus: 'danger',
       });
     }
-    // this.countTime('Enought brightness 1');
+
     return enough;
   };
 
@@ -300,7 +327,7 @@ export default class ImageClassificationDetector extends React.Component {
   };
 
   classify = (cropped, updateView) => {
-    return this.props.mobilenetDetector.classify(cropped, updateView);
+    return this.props.mobilenetDetector.classify(cropped, updateView, 3);
   };
 
   countTime = (label = 'Tiempo') => {
@@ -321,22 +348,22 @@ export default class ImageClassificationDetector extends React.Component {
 
         // 40 ms
         const imageTensor = images.next().value;
-        updateView();
+        // updateView();
 
         this.detectFaces(imageTensor, updateView).then((faces) => {
           if (faces.length > 0 && this.isFrontFace(faces[0])) {
-            updateView();
+            // updateView();
 
             // this.countTime('Detect face 1');
 
             const cropped = this.cropFaceRotateAndResize(imageTensor, faces[0]);
 
-            updateView();
+            // updateView();
 
             if (this.hasEnoughBrightness(cropped)) {
               this.classify(cropped, updateView).then((prediction) => {
                 // this.countTime('Predict');
-                updateView();
+                // updateView();
 
                 // this.countTime('Total time end');
                 this.detect(prediction);
@@ -360,17 +387,49 @@ export default class ImageClassificationDetector extends React.Component {
     return this.props.faceDetector && this.props.mobilenetDetector;
   };
 
+  renderBar = () => (
+    <Pie
+      size={160}
+      animationType="timing"
+      progress={this.state.progress}
+      width={null}
+      // height={12}
+      // style={{marginRight: 18, backgroundColor: 'blue'}}
+      color={this.props.eva.theme['color-primary-default']}
+      unfilledColor="rgba(0, 0, 0, 0.1)"
+      useNativeDriver={true}
+      borderWidth={0}
+      borderRadius={100}
+    />
+  );
+
+  renderInstructions = () => {
+    let instructions = ''
+
+    if (steps[this.props.currentStep.goal])
+      instructions = steps[this.props.currentStep.goal]['instructions'];
+    else {
+      console.log(this.props.currentStep.goal);
+    }
+
+    return <Text style={styles.description}>{instructions}</Text>;
+  };
+
   render() {
     if (this.detectorsLoaded()) {
       return (
-        <>
-          <Text category="h3" style={styles.centerText}>
+        <Layout style={styles.container}>
+          <Text category="h2" style={styles.title}>
+            Seguí las instrucciones
+          </Text>
+          {/* <Text category="h3" style={styles.centerText}>
             {this.ucfirst(this.props.currentStep.label)}
-          </Text>
-          <Text status={this.state.messageStatus} style={styles.centerText}>
+          </Text> */}
+          {/* <Text status={this.state.messageStatus} style={styles.centerText}>
             {this.state.message}
-          </Text>
-          <View style={styles.cameraContainer}>
+          </Text> */}
+          <Layout style={styles.controlContainer}>
+            {this.renderInstructions()}
             <TensorCamera
               type={CAMERA_TYPE}
               zoom={0}
@@ -378,16 +437,17 @@ export default class ImageClassificationDetector extends React.Component {
               style={styles.camera}
               // onCameraReady={this.setTextureDims}
               // tensor related props
-              cameraTextureHeight={textureDims.height}
-              cameraTextureWidth={textureDims.width}
+              cameraTextureHeight={1080}
+              cameraTextureWidth={1920}
               resizeHeight={inputTensorHeight}
               resizeWidth={inputTensorWidth}
               resizeDepth={3}
               onReady={this.handleImageTensorReady}
               autorender={AUTORENDER}
             />
-          </View>
-        </>
+          </Layout>
+          <Layout style={styles.overlayContainer}>{this.renderBar()}</Layout>
+        </Layout>
       );
     } else {
       return <Text>Cargando</Text>;
@@ -396,31 +456,38 @@ export default class ImageClassificationDetector extends React.Component {
 }
 
 const styles = StyleSheet.create({
-  loadingIndicator: {
-    // position: 'absolute',
-    // top: 20,
-    // right: 20,
-    // zIndex: 200,
+  container: {
+    flex: 1,
+    justifyContent: 'space-between',
   },
-  centerText: {
-    textAlign: 'center',
+  title: {
+    fontWeight: 'bold',
   },
-  cameraContainer: {
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'flex-start',
-    width: '100%',
-    height: '100%',
-    backgroundColor: '#fff',
+  controlContainer: {
+    alignItems: 'center',
+    flex: 1,
+    justifyContent: 'space-around',
+  },
+  description: {
+    alignSelf: 'flex-start',
+    fontSize: 20,
   },
   camera: {
-    position: 'relative',
-    width: '100%', // textureDims.height / 2.5
-    height: textureDims.width / 2.5,
-    zIndex: 1,
-    borderWidth: 1,
-    borderColor: 'black',
-    borderRadius: 0,
+    width: 1080 / 4,
+    height: 1920 / 4,
+  },
+  // https://stackoverflow.com/questions/37317568/react-native-absolute-positioning-horizontal-centre
+  overlayContainer: {
+    flex: 1,
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: 'rgba(0,0,0,0)',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
+
+export default withStyles(ImageClassificationDetector);

@@ -4,16 +4,17 @@ import Toast from 'react-native-toast-message';
 import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 
-import HomeScreen from '../containers/HomeScreen';
-import ExercisesScreen from '../containers/ExercisesScreen';
-
 import ExerciseIntentScreen from '../containers/ExerciseIntentScreen';
+import ExercisesScreen from '../containers/ExercisesScreen';
 import GlossaryScreen from '../containers/GlossaryScreen';
-import RoutinesScreen from '../containers/RoutinesScreen';
+import HomeScreen from '../containers/HomeScreen';
 import LoginScreen from '../containers/LoginScreen';
-import SignUpScreen from '../containers/SignUpScreen';
+import MyAccountScreen from '../containers/MyAccountScreen';
 import ResetPasswordScreen from '../containers/ResetPasswordScreen';
+import RoutinesScreen from '../containers/RoutinesScreen';
+import RoutineIntentScreen from '../containers/RoutineIntentScreen';
 import ShopScreen from '../containers/ShopScreen';
+import SignUpScreen from '../containers/SignUpScreen';
 import RecordScreen from '../containers/RecordScreen';
 import NotificationsScreen from '../containers/NotificationsScreen';
 
@@ -34,15 +35,23 @@ const HomeNavigator = (parentProps) => {
           <Screen name="glossary">
             {(props) => <GlossaryScreen {...props} {...parentProps} />}
           </Screen>
-          <Screen name="routines" component={RoutinesScreen} />
-          <Screen name="shop" component={ShopScreen} />
-          <Screen name="notifications" component={NotificationsScreen} />
-          <Screen name="record" component={RecordScreen} />
           <Screen name="login">
             {(props) => <LoginScreen {...props} {...parentProps} />}
           </Screen>
-          <Screen name="sign-up" component={SignUpScreen} />
+          <Screen name="my-account">
+            {(props) => <MyAccountScreen {...props} {...parentProps} />}
+          </Screen>
+          <Screen name="record" component={RecordScreen} />
+          <Screen name="notifications" component={NotificationsScreen} />
           <Screen name="reset-password" component={ResetPasswordScreen} />
+          <Screen name="routines">
+            {(props) => <RoutinesScreen {...props} {...parentProps} />}
+          </Screen>
+          <Screen name="routine-intent">
+            {(props) => <RoutineIntentScreen {...props} {...parentProps} />}
+          </Screen>
+          <Screen name="shop" component={ShopScreen} />
+          <Screen name="sign-up" component={SignUpScreen} />
         </>
       ) : (
         <>

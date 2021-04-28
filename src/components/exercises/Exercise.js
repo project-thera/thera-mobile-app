@@ -68,7 +68,7 @@ export default class Exercise extends React.Component {
   onStepCompleted = async ({shouldPlaySound = true} = {}) => {
     console.log('Exercise/onStepCompleted');
 
-    this.pause();
+    this.stop();
 
     if (this._hasMoreSteps()) {
       if (shouldPlaySound) this.props.stepCompletedSound?.replayAsync();

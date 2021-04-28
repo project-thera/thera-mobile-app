@@ -1,20 +1,26 @@
 import React from 'react';
-import {StyleSheet, View} from 'react-native';
+import {SafeAreaView, StyleSheet, View} from 'react-native';
 import {
   Button,
-  Card,
+  Divider,
   Icon,
+  Layout,
   List,
+  ListItem,
   Text,
   TopNavigation,
   TopNavigationAction,
 } from '@ui-kitten/components';
 
+import ExerciseHelper from '../helpers/ExerciseHelper';
+
 import exercises from '../data/exercises.json';
 
 const BackIcon = (props) => <Icon {...props} name="arrow-back" />;
-const FilmIcon = (props) => <Icon {...props} name="film" />;
-const FlashIcon = (props) => <Icon {...props} name="flash" />;
+const PlayCircleIcon = (props) => <Icon {...props} name="play-circle" />;
+const QuestionMarkCircleIcon = (props) => (
+  <Icon {...props} name="question-mark-circle" />
+);
 
 export default class GlossaryScreen extends React.Component {
   constructor(props) {
@@ -32,75 +38,70 @@ export default class GlossaryScreen extends React.Component {
     />
   );
 
-  renderItemHeader = (headerProps, info) => (
-    <View {...headerProps}>
-      <Text category="h6">{info.item.title}</Text>
-    </View>
-  );
+  _showHelp = (exercise) => {
+    console.log('GlossaryScreen/_showHelp');
+  };
 
-  renderItemFooter = (footerProps, info) => (
-    <View {...footerProps} style={[footerProps.style, styles.footerContainer]}>
+  _playExercise = (exercise) => {
+    let routine = ExerciseHelper.asRoutine(exercise);
+
+    this.props.navigation.navigate('routine-intent', {object: routine})
+  };
+
+  renderItemAccessory = (info) => (
+    <Layout style={{flexDirection: 'row'}}>
       <Button
-        style={styles.footerControl}
-        size="small"
+        accessoryLeft={QuestionMarkCircleIcon}
+        appearance="ghost"
         status="basic"
-        accessoryLeft={FilmIcon}>
-        Watch!
-      </Button>
-      <Button
-        style={styles.footerControl}
         size="small"
-        accessoryLeft={FlashIcon}
-        onPress={() =>
-          this.props.navigation.navigate('exercise-intent', {object: info.item})
-        }>
-        Play!
+        onPress={() => this._showHelp(info.item)}></Button>
+      <Button
+        accessoryLeft={PlayCircleIcon}
+        size="small"
+        style={{marginLeft: 8}}
+        onPress={() => this._playExercise(info.item)}>
+        Iniciar
       </Button>
-    </View>
+    </Layout>
   );
 
   renderItem = (info) => {
     return (
-      <Card
-        style={styles.item}
-        status="primary"
-        header={(headerProps) => this.renderItemHeader(headerProps, info)}
-        footer={(footerProps) => this.renderItemFooter(footerProps, info)}>
-        <Text>{info.item.description}</Text>
-      </Card>
+      <ListItem
+        title={() => (
+          <Text style={styles.listItemTitle}>{info.item.name}</Text>
+        )}
+        description={() => (
+          <Text style={styles.listItemDescription}>
+            {info.item.description}
+          </Text>
+        )}
+        accessoryRight={() => this.renderItemAccessory(info)}
+      />
     );
   };
 
-  renderItemAccessory = (props) => (
-    <Button
-      size="tiny"
-      onPress={() => this.setState({selectedExercise: 'Button'})}>
-      TRY!
-    </Button>
-  );
+  renderList = () => {
+    return <List data={exercises} renderItem={this.renderItem} />;
+  };
 
   render() {
-    let text;
-    if (this.state.selectedExercise) {
-      text = <Text>{this.state.selectedExercise}</Text>;
-    } else {
-      text = <Text>null</Text>;
-    }
-
     return (
-      <React.Fragment>
+      <SafeAreaView style={styles.container}>
         <TopNavigation
-          title="Thera Project"
-          subtitle="GlossaryScreen"
+          title="Proyecto Thera"
+          subtitle="Base de conocimiento"
           accessoryLeft={this.renderBackAction}
         />
-        <List
-          style={styles.container}
-          contentContainerStyle={styles.contentContainer}
-          data={exercises}
-          renderItem={this.renderItem}
-        />
-      </React.Fragment>
+        <Layout style={styles.contentContainer}>
+          <List
+            data={exercises}
+            renderItem={this.renderItem}
+            ItemSeparatorComponent={Divider}
+          />
+        </Layout>
+      </SafeAreaView>
     );
   }
 }
@@ -113,19 +114,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 4,
   },
-  item: {
-    marginVertical: 4,
+  listItemTitle: {
+    fontSize: 16,
+    paddingHorizontal: 8,
   },
-  layout: {
-    backgroundColor: 'blueviolet',
-    // flex: 1,
-    // padding: 15,
-  },
-  footerContainer: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-  },
-  footerControl: {
-    marginHorizontal: 2,
+  listItemDescription: {
+    color: 'grey',
+    fontSize: 12,
+    paddingHorizontal: 8,
   },
 });

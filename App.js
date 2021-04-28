@@ -7,9 +7,9 @@
  */
 
 import React from 'react';
-import './config/development';
+import {StyleSheet} from 'react-native';
 
-import {AsyncStorage} from 'react-native';
+import './config/development';
 
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 
@@ -17,7 +17,6 @@ import * as eva from '@eva-design/eva';
 import {
   ApplicationProvider,
   IconRegistry,
-  Spinner,
   Layout,
   Text,
 } from '@ui-kitten/components';
@@ -46,8 +45,9 @@ const BACKEND_TO_USE = 'rn-webgl';
 
 import LoginScreen from './src/containers/LoginScreen';
 
-import RCTNetworking from 'react-native/Libraries/Network/RCTNetworking';
 import Database from './src/storage/Database';
+
+import {createReminderChannel} from './src/notifications';
 
 const IGNORE_LOGIN = false;
 
@@ -130,17 +130,9 @@ export default class App extends React.Component {
     // this.logout();
     !IGNORE_LOGIN && this.setCurrentUser();
     this.askForPermissions();
+
+    createReminderChannel();
   }
-
-  logout = () => {
-    // Clear cookies
-    RCTNetworking.clearCookies(() => {});
-
-    // This clears the async storage
-    // AsyncStorage.clear().then(() => console.log('Cleared'));
-
-    Database.getInstance().removeCurrentUser();
-  };
 
   onLoggedIn = (currentUser, callback) => {
     this.setState({currentUser}, callback);
@@ -163,15 +155,9 @@ export default class App extends React.Component {
 
   renderBrand = () => {
     return (
-      <Layout
-        style={{
-          flex: 1,
-          flexDirection: 'column',
-          alignContent: 'center',
-          justifyContent: 'center',
-        }}>
+      <Layout style={styles.brandContainer}>
         <AnimatableView animation="fadeIn">
-          <Text category="h1" style={{textAlign: 'center'}}>
+          <Text category="h1" style={styles.centeredText}>
             Thera Project
           </Text>
         </AnimatableView>
@@ -194,3 +180,15 @@ export default class App extends React.Component {
     );
   }
 }
+
+const styles = StyleSheet.create({
+  brandContainer: {
+    height: 40,
+    width: 40,
+    marginRight: 8,
+    resizeMode: 'contain',
+  },
+  centeredText: {
+    textAlign: 'center',
+  },
+});

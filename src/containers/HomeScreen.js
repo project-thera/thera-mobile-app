@@ -19,20 +19,22 @@ import Toast from 'react-native-toast-message';
 
 import ViewPagerTab from '../components/base/ViewPagerTab';
 
-import ShopModal from './ShopModal';
 import RoundedOpacity from '../components/base/RoundedOpacity';
 import LabBackground from '../components/base/LabBackground';
 
 import RCTNetworking from 'react-native/Libraries/Network/RCTNetworking';
 import Database from '../storage/Database';
 
+import icons from '../assets/images/icons';
+
+const database = Database.getInstance();
+
 const BackIcon = (props) => <Icon {...props} name="arrow-back" />;
 const InfoIcon = (props) => <Icon {...props} name="info" />;
-const LoginIcon = (props) => <Icon {...props} name="log-in" />;
 const LogoutIcon = (props) => <Icon {...props} name="log-out" />;
 const MenuIcon = (props) => <Icon {...props} name="more-vertical" />;
-
-import {createReminderChannel} from '../notifications';
+const PersonIcon = (props) => <Icon {...props} name="person" />;
+const SyncIcon = (props) => <Icon {...props} name="sync" />;
 
 export default class HomeScreen extends React.Component {
   constructor(props) {
@@ -47,24 +49,30 @@ export default class HomeScreen extends React.Component {
     this.bg = new LabBackground(0);
   }
 
-  async componentDidMount() {
+  componentDidMount = () => {
     const {navigation} = this.props;
 
     this.focusListener = navigation.addListener(
       'focus',
-      () => {
-        this.bg = new LabBackground(0);
-        this.forceUpdate();
-      },
+      async () => await this._updateBackground(),
       [navigation],
     );
+  };
 
-    createReminderChannel();
-  }
+  componentWillUnmount = () => {
+    if (this.focusListener && this.focusListener.remove) {
+      this.focusListener.remove();
+    }
+  };
 
-  // componentWillUnmount() {
-  //   this.focusListener.remove();
-  // }
+  _updateBackground = async () => {
+    let gameReward = await database.getGameReward();
+    let step = gameReward.current_robot ? gameReward.current_robot : 0;
+
+    this.bg.refresh(step);
+
+    this.forceUpdate();
+  };
 
   toggleMenu = () => {
     this.setState({menuVisible: !this.state.menuVisible});
@@ -77,13 +85,24 @@ export default class HomeScreen extends React.Component {
     // This clears the async storage
     // AsyncStorage.clear().then(() => console.log('Cleared'));
 
-    Database.getInstance().removeCurrentUser();
+    database.removeCurrentUser();
 
     Toast.show({
       type: 'success',
       position: 'bottom',
-      text1: 'Vuelve pronto',
+      text1: '¡Hasta luego!',
+      text2: 'Te esperamos pronto para seguir practicando.',
     });
+
+    this.props.navigation.reset({routes: [{name: 'login'}]});
+  };
+
+  _sync = async () => {
+    this.toggleMenu();
+
+    await database.sync();
+
+    this._updateBackground();
   };
 
   showShopModal = (value) => {
@@ -106,45 +125,42 @@ export default class HomeScreen extends React.Component {
     <TopNavigationAction icon={MenuIcon} onPress={this.toggleMenu} />
   );
 
+  renderAvatar = () => (
+    <Image style={styles.avatar} source={icons.projectTheraIcon} />
+  );
+
   renderRightActions = () => (
-    <React.Fragment>
-      <OverflowMenu
-        anchor={this.renderMenuAction}
-        visible={this.state.menuVisible}
-        onBackdropPress={this.toggleMenu}>
-        <MenuItem
-          title="Grabar video"
-          onPress={() => this.navigateTo('record')}
-        />
-        <MenuItem
-          title="Notificaciones"
-          onPress={() => this.navigateTo('notifications')}
-        />
-        <MenuItem accessoryLeft={InfoIcon} title="About" />
-        <MenuItem
-          accessoryLeft={LoginIcon}
-          title="Login"
-          onPress={() => this.navigateTo('login')}
-        />
-        <MenuItem
-          accessoryLeft={LogoutIcon}
-          title="Logout"
-          onPress={this.logout}
-        />
-      </OverflowMenu>
-    </React.Fragment>
+    <OverflowMenu
+      anchor={this.renderMenuAction}
+      visible={this.state.menuVisible}
+      onBackdropPress={this.toggleMenu}>
+      <MenuItem accessoryLeft={PersonIcon} title="Mi cuenta" />
+      <MenuItem
+        title="Notificaciones"
+        onPress={() => this.navigateTo('notifications')}
+      />
+      <MenuItem
+        accessoryLeft={SyncIcon}
+        title="Sincronizar"
+        onPress={() => this._sync()}
+      />
+      <MenuItem accessoryLeft={InfoIcon} title="Acerca del Proyecto Thera" />
+      <MenuItem
+        accessoryLeft={LogoutIcon}
+        title="Cerrar sesión"
+        onPress={this.logout}
+      />
+    </OverflowMenu>
   );
 
   render() {
     return (
       <SafeAreaView style={{flex: 1}}>
-        {/* <Navigation /> */}
         <TopNavigation
-          title="Thera Project"
-          subtitle="HomeScreen"
-          alignment="center"
+          title="Proyecto Thera"
+          subtitle="Inicio"
+          accessoryLeft={this.renderAvatar}
           accessoryRight={this.renderRightActions}
-          // accessoryLeft={this.renderBackAction}
         />
         <ViewPager
           style={{flex: 1}}
@@ -152,25 +168,32 @@ export default class HomeScreen extends React.Component {
           onSelect={(index) => {
             this.setState({selectedIndex: index});
           }}>
-          <ViewPagerTab backgroundImage={this.bg.getImage(0)}>
+          <ViewPagerTab
+            backgroundImage={this.bg.getImage(0)}
+            withRightArrow={true}>
             <RoundedOpacity
               action={() => this.props.navigation.navigate('glossary')}
               icon={require('../assets/images/icons/computer.png')}
-              text="GlossaryScreen"
+              text="Base de Conocimiento"
             />
           </ViewPagerTab>
-          <ViewPagerTab backgroundImage={this.bg.getImage(1)}>
+          <ViewPagerTab
+            backgroundImage={this.bg.getImage(1)}
+            withLeftArrow={true}
+            withRightArrow={true}>
+            <RoundedOpacity
+              action={() => this.props.navigation.navigate('shop')}
+              // icon={require('../assets/images/icons/robot.png')}
+              text="¡Presioná aquí para ingresar al taller!"
+            />
+          </ViewPagerTab>
+          <ViewPagerTab
+            backgroundImage={this.bg.getImage(2)}
+            withLeftArrow={true}>
             <RoundedOpacity
               action={() => this.props.navigation.navigate('routines')}
               icon={require('../assets/images/icons/chatbot.png')}
-              text="RoutinesScreen"
-            />
-          </ViewPagerTab>
-          <ViewPagerTab backgroundImage={this.bg.getImage(2)}>
-            <RoundedOpacity
-              action={() => this.props.navigation.navigate('shop')}
-              icon={require('../assets/images/icons/robot.png')}
-              text="ShopScreen2"
+              text="Mis Rutinas"
             />
           </ViewPagerTab>
         </ViewPager>
@@ -179,4 +202,11 @@ export default class HomeScreen extends React.Component {
   }
 }
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  avatar: {
+    height: 40,
+    width: 40,
+    marginRight: 8,
+    resizeMode: 'contain',
+  },
+});
