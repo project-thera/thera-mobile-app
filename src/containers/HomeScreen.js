@@ -32,6 +32,8 @@ const LoginIcon = (props) => <Icon {...props} name="log-in" />;
 const LogoutIcon = (props) => <Icon {...props} name="log-out" />;
 const MenuIcon = (props) => <Icon {...props} name="more-vertical" />;
 
+import {createReminderChannel} from '../notifications';
+
 export default class HomeScreen extends React.Component {
   constructor(props) {
     super(props);
@@ -56,6 +58,8 @@ export default class HomeScreen extends React.Component {
       },
       [navigation],
     );
+
+    createReminderChannel();
   }
 
   // componentWillUnmount() {
@@ -111,6 +115,10 @@ export default class HomeScreen extends React.Component {
         <MenuItem
           title="Grabar video"
           onPress={() => this.navigateTo('record')}
+        />
+        <MenuItem
+          title="Notificaciones"
+          onPress={() => this.navigateTo('notifications')}
         />
         <MenuItem accessoryLeft={InfoIcon} title="About" />
         <MenuItem
