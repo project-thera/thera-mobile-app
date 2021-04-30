@@ -61,8 +61,9 @@ export default class HomeScreen extends React.Component {
   };
 
   componentWillUnmount = () => {
-    if (this.focusListener && this.focusListener.remove)
+    if (this.focusListener && this.focusListener.remove) {
       this.focusListener.remove();
+    }
   };
 
   _updateBackground = async () => {
@@ -142,6 +143,8 @@ export default class HomeScreen extends React.Component {
           this.toggleMenu();
           this.props.navigation.navigate('settings');
         }}
+        title="Notificaciones"
+        onPress={() => this.navigateTo('notifications')}
       />
       <MenuItem
         accessoryLeft={SyncIcon}

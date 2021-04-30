@@ -6,6 +6,11 @@ import schema from '../models/schema';
 
 import {API_URL} from '../../config/config';
 
+import {
+  pushReminderNotification,
+  removeAllNotifications,
+} from '../notifications';
+
 const LOCAL_USER_KEY = 'current';
 const LOCAL_DATABASE_NAME = 'thera';
 
@@ -182,6 +187,37 @@ export default class Database {
     return apiClient.mutate(['patient_videos'], {
       video: `${BASE_64_VIDEO_PREFIX}${base64video}`,
     });
+  }
+
+  async getReminder() {
+    const currentUser = await this.getCurrentUser();
+
+    return currentUser.reminderTime ? new Date(currentUser.reminderTime) : null;
+  }
+
+  async updateReminder(reminderTime) {
+    const currentUser = await this.getCurrentUser();
+
+    removeAllNotifications();
+
+    currentUser.reminderTime = reminderTime;
+
+    pushReminderNotification(
+      '¿Tienes un rato para realizar las rutinas diarias?',
+      reminderTime,
+    );
+
+    return this.localDatabase.put(currentUser);
+  }
+
+  async removeReminder() {
+    const currentUser = await this.getCurrentUser();
+
+    currentUser.reminderTime = null;
+
+    removeAllNotifications();
+
+    return this.localDatabase.put(currentUser);
   }
 
   async testAddRoutineIntent() {
