@@ -13,6 +13,7 @@ import MyAccountScreen from '../containers/MyAccountScreen';
 import ResetPasswordScreen from '../containers/ResetPasswordScreen';
 import RoutinesScreen from '../containers/RoutinesScreen';
 import RoutineIntentScreen from '../containers/RoutineIntentScreen';
+import SettingsScreen from '../containers/SettingsScreen';
 import ShopScreen from '../containers/ShopScreen';
 import SignUpScreen from '../containers/SignUpScreen';
 import RecordScreen from '../containers/RecordScreen';
@@ -34,22 +35,20 @@ const HomeNavigator = (parentProps) => {
           <Screen name="glossary">
             {(props) => <GlossaryScreen {...props} {...parentProps} />}
           </Screen>
-          <Screen name="login">
-            {(props) => <LoginScreen {...props} {...parentProps} />}
-          </Screen>
           <Screen name="my-account">
             {(props) => <MyAccountScreen {...props} {...parentProps} />}
           </Screen>
           <Screen name="record" component={RecordScreen} />
-          <Screen name="reset-password" component={ResetPasswordScreen} />
           <Screen name="routines">
             {(props) => <RoutinesScreen {...props} {...parentProps} />}
           </Screen>
           <Screen name="routine-intent">
             {(props) => <RoutineIntentScreen {...props} {...parentProps} />}
           </Screen>
+          <Screen name="settings">
+            {(props) => <SettingsScreen {...props} {...parentProps} />}
+          </Screen>
           <Screen name="shop" component={ShopScreen} />
-          <Screen name="sign-up" component={SignUpScreen} />
         </>
       ) : (
         <>

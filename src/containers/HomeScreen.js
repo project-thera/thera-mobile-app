@@ -34,6 +34,7 @@ const InfoIcon = (props) => <Icon {...props} name="info" />;
 const LogoutIcon = (props) => <Icon {...props} name="log-out" />;
 const MenuIcon = (props) => <Icon {...props} name="more-vertical" />;
 const PersonIcon = (props) => <Icon {...props} name="person" />;
+const SettingsIcon = (props) => <Icon {...props} name="settings" />;
 const SyncIcon = (props) => <Icon {...props} name="sync" />;
 
 export default class HomeScreen extends React.Component {
@@ -134,6 +135,14 @@ export default class HomeScreen extends React.Component {
       visible={this.state.menuVisible}
       onBackdropPress={this.toggleMenu}>
       <MenuItem accessoryLeft={PersonIcon} title="Mi cuenta" />
+      <MenuItem
+        accessoryLeft={SettingsIcon}
+        title="Configuración"
+        onPress={() => {
+          this.toggleMenu();
+          this.props.navigation.navigate('settings');
+        }}
+      />
       <MenuItem
         accessoryLeft={SyncIcon}
         title="Sincronizar"
