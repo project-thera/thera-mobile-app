@@ -12,19 +12,22 @@ function _frequencyToIndex(frequency, bufferSize, sampleRate) {
 }
 
 const BUFFER_SIZE = 1024;
-const MIN_FREQ = 20;
+const MIN_FREQ = 1;
 const MAX_FREQ = 600;
-const AMPLITUDE_THRESHOLD = 1000;
+const AMPLITUDE_THRESHOLD = 2000;
 const ENERGY_AVERAGE_THRESHOLD = 700;
-const REQUIRED_INTEGRAL = 16;
+const REQUIRED_INTEGRAL = 8;
 // const FFT_SIZE = BUFFER_SIZE / 2;
-const SAMPLE_RATE = 16000;
-const MIN_FREQ_INDEX = _frequencyToIndex(MIN_FREQ, BUFFER_SIZE, SAMPLE_RATE);
-const MAX_FREQ_INDEX = _frequencyToIndex(MAX_FREQ, BUFFER_SIZE, SAMPLE_RATE);
 
 export default class BlowDetector extends React.Component {
   constructor(props) {
     super(props);
+
+    let sampleRate = props.blowConfig.sampleRate * 1000;
+
+    this.sampleRate = sampleRate;
+    this.minFreqIndex = _frequencyToIndex(MIN_FREQ, BUFFER_SIZE, sampleRate);
+    this.maxFreqIndex = _frequencyToIndex(MAX_FREQ, BUFFER_SIZE, sampleRate);
 
     this.state = this.defaultState();
   }
@@ -50,15 +53,11 @@ export default class BlowDetector extends React.Component {
   };
 
   componentDidMount() {
-    console.log('BlowDetector/componentDidMount');
-
     this.setDetectorTimerConfidence();
   }
 
   // Needed because access to props to set instance variable
   componentDidUpdate(prevProps) {
-    // console.log('BlowDetector/componentDidUpdate');
-
     if (prevProps.currentStep !== this.props.currentStep) {
       this.setDetectorTimerConfidence();
       this.reset();
@@ -67,8 +66,6 @@ export default class BlowDetector extends React.Component {
 
   // TODO check if do this on unmount or in stop or both
   componentWillUnmount() {
-    console.log('BlowDetector/componentWillUnmount');
-
     Recording.stop();
 
     if (this.listener) {
@@ -87,14 +84,10 @@ export default class BlowDetector extends React.Component {
   };
 
   onStoppedDetection = () => {
-    // console.log('BlowDetector/onStoppedDetection');
-
     this.props.onStoppedDetection();
   };
 
   onCompleted = () => {
-    console.log('BlowDetector/onCompleted');
-
     this.stop();
     this.balloonRef.pop();
 
@@ -104,13 +97,11 @@ export default class BlowDetector extends React.Component {
   };
 
   _start = async () => {
-    console.log('BlowDetector/_start');
-
     this.balloonRef.reset();
 
     Recording.init({
       bufferSize: BUFFER_SIZE,
-      sampleRate: SAMPLE_RATE,
+      sampleRate: this.sampleRate,
       bitsPerChannel: 16,
       channelsPerFrame: 1,
     });
@@ -150,9 +141,7 @@ export default class BlowDetector extends React.Component {
    * @param {boolean} isBlowing - If the users is blowing on microphone.
    */
   detect = (isBlowing) => {
-    this.detectorTimerConfidence.update(
-      this.props.currentStep.detected === isBlowing,
-    );
+    this.detectorTimerConfidence.update(isBlowing);
   };
 
   _handleRecordingEvent = (signal) => {
@@ -160,15 +149,16 @@ export default class BlowDetector extends React.Component {
     let energy = 0.0;
     let maxAmplitude = 0.0;
 
-    for (let bin = MIN_FREQ_INDEX; bin <= MAX_FREQ_INDEX; bin++) {
+    for (let bin = this.minFreqIndex; bin <= this.maxFreqIndex; bin++) {
       maxAmplitude = Math.max(maxAmplitude, amplitudes[bin]);
       energy += amplitudes[bin];
     }
 
-    let energyAverage = energy / (MAX_FREQ_INDEX - MIN_FREQ_INDEX);
+    let energyAverage = energy / (this.maxFreqIndex - this.minFreqIndex);
 
     let energyNeeded =
-      ((MAX_FREQ_INDEX - MIN_FREQ_INDEX) * maxAmplitude) / REQUIRED_INTEGRAL;
+      ((this.maxFreqIndex - this.minFreqIndex) * maxAmplitude) /
+      REQUIRED_INTEGRAL;
 
     this.detect(
       energy > energyNeeded &&

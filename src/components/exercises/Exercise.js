@@ -1,11 +1,9 @@
 import React from 'react';
 import {StyleSheet} from 'react-native';
-import {SafeAreaView} from 'react-native-safe-area-context';
-import {Pie, Circle} from 'react-native-progress';
-import {View as AnimatableView} from 'react-native-animatable';
+import {Button, Layout, Text} from '@ui-kitten/components';
+import {Audio} from 'expo-av';
 
-import {Button, Layout} from '@ui-kitten/components';
-
+import sounds from '../../assets/sounds';
 import ImageClassificationDetector from '../detectors/ImageClassificationDetector';
 import BlowDetector from '../detectors/BlowDetector';
 import SpeechRecognitionDetector from '../detectors/SpeechRecognitionDetector';
@@ -17,18 +15,31 @@ export default class Exercise extends React.Component {
     super(props);
 
     this.state = this.defaultState();
+
+    Audio.Sound.createAsync(sounds.exerciseCompleted).then(({sound}) => {
+      this.exerciseCompletedSound = sound;
+    });
+
+    Audio.Sound.createAsync(sounds.stepCompleted).then(({sound}) => {
+      this.stepCompletedSound = sound;
+    });
   }
+
+  componentDidMount = () => {};
 
   componentWillUnmount = () => {
     this.detector.stop();
-  }
+
+    delete this.exerciseCompletedSound;
+    delete this.stepCompletedSound;
+    delete this.state;
+  };
 
   defaultState = () => {
     return {
-      buttonDisabled: true,
+      repetitionIndex: 0,
       remainingTime: this.props.steps[0].time,
       stepIndex: 0,
-      stepProgress: 0,
     };
   };
 
@@ -50,7 +61,6 @@ export default class Exercise extends React.Component {
 
   onProgress = ({progress, remainingTime}) => {
     this.setState({
-      stepProgress: progress / 100,
       remainingTime,
     });
   };
@@ -58,7 +68,6 @@ export default class Exercise extends React.Component {
   onStoppedDetection = () => {
     if (RESET_TIMER) {
       this.setState({
-        stepProgress: 0,
         remainingTime: this.props.steps[this.state.stepIndex].time,
       });
     }
@@ -70,77 +79,46 @@ export default class Exercise extends React.Component {
 
     this.stop();
 
-    if (this._hasMoreSteps()) {
-      if (shouldPlaySound) this.props.stepCompletedSound?.replayAsync();
+    this.setState(
+      {
+        stepIndex: this.state.stepIndex + 1,
+      },
+      () => {
+        if (this._hasMoreSteps()) {
+          if (shouldPlaySound) this.stepCompletedSound?.replayAsync();
 
-      this._nextStep();
-    } else {
-      if (shouldPlaySound) this.props.exerciseCompletedSound?.replayAsync();
+          this.resume();
+        } else {
+          this.setState(
+            {
+              repetitionIndex: this.state.repetitionIndex + 1,
+              stepIndex: 0,
+            },
+            () => {
+              if (this._hasMoreRepetitions()) {
+                this.resume();
+              } else {
+                if (shouldPlaySound) this.exerciseCompletedSound?.replayAsync();
 
-      this.setState({
-        buttonDisabled: false,
-        stepProgress: 100,
-      });
-    }
-
-    this.props.onStepCompleted();
+                this._nextExercise();
+              }
+            },
+          );
+        }
+      },
+    );
   };
 
-  renderContent() {
-    const currentStep = this._currentStep();
-
-    switch (this.props.type) {
-      case 'classification':
-        return this.renderImageClassificationDetector(currentStep);
-      case 'blow':
-        return this.renderBlowDetector(currentStep);
-      case 'speech':
-        return this.renderSpeechDetector(currentStep);
-    }
-  }
-
-  renderImageClassificationDetector(currentStep) {
-    const {faceDetector, mobilenetDetector} = this.props;
-
-    return (
-      <ImageClassificationDetector
-        ref={(ref) => (this.detector = ref)}
-        {...{faceDetector, mobilenetDetector, currentStep}}
-        onStepCompleted={this.onStepCompleted}
-        onProgress={this.onProgress}
-        onStoppedDetection={this.onStoppedDetection}
-      />
-    );
-  }
-
-  renderBlowDetector(currentStep) {
-    return (
-      <BlowDetector
-        ref={(ref) => (this.detector = ref)}
-        currentStep={currentStep}
-        onStepCompleted={this.onStepCompleted}
-        onProgress={this.onProgress}
-        onStoppedDetection={this.onStoppedDetection}
-      />
-    );
-  }
-
-  renderSpeechDetector(currentStep) {
-    return (
-      <SpeechRecognitionDetector
-        ref={(ref) => (this.detector = ref)}
-        currentStep={currentStep}
-        onStepCompleted={this.onStepCompleted}
-      />
-    );
-  }
-
   _currentStep = () => {
-    return this.props.steps[this.state.stepIndex];
+    if (this._hasMoreSteps()) return this.props.steps[this.state.stepIndex];
   };
 
   _hasMoreSteps = () => {
-    return this.state.stepIndex + 1 < this.props.steps.length;
+    return this.state.stepIndex < this.props.steps.length;
+  };
+
+  _hasMoreRepetitions = () => {
+    return this.state.repetitionIndex < this.props.repetitions;
   };
 
   _nextExercise = () => {
@@ -156,16 +134,67 @@ export default class Exercise extends React.Component {
 
     this.setState(
       {
-        buttonDisabled: true,
         stepIndex: this.state.stepIndex + 1,
-        stepProgress: 0,
-        remainingTime: this.props.steps[this.state.stepIndex + 1].time,
       },
       () => {
         this.resume();
       },
     );
   };
+
+  renderContent() {
+    const currentStep = this._currentStep();
+
+    if (!currentStep) return;
+
+    switch (this.props.exercise_type) {
+      case 'classification':
+        return this.renderImageClassificationDetector(currentStep);
+      case 'blow':
+        return this.renderBlowDetector(currentStep);
+      case 'speech':
+        return this.renderSpeechDetector(currentStep);
+    }
+  }
+
+  renderImageClassificationDetector(currentStep) {
+    const {faceDetector, mobilenetDetector, cameraResolution} = this.props;
+
+    return (
+      <ImageClassificationDetector
+        ref={(ref) => (this.detector = ref)}
+        {...{faceDetector, mobilenetDetector, cameraResolution, currentStep}}
+        onStepCompleted={this.onStepCompleted}
+        onProgress={this.onProgress}
+        onStoppedDetection={this.onStoppedDetection}
+      />
+    );
+  }
+
+  renderBlowDetector(currentStep) {
+    const {blowConfig} = this.props;
+
+    return (
+      <BlowDetector
+        ref={(ref) => (this.detector = ref)}
+        currentStep={currentStep}
+        onStepCompleted={this.onStepCompleted}
+        onProgress={this.onProgress}
+        onStoppedDetection={this.onStoppedDetection}
+        blowConfig={blowConfig}
+      />
+    );
+  }
+
+  renderSpeechDetector(currentStep) {
+    return (
+      <SpeechRecognitionDetector
+        ref={(ref) => (this.detector = ref)}
+        currentStep={currentStep}
+        onStepCompleted={this.onStepCompleted}
+      />
+    );
+  }
 
   renderNextButton = () => {
     return (
@@ -175,11 +204,19 @@ export default class Exercise extends React.Component {
     );
   };
 
+  renderSkipButton = () => {
+    return (
+      <Button onPress={this.props.onExerciseSkipped} appearance="ghost">
+        Omitir
+      </Button>
+    );
+  };
+
   render() {
     return (
       <Layout style={styles.container}>
         <Layout style={styles.contentContainer}>{this.renderContent()}</Layout>
-        <Layout style={{padding: 10}}>{this.renderNextButton()}</Layout>
+        <Layout style={{padding: 10}}>{this.renderSkipButton()}</Layout>
       </Layout>
     );
   }

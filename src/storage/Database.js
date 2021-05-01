@@ -189,6 +189,34 @@ export default class Database {
     });
   }
 
+  getBlowConfig = async () => {
+    const currentUser = await this.getCurrentUser();
+
+    return currentUser.blowConfig ? currentUser.blowConfig : null;
+  }
+
+  updateBlowConfig = async (blowConfig) => {
+    const currentUser = await this.getCurrentUser();
+
+    currentUser.blowConfig = blowConfig;
+
+    return this.localDatabase.put(currentUser);
+  };
+
+  getCameraResolution = async () => {
+    const currentUser = await this.getCurrentUser();
+
+    return currentUser.cameraResolution ? currentUser.cameraResolution : null;
+  };
+
+  updateCameraResolution = async (cameraResolution) => {
+    const currentUser = await this.getCurrentUser();
+
+    currentUser.cameraResolution = cameraResolution;
+
+    return this.localDatabase.put(currentUser);
+  };
+
   async getReminder() {
     const currentUser = await this.getCurrentUser();
 

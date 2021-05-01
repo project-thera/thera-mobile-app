@@ -1,8 +1,11 @@
 import React from 'react';
-import {SafeAreaView, StyleSheet} from 'react-native';
+import {Image, SafeAreaView, StyleSheet} from 'react-native';
 import {
+  Button,
+  Card,
   Icon,
   Layout,
+  Modal,
   Text,
   TopNavigation,
   TopNavigationAction,
@@ -10,10 +13,14 @@ import {
 import {Bar} from 'react-native-progress';
 import {Audio} from 'expo-av';
 
+import icons from '../assets/images/icons';
 import sounds from '../assets/sounds';
-import Exercise2 from '../components/exercises/Exercise2';
+import Exercise from '../components/exercises/Exercise';
 import handleAppStateChange from '../components/utils/handleAppStateChange';
 import RoutineDecorator from '../decorators/RoutineDecorator';
+import Database from '../storage/Database';
+
+const database = Database.getInstance();
 
 const BackIcon = (props) => <Icon {...props} name="arrow-back" />;
 
@@ -22,20 +29,36 @@ class RoutineIntentScreen extends React.Component {
     super(props);
 
     this.routine = new RoutineDecorator(this.props.route.params.object);
+    this.shouldAddCredits = this.props.route.params.shouldAddCredits
+      ? this.props.route.params.shouldAddCredits
+      : true;
 
     // this.handleAppStateChange = handleAppStateChange.bind(this);
 
     this.state = {
       // appState: AppState.currentState,
+      credits: 0,
       exerciseIndex: 0,
       hasUnsavedChanges: true,
+      loading: true,
+      showModal: false,
     };
   }
 
-  componentDidMount = () => {
+  componentDidMount = async () => {
+    this.blowConfig = await database.getBlowConfig();
+    this.cameraResolution = await database.getCameraResolution();
+
     // AppState.addEventListener('change', this.handleAppStateChange);
 
-    if (this.exerciseRef) this.exerciseRef.start();
+    this.setState(
+      {
+        loading: false,
+      },
+      () => {
+        if (this.exerciseRef) this.exerciseRef.start();
+      },
+    );
   };
 
   componentWillUnmount = () => {
@@ -47,13 +70,22 @@ class RoutineIntentScreen extends React.Component {
     return this.routine.exercises[this.state.exerciseIndex];
   };
 
-  onRoutineCompleted = () => {
+  onRoutineCompleted = async () => {
     console.log('RoutineIntentScreen/onRoutineCompleted');
+
+    this._showModal(true);
+
+    if (this.shouldAddCredits) {
+      let gameReward = await database.getGameReward();
+
+      gameReward.credits = gameReward.credits + this.state.credits;
+
+      await database.updateGameReward(gameReward);
+      await database.sync();
+    }
   };
 
   onExerciseSkipped = () => {
-    console.log('RoutineIntentScreen/onExerciseSkipped');
-
     this.setState(
       {
         exerciseIndex: this.state.exerciseIndex + 1,
@@ -65,10 +97,9 @@ class RoutineIntentScreen extends React.Component {
   };
 
   onExerciseCompleted = () => {
-    console.log('RoutineIntentScreen/onExerciseCompleted');
-
     this.setState(
       {
+        credits: this.state.credits + 10,
         exerciseIndex: this.state.exerciseIndex + 1,
       },
       () => {
@@ -79,6 +110,12 @@ class RoutineIntentScreen extends React.Component {
 
   _hasMoreExercises = () => {
     return this.state.exerciseIndex < this.routine.exercises.length;
+  };
+
+  _showModal = (value) => {
+    this.setState({
+      showModal: value,
+    });
   };
 
   renderBackAction = () => (
@@ -103,7 +140,7 @@ class RoutineIntentScreen extends React.Component {
   );
 
   renderExercise = () => {
-    if (this._hasMoreExercises()) {
+    if (!this.state.loading && this._hasMoreExercises()) {
       const {faceDetector, mobilenetDetector} = this.props;
 
       const exerciseProps = {
@@ -113,17 +150,42 @@ class RoutineIntentScreen extends React.Component {
       };
 
       return (
-        <Exercise2
+        <Exercise
           {...exerciseProps}
           onExerciseSkipped={this.onExerciseSkipped}
           onExerciseCompleted={this.onExerciseCompleted}
-          // onStepCompleted={this.onStepCompleted}
-          // exerciseCompletedSound={this.state.exerciseCompletedSound}
-          // stepCompletedSound={this.state.stepCompletedSound}
+          blowConfig={this.blowConfig}
+          cameraResolution={this.cameraResolution}
           ref={(ref) => (this.exerciseRef = ref)}
         />
       );
     }
+  };
+
+  renderModalContent = () => {
+    return (
+      <Card disabled={true}>
+        <Image source={icons.projectTheraIcon} style={styles.modalImage} />
+        <Text category="h4" style={{paddingBottom: 8}}>
+          ¡Muy bien!
+        </Text>
+        <Text style={{paddingBottom: 8}}>
+          Gracias a tu entrenamiento obtuviste{' '}
+          <Text
+            style={{
+              fontWeight: 'bold',
+            }}>{`${this.state.credits} créditos`}</Text>
+          . ¡Seguí practicando!
+        </Text>
+        <Button
+          onPress={() => {
+            this._showModal(false);
+            this.props.navigation.goBack();
+          }}>
+          Continuar
+        </Button>
+      </Card>
+    );
   };
 
   render() {
@@ -133,9 +195,13 @@ class RoutineIntentScreen extends React.Component {
           accessoryRight={this.renderBar}
           accessoryLeft={this.renderBackAction}
         />
-        <Layout style={styles.controlContainer}>
-          {this.renderExercise()}
-        </Layout>
+        <Layout style={styles.controlContainer}>{this.renderExercise()}</Layout>
+        <Modal
+          style={{width: '80%'}}
+          visible={this.state.showModal}
+          backdropStyle={styles.backdrop}>
+          {this.renderModalContent()}
+        </Modal>
       </SafeAreaView>
     );
   }
@@ -148,6 +214,15 @@ const styles = StyleSheet.create({
   controlContainer: {
     flex: 1,
     padding: 24,
+  },
+  backdrop: {
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalImage: {
+    alignSelf: 'center',
+    resizeMode: 'contain',
+    width: '70%',
+    height: 200,
   },
 });
 

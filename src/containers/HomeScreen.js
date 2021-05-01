@@ -143,8 +143,6 @@ export default class HomeScreen extends React.Component {
           this.toggleMenu();
           this.props.navigation.navigate('settings');
         }}
-        title="Notificaciones"
-        onPress={() => this.navigateTo('notifications')}
       />
       <MenuItem
         accessoryLeft={SyncIcon}

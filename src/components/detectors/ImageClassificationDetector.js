@@ -28,24 +28,9 @@ import {
 
 import steps from '../../data/steps.json';
 
-const resolutions = [
-  {height: 360, width: 640},
-  {height: 540, width: 960},
-  {height: 720, width: 1280},
-  {height: 768, width: 1366},
-  {height: 900, width: 1600},
-  {height: 1080, width: 1920},
-  {height: 1440, width: 2160},
-  {height: 2160, width: 3840},
-];
-
 const RATIO = '16:9';
 const inputTensorWidth = 144;
 const inputTensorHeight = 256;
-
-// const RATIO = '4:3';
-// const inputTensorWidth = 240;
-// const inputTensorHeight = 320;
 
 const AUTORENDER = true;
 const MIN_BRIGHTNESS = 110;
@@ -404,7 +389,7 @@ class ImageClassificationDetector extends React.Component {
   );
 
   renderInstructions = () => {
-    let instructions = ''
+    let instructions = '';
 
     if (steps[this.props.currentStep.goal])
       instructions = steps[this.props.currentStep.goal]['instructions'];
@@ -437,8 +422,8 @@ class ImageClassificationDetector extends React.Component {
               style={styles.camera}
               // onCameraReady={this.setTextureDims}
               // tensor related props
-              cameraTextureHeight={1080}
-              cameraTextureWidth={1920}
+              cameraTextureHeight={this.props.cameraResolution.height}
+              cameraTextureWidth={this.props.cameraResolution.width}
               resizeHeight={inputTensorHeight}
               resizeWidth={inputTensorWidth}
               resizeDepth={3}

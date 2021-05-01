@@ -2,6 +2,7 @@ import React from 'react';
 import {SafeAreaView, StyleSheet, View} from 'react-native';
 import {
   Button,
+  Card,
   Divider,
   Icon,
   IndexPath,
@@ -13,6 +14,13 @@ import {
   TopNavigationAction,
 } from '@ui-kitten/components';
 
+import BlowSettings from '../components/settings/BlowSettings';
+import CameraSettings from '../components/settings/CameraSettings';
+import ReminderSettings from '../components/settings/ReminderSettings';
+import Database from '../storage/Database';
+
+const database = Database.getInstance();
+
 const BackIcon = (props) => <Icon {...props} name="arrow-back" />;
 
 const blowSettings = [
@@ -20,7 +28,6 @@ const blowSettings = [
   'Configuración #2',
   'Configuración #3',
 ];
-const cameraResolutions = ['720p', '1080p'];
 
 export default class SettingsScreen extends React.Component {
   constructor(props) {
@@ -39,26 +46,6 @@ export default class SettingsScreen extends React.Component {
     />
   );
 
-  _getBlowSettings = () => {
-    return <Text>{blowSettings[this.state.blowSettings.row]}</Text>;
-  };
-
-  _setBlowSettings = (index) => {
-    this.setState({
-      blowSettings: index,
-    });
-  };
-
-  _getCameraResolution = () => {
-    return <Text>{cameraResolutions[this.state.cameraResolution.row]}</Text>;
-  };
-
-  _setCameraResolution = (index) => {
-    this.setState({
-      cameraResolution: index,
-    });
-  };
-
   render() {
     return (
       <SafeAreaView style={styles.container}>
@@ -68,25 +55,13 @@ export default class SettingsScreen extends React.Component {
           accessoryLeft={this.renderBackAction}
         />
         <Layout style={styles.contentContainer} level="1">
-          <Text category="h1">Configuración</Text>
-          <Text>Configuración del soplido</Text>
-          <Select
-            selectedIndex={this.state.blowSettings}
-            onSelect={this._setBlowSettings}
-            value={this._getBlowSettings}>
-            {blowSettings.map((renderOption, key) => (
-              <SelectItem title={renderOption} key={key} />
-            ))}
-          </Select>
-          <Text>Resolución de la cámara frontal</Text>
-          <Select
-            selectedIndex={this.state.cameraResolution}
-            onSelect={this._setCameraResolution}
-            value={this._getCameraResolution}>
-            {cameraResolutions.map((renderOption, key) => (
-              <SelectItem title={renderOption} key={key} />
-            ))}
-          </Select>
+          <Text category="h1" style={{paddingBottom: 12}}>Configuración</Text>
+          <Text category="h6">Configuración del soplido</Text>
+          <BlowSettings database={database} selectStyle={{paddingBottom: 12}}/>
+          <Text category="h6">Resolución de la cámara frontal</Text>
+          <CameraSettings database={database}  selectStyle={{paddingBottom: 12}}/>
+          <Text category="h6">Recordatorio</Text>
+          <ReminderSettings />
         </Layout>
       </SafeAreaView>
     );

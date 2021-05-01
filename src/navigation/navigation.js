@@ -4,8 +4,6 @@ import Toast from 'react-native-toast-message';
 import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 
-import ExerciseIntentScreen from '../containers/ExerciseIntentScreen';
-import ExercisesScreen from '../containers/ExercisesScreen';
 import GlossaryScreen from '../containers/GlossaryScreen';
 import HomeScreen from '../containers/HomeScreen';
 import LoginScreen from '../containers/LoginScreen';
@@ -27,12 +25,6 @@ const HomeNavigator = (parentProps) => {
       {parentProps.currentUser ? (
         <>
           <Screen name="home" component={HomeScreen} />
-          <Screen name="exercises">
-            {(props) => <ExercisesScreen {...props} {...parentProps} />}
-          </Screen>
-          <Screen name="exercise-intent">
-            {(props) => <ExerciseIntentScreen {...props} {...parentProps} />}
-          </Screen>
           <Screen name="glossary">
             {(props) => <GlossaryScreen {...props} {...parentProps} />}
           </Screen>

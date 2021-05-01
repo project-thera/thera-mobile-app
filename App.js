@@ -158,7 +158,7 @@ export default class App extends React.Component {
       <Layout style={styles.brandContainer}>
         <AnimatableView animation="fadeIn">
           <Text category="h1" style={styles.centeredText}>
-            Thera Project
+            Proyecto Thera
           </Text>
         </AnimatableView>
       </Layout>
