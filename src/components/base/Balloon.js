@@ -12,19 +12,20 @@ export default class Balloon extends React.Component {
 
     this.state = {
       balloon: BalloonLib.getRandomBalloon(),
-      balloonPoppingSound: null,
       isPopped: false,
     };
-  }
 
-  componentDidMount() {
     Audio.Sound.createAsync(sounds.balloonPopping).then(({sound}) => {
-      this.setState({balloonPoppingSound: sound});
+      this.balloonPoppingSound = sound;
     });
   }
 
+  componentWillUnmount = async () => {
+    if (this.balloonPoppingSound) await this.balloonPoppingSound.unloadAsync();
+  };
+
   pop = () => {
-    this.state.balloonPoppingSound?.replayAsync();
+    this.balloonPoppingSound?.replayAsync();
 
     this.setState({
       isPopped: true,

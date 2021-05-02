@@ -13,16 +13,13 @@ import Database from '../storage/Database';
 const BackIcon = (props) => <Icon {...props} name="arrow-back" />;
 
 export default class MyAccountScreen extends React.Component {
-  componentDidMount = async () => {
-    console.log('MyAccountScreen/componentDidMount');
-  };
-
   renderBackAction = () => (
     <TopNavigationAction
       icon={BackIcon}
       onPress={() => this.props.navigation.goBack()}
     />
   );
+  
   render() {
     return (
       <SafeAreaView style={{flex: 1}}>

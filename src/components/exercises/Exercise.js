@@ -25,14 +25,11 @@ export default class Exercise extends React.Component {
     });
   }
 
-  componentDidMount = () => {};
-
-  componentWillUnmount = () => {
+  componentWillUnmount = async () => {
     this.detector.stop();
 
-    delete this.exerciseCompletedSound;
-    delete this.stepCompletedSound;
-    delete this.state;
+    // if (this.exerciseCompletedSound) await this.exerciseCompletedSound.unloadAsync();
+    if (this.stepCompletedSound) await this.stepCompletedSound.unloadAsync();
   };
 
   defaultState = () => {
@@ -75,17 +72,15 @@ export default class Exercise extends React.Component {
 
   // https://stackoverflow.com/questions/11796093/is-there-a-way-to-provide-named-parameters-in-a-function-call-in-javascript
   onStepCompleted = async ({shouldPlaySound = true} = {}) => {
-    console.log('Exercise/onStepCompleted');
-
     this.stop();
 
     this.setState(
       {
         stepIndex: this.state.stepIndex + 1,
       },
-      () => {
+      async () => {
         if (this._hasMoreSteps()) {
-          if (shouldPlaySound) this.stepCompletedSound?.replayAsync();
+          if (shouldPlaySound) await this.stepCompletedSound?.replayAsync();
 
           this.resume();
         } else {
@@ -94,11 +89,12 @@ export default class Exercise extends React.Component {
               repetitionIndex: this.state.repetitionIndex + 1,
               stepIndex: 0,
             },
-            () => {
+            async () => {
               if (this._hasMoreRepetitions()) {
                 this.resume();
               } else {
-                if (shouldPlaySound) this.exerciseCompletedSound?.replayAsync();
+                if (shouldPlaySound)
+                  await this.exerciseCompletedSound?.replayAsync();
 
                 this._nextExercise();
               }
@@ -122,16 +118,12 @@ export default class Exercise extends React.Component {
   };
 
   _nextExercise = () => {
-    console.log('Exercise/_nextExercise');
+    this.setState(this.defaultState(), this.props.onExerciseCompleted);
 
-    this.setState(this.defaultState());
-
-    this.props.onExerciseCompleted();
+    // this.props.onExerciseCompleted();
   };
 
   _nextStep = () => {
-    console.log('Exercise/_nextStep');
-
     this.setState(
       {
         stepIndex: this.state.stepIndex + 1,

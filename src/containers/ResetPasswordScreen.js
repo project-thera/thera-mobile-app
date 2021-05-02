@@ -60,8 +60,6 @@ export default class ResetPasswordScreen extends React.Component {
       },
     }).then(
       (response) => {
-        console.log(response?.data);
-
         if (response?.data?.id) {
           Toast.show({
             type: 'success',

@@ -82,7 +82,12 @@ export default class Database {
   async getRoutines() {
     const currentUser = await this.getCurrentUser();
 
-    return currentUser.routines;
+    // sort by created_at desc
+    let routines = currentUser.routines.sort((a, b) =>
+      a.created_at > b.created_at ? -1 : 1,
+    );
+
+    return routines;
   }
 
   getRoutineIntent(routine) {
@@ -93,6 +98,18 @@ export default class Database {
       routine_intent_exercises_attributes: [],
     };
   }
+
+  getLastRoutineIntentForRoutine = async (routine) => {
+    const currentUser = await this.getCurrentUser();
+
+    let routineIntents = currentUser.routineIntents.filter(
+      (routineIntent) => routineIntent.routine_id == routine.id,
+    );
+
+    routineIntents.sort((a, b) => (a.started_at > b.started_at ? -1 : 1));
+
+    return routineIntents.length > 0 ? routineIntents[0] : null;
+  };
 
   async addRoutineIntent(routineIntent) {
     const currentUser = await this.getCurrentUser();
@@ -193,7 +210,7 @@ export default class Database {
     const currentUser = await this.getCurrentUser();
 
     return currentUser.blowConfig ? currentUser.blowConfig : null;
-  }
+  };
 
   updateBlowConfig = async (blowConfig) => {
     const currentUser = await this.getCurrentUser();

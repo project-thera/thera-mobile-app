@@ -3,6 +3,7 @@ export default icons = {
   arrowheadRight: require('./arrowhead-right.png'),
   cogwheelRobot: require('./cogwheel-robot.png'),
   microprocessor: require('./microprocessor.png'),
+  process: require('./process.png'),
   projectTheraIcon: require('./project-thera-icon.png'),
   profTheralovIcon: require('./prof-theralov-icon.png'),
   profTheralovJumping: require('./prof-theralov-jumping.png'),

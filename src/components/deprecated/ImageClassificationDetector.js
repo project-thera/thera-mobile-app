@@ -213,7 +213,7 @@ export default class ImageClassificationDetector extends React.Component {
   };
 
   countTime = (label = 'Tiempo') => {
-    console.log(`${label}: ${performance.now() - this.time}`);
+    // console.log(`${label}: ${performance.now() - this.time}`);
 
     this.time = performance.now();
   };

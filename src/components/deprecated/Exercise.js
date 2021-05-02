@@ -66,8 +66,6 @@ export default class Exercise extends React.Component {
 
   // https://stackoverflow.com/questions/11796093/is-there-a-way-to-provide-named-parameters-in-a-function-call-in-javascript
   onStepCompleted = async ({shouldPlaySound = true} = {}) => {
-    console.log('Exercise/onStepCompleted');
-
     this.stop();
 
     if (this._hasMoreSteps()) {
@@ -144,16 +142,12 @@ export default class Exercise extends React.Component {
   };
 
   _nextExercise = () => {
-    console.log('Exercise/_nextExercise');
-
     this.setState(this.defaultState());
 
     this.props.onExerciseCompleted();
   };
 
   _nextStep = () => {
-    console.log('Exercise/_nextStep');
-
     this.setState(
       {
         buttonDisabled: true,

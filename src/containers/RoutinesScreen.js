@@ -1,7 +1,6 @@
 import React from 'react';
 import {SafeAreaView, StyleSheet} from 'react-native';
 import {
-  Avatar,
   Button,
   Divider,
   Icon,
@@ -28,16 +27,26 @@ class RoutinesScreen extends React.Component {
     this.state = {
       loading: true,
       routines: null,
+      routineIntents: null,
     };
   }
 
   componentDidMount = async () => {
-    let routines = await database.getRoutines();
+    const {navigation} = this.props;
 
-    this.setState({
-      loading: false,
-      routines: routines,
-    });
+    this.focusListener = navigation.addListener(
+      'focus',
+      async () => await this._loadRoutines(),
+      [navigation],
+    );
+
+    this._loadRoutines();
+  };
+
+  componentWillUnmount = () => {
+    if (this.focusListener && this.focusListener.remove) {
+      this.focusListener.remove();
+    }
   };
 
   _updateRoutines = async () => {
@@ -48,14 +57,30 @@ class RoutinesScreen extends React.Component {
       async () => {
         await database.sync();
 
-        let routines = await database.getRoutines();
-
-        this.setState({
-          loading: false,
-          routines: routines,
-        });
+        this._loadRoutines();
       },
     );
+  };
+
+  _loadRoutines = async () => {
+    let routines = await database.getRoutines();
+    let routineIntents = {};
+
+    // FIXME
+    // surely we can do it better
+    await Promise.all(
+      routines.map(async (routine) => {
+        routineIntents[
+          routine.id
+        ] = await database.getLastRoutineIntentForRoutine(routine);
+      }),
+    );
+
+    this.setState({
+      loading: false,
+      routines: routines,
+      routineIntents: routineIntents,
+    });
   };
 
   renderBackAction = () => (
@@ -65,7 +90,7 @@ class RoutinesScreen extends React.Component {
     />
   );
 
-  renderStatusItem = (text, image) => {
+  renderButtons = () => {
     return (
       <Layout
         style={{
@@ -82,7 +107,7 @@ class RoutinesScreen extends React.Component {
         </Button>
         <Button
           accessoryLeft={CloudUploadIcon}
-          onPress={() => this.navigateTo('record')}
+          onPress={() => this.props.navigation.navigate('record')}
           size="small">
           Enviar video
         </Button>
@@ -100,7 +125,13 @@ class RoutinesScreen extends React.Component {
       );
     } else {
       if (this.state.routines && this.state.routines.length > 0) {
-        return <RoutineList {...this.props} routines={this.state.routines} />;
+        return (
+          <RoutineList
+            {...this.props}
+            routines={this.state.routines}
+            routineIntents={this.state.routineIntents}
+          />
+        );
       } else {
         return (
           <Layout style={{padding: 24}}>
@@ -120,9 +151,7 @@ class RoutinesScreen extends React.Component {
           subtitle="Mis Rutinas"
           accessoryLeft={this.renderBackAction}
         />
-        <Layout style={styles.controlContainer}>
-          {this.renderStatusItem('asd', 'asd')}
-        </Layout>
+        <Layout style={styles.topContainer}>{this.renderButtons()}</Layout>
         <Divider />
         {this.renderList()}
       </SafeAreaView>
@@ -134,7 +163,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  controlContainer: {
+  topContainer: {
     flexDirection: 'row',
     justifyContent: 'space-evenly',
     padding: 16,

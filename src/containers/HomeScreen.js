@@ -15,6 +15,8 @@ import {
   ViewPager,
 } from '@ui-kitten/components';
 
+import {View as AnimatableView} from 'react-native-animatable';
+
 import Toast from 'react-native-toast-message';
 
 import ViewPagerTab from '../components/base/ViewPagerTab';
@@ -44,7 +46,7 @@ export default class HomeScreen extends React.Component {
     this.state = {
       selectedIndex: 1,
       menuVisible: false,
-      shopVisible: false,
+      showSyncModal: false,
     };
 
     this.bg = new LabBackground(0);
@@ -101,13 +103,23 @@ export default class HomeScreen extends React.Component {
   _sync = async () => {
     this.toggleMenu();
 
-    await database.sync();
+    this.setState(
+      {
+        showSyncModal: true,
+      },
+      async () => {
+        await database.sync();
 
-    this._updateBackground();
-  };
-
-  showShopModal = (value) => {
-    this.setState({shopVisible: value});
+        this.setState(
+          {
+            showSyncModal: false,
+          },
+          () => {
+            this._updateBackground();
+          },
+        );
+      },
+    );
   };
 
   navigateTo = (route) => {
@@ -158,6 +170,28 @@ export default class HomeScreen extends React.Component {
     </OverflowMenu>
   );
 
+  renderSyncModal = () => {
+    return (
+      <Modal
+        style={{width: '80%'}}
+        visible={this.state.showSyncModal}
+        backdropStyle={styles.backdrop}>
+        <Card disabled={true}>
+          <AnimatableView
+            animation="pulse"
+            iterationCount="infinite"
+            iterationDelay={1000}
+            useNativeDriver={true}>
+            <Image source={icons.process} style={styles.syncModalImage} />
+          </AnimatableView>
+          <Text category="h6" style={{alignSelf: 'center', paddingBottom: 8}}>
+            Sincronizando...
+          </Text>
+        </Card>
+      </Modal>
+    );
+  };
+
   render() {
     return (
       <SafeAreaView style={{flex: 1}}>
@@ -202,6 +236,7 @@ export default class HomeScreen extends React.Component {
             />
           </ViewPagerTab>
         </ViewPager>
+        {this.renderSyncModal()}
       </SafeAreaView>
     );
   }
@@ -213,5 +248,15 @@ const styles = StyleSheet.create({
     width: 40,
     marginRight: 8,
     resizeMode: 'contain',
+  },
+  backdrop: {
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  syncModalImage: {
+    alignSelf: 'center',
+    height: 180,
+    marginVertical: 24,
+    resizeMode: 'contain',
+    width: '70%',
   },
 });

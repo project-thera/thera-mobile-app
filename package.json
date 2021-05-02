@@ -26,6 +26,7 @@
     "@ui-kitten/components": "^5.0.0",
     "@ui-kitten/eva-icons": "^5.0.0",
     "axios": "^0.21.1",
+    "date-fns": "^2.21.1",
     "expo-av": "^9.0.0",
     "expo-camera": "^10.0.0",
     "expo-gl": "^10.1.0",

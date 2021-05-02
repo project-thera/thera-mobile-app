@@ -1,7 +1,7 @@
 import React from 'react';
 import {StyleSheet} from 'react-native';
 import {Layout, Text, withStyles} from '@ui-kitten/components';
-import {Bar, Pie} from 'react-native-progress';
+import {Bar} from 'react-native-progress';
 
 import {Camera} from 'expo-camera';
 
@@ -60,9 +60,13 @@ class ImageClassificationDetector extends React.Component {
   }
 
   componentWillUnmount() {
+    this.stop();
+
     if (this.rafID) {
       cancelAnimationFrame(this.rafID);
     }
+
+    if (this.detectorTimerConfidence) delete this.detectorTimerConfidence;
   }
 
   // Needed because access to props to set instance variable
@@ -316,7 +320,7 @@ class ImageClassificationDetector extends React.Component {
   };
 
   countTime = (label = 'Tiempo') => {
-    console.log(`${label}: ${performance.now() - this.time}`);
+    // console.log(`${label}: ${performance.now() - this.time}`);
 
     this.time = performance.now();
   };
@@ -373,15 +377,12 @@ class ImageClassificationDetector extends React.Component {
   };
 
   renderBar = () => (
-    <Pie
-      size={160}
-      animationType="timing"
+    <Bar
       progress={this.state.progress}
-      width={null}
-      // height={12}
-      // style={{marginRight: 18, backgroundColor: 'blue'}}
-      color={this.props.eva.theme['color-primary-default']}
-      unfilledColor="rgba(0, 0, 0, 0.1)"
+      height={12}
+      style={{marginVertical: 18}}
+      color="#fcb040"
+      unfilledColor="#eeeeee"
       useNativeDriver={true}
       borderWidth={0}
       borderRadius={100}
@@ -401,37 +402,37 @@ class ImageClassificationDetector extends React.Component {
   };
 
   render() {
+    let cameraHeight = this.props.cameraResolution.height;
+    let cameraWidth = this.props.cameraResolution.width;
+
     if (this.detectorsLoaded()) {
       return (
         <Layout style={styles.container}>
           <Text category="h2" style={styles.title}>
             Seguí las instrucciones
           </Text>
-          {/* <Text category="h3" style={styles.centerText}>
-            {this.ucfirst(this.props.currentStep.label)}
-          </Text> */}
-          {/* <Text status={this.state.messageStatus} style={styles.centerText}>
-            {this.state.message}
-          </Text> */}
           <Layout style={styles.controlContainer}>
             {this.renderInstructions()}
             <TensorCamera
               type={CAMERA_TYPE}
               zoom={0}
               ratio={RATIO}
-              style={styles.camera}
+              style={[
+                styles.camera,
+                {height: cameraWidth / 4, width: cameraHeight / 4},
+              ]}
               // onCameraReady={this.setTextureDims}
               // tensor related props
-              cameraTextureHeight={this.props.cameraResolution.height}
-              cameraTextureWidth={this.props.cameraResolution.width}
+              cameraTextureHeight={cameraHeight}
+              cameraTextureWidth={cameraWidth}
               resizeHeight={inputTensorHeight}
               resizeWidth={inputTensorWidth}
               resizeDepth={3}
               onReady={this.handleImageTensorReady}
               autorender={AUTORENDER}
             />
+            {this.renderBar()}
           </Layout>
-          <Layout style={styles.overlayContainer}>{this.renderBar()}</Layout>
         </Layout>
       );
     } else {
@@ -458,20 +459,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
   },
   camera: {
-    width: 1080 / 4,
-    height: 1920 / 4,
-  },
-  // https://stackoverflow.com/questions/37317568/react-native-absolute-positioning-horizontal-centre
-  overlayContainer: {
     flex: 1,
-    position: 'absolute',
-    top: 0,
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: 'rgba(0,0,0,0)',
-    justifyContent: 'center',
-    alignItems: 'center',
   },
 });
 

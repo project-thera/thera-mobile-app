@@ -23,14 +23,6 @@ const QuestionMarkCircleIcon = (props) => (
 );
 
 export default class GlossaryScreen extends React.Component {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      selectedExercise: 'pepe',
-    };
-  }
-
   renderBackAction = () => (
     <TopNavigationAction
       icon={BackIcon}
@@ -45,7 +37,11 @@ export default class GlossaryScreen extends React.Component {
   _playExercise = (exercise) => {
     let routine = ExerciseHelper.asRoutine(exercise);
 
-    this.props.navigation.navigate('routine-intent', {object: routine})
+    this.props.navigation.navigate('routine-intent', {
+      object: routine,
+      shouldLog: false,
+      shouldAddCredits: false,
+    });
   };
 
   renderItemAccessory = (info) => (
@@ -69,9 +65,7 @@ export default class GlossaryScreen extends React.Component {
   renderItem = (info) => {
     return (
       <ListItem
-        title={() => (
-          <Text style={styles.listItemTitle}>{info.item.name}</Text>
-        )}
+        title={() => <Text style={styles.listItemTitle}>{info.item.name}</Text>}
         description={() => (
           <Text style={styles.listItemDescription}>
             {info.item.description}
@@ -111,6 +105,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   contentContainer: {
+    flex: 1,
     paddingHorizontal: 8,
     paddingVertical: 4,
   },

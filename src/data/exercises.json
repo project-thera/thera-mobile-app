@@ -3,7 +3,7 @@
     "created_at": "2021-04-23T02:30:18.007-03:00",
     "description": "Acerque el celular a su cara y sople durante 1 segundos.",
     "exercise_type": "blow",
-    "id": "27",
+    "id": "20210501",
     "name": "Soplido 1 segundos",
     "steps": "[{\"goal\":\"soplar\",\"time\":1000},{\"goal\":\"sin_soplar\",\"time\":1000}]",
     "updated_at": "2021-04-23T02:30:18.007-03:00"
@@ -12,9 +12,81 @@
     "created_at": "2021-04-23T02:30:18.007-03:00",
     "description": "Pronunciá las palabras 'perro' y 'gato'",
     "exercise_type": "speech",
-    "id": "27",
+    "id": "20210501",
     "name": "Palabras #1",
     "steps": "[{\"goal\":\"perro\"},{\"goal\":\"gato\"}]",
+    "updated_at": "2021-04-23T02:30:18.007-03:00"
+  },
+  {
+    "created_at": "2021-04-23T02:30:18.007-03:00",
+    "description": "¡Conejito!",
+    "exercise_type": "classification",
+    "id": "20210501",
+    "name": "Reconocimiento de gestos #1",
+    "steps": "[{\"goal\":\"conejito\"},{\"goal\":\"reposo\"}]",
+    "updated_at": "2021-04-23T02:30:18.007-03:00"
+  },
+  {
+    "created_at": "2021-04-23T02:30:18.007-03:00",
+    "description": "Lengua en todas las direcciones",
+    "exercise_type": "classification",
+    "id": "20210501",
+    "name": "Reconocimiento de gestos #2",
+    "steps": "[{\"goal\":\"lengua_derecha\",\"time\":1000},{\"goal\":\"lengua_abajo\",\"time\":1000},{\"goal\":\"lengua_izquierda\",\"time\":1000},{\"goal\":\"lengua_arriba\",\"time\":1000}]",
+    "updated_at": "2021-04-23T02:30:18.007-03:00"
+  },
+  {
+    "created_at": "2021-04-23T02:30:18.007-03:00",
+    "description": "Caramelo completo",
+    "exercise_type": "classification",
+    "id": "20210501",
+    "name": "Reconocimiento de gestos #3",
+    "steps": "[{\"goal\":\"caramelo_derecha\",\"time\":1000},{\"goal\":\"caramelo_abajo\",\"time\":1000},{\"goal\":\"caramelo_izquierda\",\"time\":1000},{\"goal\":\"caramelo_arriba\",\"time\":1000}]",
+    "updated_at": "2021-04-23T02:30:18.007-03:00"
+  },
+  {
+    "created_at": "2021-04-23T02:30:18.007-03:00",
+    "description": "Inflar cachetes",
+    "exercise_type": "classification",
+    "id": "20210501",
+    "name": "Reconocimiento de gestos #4",
+    "steps": "[{\"goal\":\"inflar_cachetes\",\"time\":1000},{\"goal\":\"inflar_cachete_derecho\",\"time\":1000},{\"goal\":\"inflar_cachete_izquierdo\",\"time\":1000},{\"goal\":\"inflar_cachetes\",\"time\":1000}]",
+    "updated_at": "2021-04-23T02:30:18.007-03:00"
+  },
+  {
+    "created_at": "2021-04-23T02:30:18.007-03:00",
+    "description": "Lateralizar la boca",
+    "exercise_type": "classification",
+    "id": "20210501",
+    "name": "Reconocimiento de gestos #5",
+    "steps": "[{\"goal\":\"lateralizar_boca_derecha\",\"time\":1000},{\"goal\":\"lateralizar_boca_izquierda\",\"time\":1000},{\"goal\":\"lateralizar_boca_derecha\",\"time\":1000},{\"goal\":\"lateralizar_boca_izquierda\",\"time\":1000}]",
+    "updated_at": "2021-04-23T02:30:18.007-03:00"
+  },
+  {
+    "created_at": "2021-04-23T02:30:18.007-03:00",
+    "description": "Morder labios",
+    "exercise_type": "classification",
+    "id": "20210501",
+    "name": "Reconocimiento de gestos #6",
+    "steps": "[{\"goal\":\"morder_labio_inferior\",\"time\":1000},{\"goal\":\"morder_labio_superior\",\"time\":1000},{\"goal\":\"morder_labio_inferior\",\"time\":1000},{\"goal\":\"morder_labio_superior\",\"time\":1000}]",
+    "updated_at": "2021-04-23T02:30:18.007-03:00"
+  },
+  {
+    "created_at": "2021-04-23T02:30:18.007-03:00",
+    "description": "Protruir",
+    "exercise_type": "classification",
+    "id": "20210501",
+    "name": "Reconocimiento de gestos #7",
+    "steps": "[{\"goal\":\"protruir_boca_cerrada\",\"time\":1000},{\"goal\":\"reposo\",\"time\":1000},{\"goal\":\"protruir_boca_abierta\",\"time\":1000},{\"goal\":\"reposo\",\"time\":1000}]",
+    "updated_at": "2021-04-23T02:30:18.007-03:00"
+  },
+  {
+    "created_at": "2021-04-23T02:30:18.007-03:00",
+    "description": "Retruir",
+    "exercise_type": "classification",
+    "id": "20210501",
+    "name": "Reconocimiento de gestos #8",
+    "steps": "[{\"goal\":\"retruir_cerrada\",\"time\":1000},{\"goal\":\"reposo\",\"time\":1000},{\"goal\":\"retruir_abierta\",\"time\":1000},{\"goal\":\"reposo\",\"time\":1000}]",
     "updated_at": "2021-04-23T02:30:18.007-03:00"
   }
 ]

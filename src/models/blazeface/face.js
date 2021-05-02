@@ -30,7 +30,7 @@ const NUM_LANDMARKS = 6;
 let time = performance.now();
 
 function countTime(label = 'Tiempo') {
-  console.log(`${label}: ${performance.now() - this.time}`);
+  // console.log(`${label}: ${performance.now() - this.time}`);
 
   this.time = performance.now();
 }

@@ -106,7 +106,7 @@ export default class ImageClassificationStandalone extends React.Component {
   }
 
   handleFacesDetected(faces) {
-    console.log(faces[0]);
+    // console.log(faces[0]);
   }
 
   detectFaces = (imageTensor) => {
@@ -123,7 +123,7 @@ export default class ImageClassificationStandalone extends React.Component {
   };
 
   async handleImageTensorReady(images, updatePreview, gl) {
-    //console.log(gl);
+    // console.log(gl);
     const loop = async () => {
       updatePreview();
       gl.endFrameEXP();
@@ -169,11 +169,11 @@ export default class ImageClassificationStandalone extends React.Component {
                   prediction: JSON.stringify(prediction),
                 });
 
-                console.log(
-                  'Prediction took ' +
-                    (performance.now() - detectionTime) +
-                    ' milliseconds.',
-                );
+                // console.log(
+                //   'Prediction took ' +
+                //     (performance.now() - detectionTime) +
+                //     ' milliseconds.',
+                // );
               });
             } else {
               this.setState({

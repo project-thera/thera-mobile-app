@@ -46,7 +46,6 @@ export default class ImageClassificationTestStandalone extends React.Component {
     };
 
     this.handleImageTensorReady = this.handleImageTensorReady.bind(this);
-    this.setTextureDims = this.setTextureDims.bind(this);
   }
 
   componentWillUnmount() {
@@ -72,17 +71,6 @@ export default class ImageClassificationTestStandalone extends React.Component {
       faceDetector: blazefaceModel,
       encodedData: '',
     });
-  }
-
-  async setTextureDims() {
-    // const ratios = await this.cameraRef.camera.getSupportedRatiosAsync();
-    // for (let ratio of ratios) {
-    //   console.log('RATIO');
-    //   console.log(ratio);
-    //   console.log(
-    //     await this.cameraRef.camera.getAvailablePictureSizesAsync(ratio),
-    //   );
-    // }
   }
 
   async handleImageTensorReady(images, updatePreview, gl) {
@@ -181,7 +169,6 @@ export default class ImageClassificationTestStandalone extends React.Component {
               type={this.state.cameraType}
               zoom={0}
               ratio={ratio}
-              onCameraReady={this.setTextureDims}
               // tensor related props
               cameraTextureHeight={textureDims.height}
               cameraTextureWidth={textureDims.width}

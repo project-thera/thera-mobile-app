@@ -1,13 +1,31 @@
 {
-  "caramelo_abajo": {
-    "instructions": "¡Caramelo abajo!"
+  "boca_abierta_lengua_abajo": {
+    "instructions": "Abrí la boca y escondé tu lengua detrás de los dientes de abajo."
+  },
+  "boca_abierta_lengua_arriba": {
+    "instructions": "Abrí la boca y escondé tu lengua detrás de los dientes de arriba."
   },
   "caramelo_arriba": {
     "instructions": "¡Caramelo arriba!"
   },
+  "caramelo_derecha": {
+    "instructions": "¡Caramelo a la derecha!"
+  },
+  "caramelo_abajo": {
+    "instructions": "¡Caramelo abajo!"
+  },
+  "caramelo_izquierda": {
+    "instructions": "¡Caramelo a la izquierda!"
+  },
   "conejito": {
     "instructions": "¡Conejito!"
   },
+  "inflar_cachete_derecho": {
+    "instructions": "Inflá tu cachete derecho."
+  },  
+  "inflar_cachete_izquierdo": {
+    "instructions": "Inflá tu cachete izquierdo."
+  },  
   "inflar_cachetes": {
     "instructions": "Inflá tus cachetes."
   },  
@@ -17,8 +35,17 @@
   "lateralizar_boca_izquierda": {
     "instructions": "Mové tu boca hacia la izquierda."
   },
+  "lengua_arriba": {
+    "instructions": "Sacá la lengua hacia arriba."
+  },  
   "lengua_derecha": {
     "instructions": "Sacá la lengua hacia la derecha."
+  },
+  "lengua_abajo": {
+    "instructions": "Sacá la lengua hacia abajo."
+  },
+  "lengua_izquierda": {
+    "instructions": "Sacá la lengua hacia la izquierda."
   },  
   "morder_labio_inferior": {
     "instructions": "Mordé tu labio inferior."
@@ -26,10 +53,19 @@
   "morder_labio_superior": {
     "instructions": "Mordé tu labio superior."
   },
+  "protruir_boca_cerrada": {
+    "instructions": "Protruí tus labios con la boca cerrada."
+  },
+  "protruir_boca_abierta": {
+    "instructions": "Protruí tus labios con la boca abierta."
+  },
   "reposo": {
     "instructions": "Dejá tu rostro en reposo."
   },
+  "retruir_cerrada": {
+    "instructions": "Retruí tus labios con la boca cerrada."
+  },
   "retruir_abierta": {
-    "instructions": "Retruí con la boca abierta."
+    "instructions": "Retruí tus labios con la boca abierta."
   }
 }

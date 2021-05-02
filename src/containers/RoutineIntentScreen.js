@@ -11,12 +11,9 @@ import {
   TopNavigationAction,
 } from '@ui-kitten/components';
 import {Bar} from 'react-native-progress';
-import {Audio} from 'expo-av';
 
 import icons from '../assets/images/icons';
-import sounds from '../assets/sounds';
 import Exercise from '../components/exercises/Exercise';
-import handleAppStateChange from '../components/utils/handleAppStateChange';
 import RoutineDecorator from '../decorators/RoutineDecorator';
 import Database from '../storage/Database';
 
@@ -28,10 +25,19 @@ class RoutineIntentScreen extends React.Component {
   constructor(props) {
     super(props);
 
-    this.routine = new RoutineDecorator(this.props.route.params.object);
+    let routine = this.props.route.params.object;
+
+    this.rawRoutine = routine;
+    this.routine = new RoutineDecorator(routine);
+    this.routineIntent = database.getRoutineIntent(routine);
+
+    this.shouldLog = this.props.route.params.shouldLog
+      ? this.props.route.params.shouldLog
+      : false;
+
     this.shouldAddCredits = this.props.route.params.shouldAddCredits
       ? this.props.route.params.shouldAddCredits
-      : true;
+      : false;
 
     // this.handleAppStateChange = handleAppStateChange.bind(this);
 
@@ -62,8 +68,9 @@ class RoutineIntentScreen extends React.Component {
   };
 
   componentWillUnmount = () => {
+    database.addRoutineIntent(this.routineIntent);
+
     delete this.routine;
-    delete this.state;
   };
 
   currentExercise = () => {
@@ -71,9 +78,9 @@ class RoutineIntentScreen extends React.Component {
   };
 
   onRoutineCompleted = async () => {
-    console.log('RoutineIntentScreen/onRoutineCompleted');
-
     this._showModal(true);
+
+    this.routineIntent.finished_at = new Date().toISOString();
 
     if (this.shouldAddCredits) {
       let gameReward = await database.getGameReward();
@@ -86,6 +93,11 @@ class RoutineIntentScreen extends React.Component {
   };
 
   onExerciseSkipped = () => {
+    this.routineIntent.routine_intent_exercises_attributes.push({
+      exercise_id: this.currentExercise().id,
+      status: Database.ROUTINE_INTENT_EXERCISE_SKIPPED,
+    });
+
     this.setState(
       {
         exerciseIndex: this.state.exerciseIndex + 1,
@@ -97,6 +109,11 @@ class RoutineIntentScreen extends React.Component {
   };
 
   onExerciseCompleted = () => {
+    this.routineIntent.routine_intent_exercises_attributes.push({
+      exercise_id: this.currentExercise().id,
+      status: Database.ROUTINE_INTENT_EXERCISE_COMPLETED,
+    });
+
     this.setState(
       {
         credits: this.state.credits + 10,
@@ -163,20 +180,28 @@ class RoutineIntentScreen extends React.Component {
   };
 
   renderModalContent = () => {
+    let text = (
+      <Text style={{paddingBottom: 8}}>
+        Gracias a tu entrenamiento obtuviste{' '}
+        <Text
+          style={{
+            fontWeight: 'bold',
+          }}>{`${this.state.credits} créditos`}</Text>
+        . ¡Seguí practicando!
+      </Text>
+    );
+
+    if (!this.shouldAddCredits) {
+      text = <Text style={{paddingBottom: 8}}>¡Sigamos practicando!</Text>;
+    }
+
     return (
       <Card disabled={true}>
         <Image source={icons.projectTheraIcon} style={styles.modalImage} />
         <Text category="h4" style={{paddingBottom: 8}}>
           ¡Muy bien!
         </Text>
-        <Text style={{paddingBottom: 8}}>
-          Gracias a tu entrenamiento obtuviste{' '}
-          <Text
-            style={{
-              fontWeight: 'bold',
-            }}>{`${this.state.credits} créditos`}</Text>
-          . ¡Seguí practicando!
-        </Text>
+        {text}
         <Button
           onPress={() => {
             this._showModal(false);

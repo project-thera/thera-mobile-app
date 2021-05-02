@@ -6,9 +6,10 @@ import {
   Layout,
   List,
   ListItem,
-  Spinner,
   Text,
 } from '@ui-kitten/components';
+import {format} from 'date-fns';
+import {es} from 'date-fns/locale';
 
 const PlayCircleIcon = (props) => <Icon {...props} name="play-circle" />;
 
@@ -18,7 +19,11 @@ class RoutineList extends React.Component {
       <Button
         accessoryLeft={PlayCircleIcon}
         onPress={() =>
-          this.props.navigation.navigate('routine-intent', {object: info.item})
+          this.props.navigation.navigate('routine-intent', {
+            object: info.item,
+            shouldLog: true,
+            shouldAddCredits: true,
+          })
         }
         size="small"
         status="primary">
@@ -28,10 +33,18 @@ class RoutineList extends React.Component {
   };
 
   renderItem = (info) => {
+    let lastRoutineIntent = this.props.routineIntents[info.item.id];
+    let startedAt = lastRoutineIntent
+      ? // ? new Date(lastRoutineIntent.started_at).toLocaleString('es-AR')
+        `Última actividad: ${format(new Date(), 'dd/MM/yy HH:ii:ss', {
+          locale: es,
+        })}`
+      : 'Última actividad: aún no se ha realizado.';
+
     return (
       <ListItem
         title={<Text style={styles.listItemTitle}>Rutina #{info.item.id}</Text>}
-        description={`${info.item.created_at}`}
+        description={`${startedAt}`}
         accessoryRight={() => this.renderItemAccessory(info)}
       />
     );
