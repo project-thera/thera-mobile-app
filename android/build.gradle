@@ -7,6 +7,8 @@ buildscript {
         compileSdkVersion = 29
         targetSdkVersion = 29
         reactNativeFFmpegPackage = "min-gpl-lts"
+        // https://stackoverflow.com/questions/70756506/minify-withr8-throws-java-lang-outofmemoryerror-java-heap-space
+        firebaseMessagingVersion = "21.1.0"
     }
     repositories {
         google()
