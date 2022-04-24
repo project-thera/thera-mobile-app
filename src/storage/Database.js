@@ -207,10 +207,12 @@ export default class Database {
   }
 
   getBlowConfig = async () => {
-    const currentUser = await this.getCurrentUser();
+    let currentUser = await this.getCurrentUser();
 
     if (currentUser.blowConfig == null) {
-      await this.updateBlowConfig({sampleRate: 12});
+      currentUser.blowConfig = { sampleRate: 12 }
+
+      await this.updateBlowConfig(currentUser.blowConfig)
     }
 
     return currentUser.blowConfig;
@@ -228,10 +230,12 @@ export default class Database {
     const currentUser = await this.getCurrentUser();
 
     if (currentUser.cameraResolution == null) {
-      await this.updateCameraResolution({
+      currentUser.cameraResolution = {
         height: 1080,
         width: 1920,
-      });
+      }
+
+      await this.updateCameraResolution(currentUser.cameraResolution)
     }
 
     return currentUser.cameraResolution;

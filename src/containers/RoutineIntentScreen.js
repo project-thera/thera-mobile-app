@@ -67,6 +67,10 @@ class RoutineIntentScreen extends React.Component {
     );
   };
 
+  componentDidUpdate = () => {
+    if (this.exerciseRef) this.exerciseRef.start();
+  }
+
   componentWillUnmount = () => {
     database.addRoutineIntent(this.routineIntent);
 
