@@ -16,7 +16,7 @@ import ExerciseHelper from '../helpers/ExerciseHelper';
 
 import exercises from '../data/exercises.json';
 
-const BackIcon = (props) => <Icon {...props} name="arrow-back" />;
+const BackIcon = (props) => <Icon style={{ width: 48 }} name="arrow-back" {...props} />;
 const PlayCircleIcon = (props) => <Icon {...props} name="play-circle" />;
 const QuestionMarkCircleIcon = (props) => (
   <Icon {...props} name="question-mark-circle" />
@@ -54,7 +54,7 @@ export default class GlossaryScreen extends React.Component {
         onPress={() => this._showHelp(info.item)}></Button>
       <Button
         accessoryLeft={PlayCircleIcon}
-        size="small"
+        size="medium"
         style={{marginLeft: 8}}
         onPress={() => this._playExercise(info.item)}>
         Iniciar

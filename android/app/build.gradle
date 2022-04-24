@@ -3,9 +3,9 @@ apply from: '../../node_modules/react-native-unimodules/gradle.groovy'
 
 import com.android.build.OutputFile
 
-project.ext.react = [
-    enableHermes: true
-]
+// project.ext.react = [
+//     enableHermes: true
+// ]
 
 /**
  * The react.gradle file registers a task for each build variant (e.g. bundleDebugJsAndAssets
@@ -233,7 +233,7 @@ dependencies {
         implementation jscFlavor
     }
 
-    compile project(':@react-native-voice_voice')
+    implementation project(':@react-native-voice_voice')
 
     implementation project(':react-native-fs')
 }
@@ -241,7 +241,7 @@ dependencies {
 // Run this once to be able to run the application with BUCK
 // puts all compile dependencies into folder libs for BUCK to use
 task copyDownloadableDepsToLibs(type: Copy) {
-    from configurations.compile
+    from configurations.implementation
     into 'libs'
 }
 

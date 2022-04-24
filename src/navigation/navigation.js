@@ -41,6 +41,11 @@ const HomeNavigator = (parentProps) => {
             {(props) => <SettingsScreen {...props} {...parentProps} />}
           </Screen>
           <Screen name="shop" component={ShopScreen} />
+          <Screen name="login">
+            {(props) => <LoginScreen {...props} {...parentProps} />}
+          </Screen>
+          <Screen name="sign-up" component={SignUpScreen} />
+          <Screen name="reset-password" component={ResetPasswordScreen} />
         </>
       ) : (
         <>

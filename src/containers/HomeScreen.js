@@ -31,7 +31,7 @@ import icons from '../assets/images/icons';
 
 const database = Database.getInstance();
 
-const BackIcon = (props) => <Icon {...props} name="arrow-back" />;
+const BackIcon = (props) => <Icon {...props} style={{ width: 48, height: 48, color: '#123123' }} name="arrow-back" />;
 const InfoIcon = (props) => <Icon {...props} name="info" />;
 const LogoutIcon = (props) => <Icon {...props} name="log-out" />;
 const MenuIcon = (props) => <Icon {...props} name="more-vertical" />;
@@ -196,6 +196,9 @@ export default class HomeScreen extends React.Component {
     return (
       <SafeAreaView style={{flex: 1}}>
         <TopNavigation
+          style={{
+            fontSize: 48
+          }}
           title="Proyecto Thera"
           subtitle="Inicio"
           accessoryLeft={this.renderAvatar}

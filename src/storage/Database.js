@@ -56,8 +56,8 @@ export default class Database {
     return Database.apiClient;
   }
 
-  getCurrentUser() {
-    return this.localDatabase.get(LOCAL_USER_KEY);
+  async getCurrentUser() {
+    return await this.localDatabase.get(LOCAL_USER_KEY);
   }
 
   async setCurrentUser(user) {
@@ -69,23 +69,23 @@ export default class Database {
 
     const currentUser = {...user, routineIntents: [], _id: LOCAL_USER_KEY};
 
-    return this.localDatabase.put(currentUser);
+    return await this.localDatabase.put(currentUser);
   }
 
   async removeCurrentUser() {
     this.apiClient = null;
     const currentUser = await this.localDatabase.get(LOCAL_USER_KEY);
 
-    return this.localDatabase.remove(currentUser);
+    return await this.localDatabase.remove(currentUser);
   }
 
   async getRoutines() {
     const currentUser = await this.getCurrentUser();
-
+    
     // sort by created_at desc
-    let routines = currentUser.routines.sort((a, b) =>
+    let routines = await currentUser.routines?.sort((a, b) =>
       a.created_at > b.created_at ? -1 : 1,
-    );
+    ) || [];
 
     return routines;
   }
@@ -116,7 +116,7 @@ export default class Database {
 
     currentUser.routineIntents.push(routineIntent);
 
-    return this.localDatabase.put(currentUser);
+    return await this.localDatabase.put(currentUser);
   }
 
   async syncRoutines() {
@@ -133,7 +133,7 @@ export default class Database {
     if (!error) {
       currentUser.routines = data;
 
-      return this.localDatabase.put(currentUser);
+      return await this.localDatabase.put(currentUser);
     }
 
     return null;
@@ -150,7 +150,7 @@ export default class Database {
     // TODO handle errors
     currentUser.routineIntents = [];
 
-    return this.localDatabase.put(currentUser);
+    return await this.localDatabase.put(currentUser);
   }
 
   async getGameReward() {
@@ -181,7 +181,7 @@ export default class Database {
 
     currentUser.gameReward = gameReward;
 
-    return this.localDatabase.put(currentUser);
+    return await this.localDatabase.put(currentUser);
   }
 
   async syncGameRewards() {
@@ -209,7 +209,11 @@ export default class Database {
   getBlowConfig = async () => {
     const currentUser = await this.getCurrentUser();
 
-    return currentUser.blowConfig ? currentUser.blowConfig : null;
+    if (currentUser.blowConfig == null) {
+      await this.updateBlowConfig({sampleRate: 12});
+    }
+
+    return currentUser.blowConfig;
   };
 
   updateBlowConfig = async (blowConfig) => {
@@ -217,13 +221,20 @@ export default class Database {
 
     currentUser.blowConfig = blowConfig;
 
-    return this.localDatabase.put(currentUser);
+    return await this.localDatabase.put(currentUser);
   };
 
   getCameraResolution = async () => {
     const currentUser = await this.getCurrentUser();
 
-    return currentUser.cameraResolution ? currentUser.cameraResolution : null;
+    if (currentUser.cameraResolution == null) {
+      await this.updateCameraResolution({
+        height: 1080,
+        width: 1920,
+      });
+    }
+
+    return currentUser.cameraResolution;
   };
 
   updateCameraResolution = async (cameraResolution) => {
@@ -231,7 +242,7 @@ export default class Database {
 
     currentUser.cameraResolution = cameraResolution;
 
-    return this.localDatabase.put(currentUser);
+    return await this.localDatabase.put(currentUser);
   };
 
   async getReminder() {
@@ -252,7 +263,7 @@ export default class Database {
       reminderTime,
     );
 
-    return this.localDatabase.put(currentUser);
+    return await this.localDatabase.put(currentUser);
   }
 
   async removeReminder() {
@@ -262,7 +273,7 @@ export default class Database {
 
     removeAllNotifications();
 
-    return this.localDatabase.put(currentUser);
+    return await this.localDatabase.put(currentUser);
   }
 
   async testAddRoutineIntent() {
