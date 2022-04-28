@@ -53,5 +53,11 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
+	<key>NSCameraUsageDescription</key>
+	<string>La aplicación requiere acceso a la cámara</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>La aplicación requiere acceso al micrófono</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>La aplicación requiere acceso al reconocimiento de voz</string>
 </dict>
 </plist>
