@@ -23,7 +23,7 @@
     "exercise_type": "classification",
     "id": "20210501",
     "name": "Reconocimiento de gestos #1",
-    "steps": "[{\"goal\":\"conejito\"},{\"goal\":\"reposo\"}]",
+    "steps": "[{\"goal\":\"conejito\",\"time\":1000},{\"goal\":\"reposo\",\"time\":1000}]",
     "updated_at": "2021-04-23T02:30:18.007-03:00"
   },
   {
