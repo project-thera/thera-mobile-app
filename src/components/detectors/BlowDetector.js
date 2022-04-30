@@ -18,6 +18,8 @@ const AMPLITUDE_THRESHOLD = 2000;
 const ENERGY_AVERAGE_THRESHOLD = 700;
 const REQUIRED_INTEGRAL = 8;
 // const FFT_SIZE = BUFFER_SIZE / 2;
+const STOPPED = 1;
+const STARTED = 2;
 
 export default class BlowDetector extends React.Component {
   constructor(props) {
@@ -30,6 +32,7 @@ export default class BlowDetector extends React.Component {
     this.maxFreqIndex = _frequencyToIndex(MAX_FREQ, BUFFER_SIZE, sampleRate);
 
     this.state = this.defaultState();
+    this.detectorState = STOPPED;
   }
 
   defaultState = () => {
@@ -66,11 +69,11 @@ export default class BlowDetector extends React.Component {
 
   // TODO check if do this on unmount or in stop or both
   componentWillUnmount() {
-    Recording.stop();
+    // Recording.stop();
 
-    if (this.listener) {
-      this.listener.remove();
-    }
+    // if (this.listener) {
+    //   this.listener.remove();
+    // }
   }
 
   onProgress = (data) => {
@@ -96,28 +99,44 @@ export default class BlowDetector extends React.Component {
     }, 2000);
   };
 
+  _stopped = () => {
+    return this.detectorState == STOPPED;
+  }
+
+  _started = () => {
+    return this.detectorState == STARTED;
+  }
+
   _start = async () => {
-    this.balloonRef.reset();
+    if(!this._started()) {
+      this.detectorState = STARTED;
 
-    Recording.init({
-      bufferSize: BUFFER_SIZE,
-      sampleRate: this.sampleRate,
-      bitsPerChannel: 16,
-      channelsPerFrame: 1,
-    });
+      this.balloonRef.reset();
 
-    this.listener = Recording.addRecordingEventListener(
-      this._handleRecordingEvent,
-    );
+      Recording.init({
+        bufferSize: BUFFER_SIZE,
+        sampleRate: this.sampleRate,
+        bitsPerChannel: 16,
+        channelsPerFrame: 1,
+      });
 
-    Recording.start();
+      this.listener = Recording.addRecordingEventListener(
+        this._handleRecordingEvent,
+      );
+
+      Recording.start();
+    }
   };
 
   _stop = () => {
-    Recording.stop();
+    if(!this._stopped()) {
+      this.detectorState = STOPPED;
 
-    if (this.listener) {
-      this.listener.remove();
+      Recording.stop();
+
+      if (this.listener) {
+        this.listener.remove();
+      }
     }
   };
 

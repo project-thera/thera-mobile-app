@@ -1,5 +1,5 @@
 import React from 'react';
-import {Image, StyleSheet} from 'react-native';
+import {Image, StyleSheet, SafeAreaView} from 'react-native';
 import {
   Card,
   Divider,
@@ -244,7 +244,7 @@ class ShopScreen extends React.Component {
 
   render() {
     return (
-      <React.Fragment>
+      <SafeAreaView>
         <TopNavigation
           title="Proyecto Thera"
           subtitle="¡Construí tu androide!"
@@ -266,7 +266,7 @@ class ShopScreen extends React.Component {
           backdropStyle={styles.backdrop}>
           {this.renderModalContent()}
         </Modal>
-      </React.Fragment>
+      </SafeAreaView>
     );
   }
 }

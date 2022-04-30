@@ -59,7 +59,7 @@ export default class SpeechRecognition extends React.Component {
   pause = () => {};
 
   stop = () => {
-    // Voice.destroy().then(Voice.removeAllListeners);
+    Voice.destroy().then(Voice.removeAllListeners);
   };
 
   detect = (prediction) => {
@@ -84,6 +84,8 @@ export default class SpeechRecognition extends React.Component {
       text1: 'Eso no sonó bien.',
       text2: 'Por favor, intentalo de nuevo.',
     });
+
+    this._cancelRecognizing();
   };
 
   onSpeechStart = (e) => {
