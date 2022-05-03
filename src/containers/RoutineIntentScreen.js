@@ -15,7 +15,7 @@ import {Bar} from 'react-native-progress';
 import icons from '../assets/images/icons';
 import Exercise from '../components/exercises/Exercise';
 import RoutineDecorator from '../decorators/RoutineDecorator';
-import Database from '../storage/Database';
+import Database, { ROUTINE_INTENT_EXERCISE_SKIPPED, ROUTINE_INTENT_EXERCISE_COMPLETED } from '../storage/Database';
 
 const database = Database.getInstance();
 
@@ -86,6 +86,8 @@ class RoutineIntentScreen extends React.Component {
 
     this.routineIntent.finished_at = new Date().toISOString();
 
+    console.log("COMPLETED");
+    console.log(this.routineIntent);
     if (this.shouldAddCredits) {
       let gameReward = await database.getGameReward();
 
@@ -97,9 +99,11 @@ class RoutineIntentScreen extends React.Component {
   };
 
   onExerciseSkipped = () => {
+    console.log("SKIPPED");
+    console.log(this.currentExercise());
     this.routineIntent.routine_intent_exercises_attributes.push({
       exercise_id: this.currentExercise().id,
-      status: Database.ROUTINE_INTENT_EXERCISE_SKIPPED,
+      status: ROUTINE_INTENT_EXERCISE_SKIPPED,
     });
 
     this.setState(
@@ -115,7 +119,7 @@ class RoutineIntentScreen extends React.Component {
   onExerciseCompleted = () => {
     this.routineIntent.routine_intent_exercises_attributes.push({
       exercise_id: this.currentExercise().id,
-      status: Database.ROUTINE_INTENT_EXERCISE_COMPLETED,
+      status: ROUTINE_INTENT_EXERCISE_COMPLETED,
     });
 
     this.setState(
