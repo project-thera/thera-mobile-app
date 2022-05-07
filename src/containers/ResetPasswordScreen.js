@@ -47,7 +47,7 @@ export default class ResetPasswordScreen extends React.Component {
     </TouchableWithoutFeedback>
   );
 
-  handleSubmit = (values, {setErrors}) => {
+  handleSubmit = (values) => {
     this.setState({
       loading: true,
     });
@@ -60,16 +60,20 @@ export default class ResetPasswordScreen extends React.Component {
       },
     }).then(
       (response) => {
-        if (response?.data?.id) {
+        if (response?.status == 200) {
           Toast.show({
             type: 'success',
             position: 'bottom',
-            text1: `Se ha enviado un mensaje a la dirección de correo ${response?.data?.email} para continuar`,
+            text1: `Se ha enviado un mensaje a la dirección de correo para continuar`,
           });
 
-          this.props.navigation.navigate('home');
+          this.props.navigation.navigate('login');
         } else {
-          setErrors(response?.data?.errors);
+          Toast.show({
+            type: 'error',
+            position: 'bottom',
+            text1: "Ha ocurrido un error al recuperar su contraseña, comuniquese con el administrador del sitio",
+          });
 
           this.setState({
             loading: false,

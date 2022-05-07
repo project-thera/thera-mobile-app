@@ -68,7 +68,7 @@ export default class SignUpScreen extends React.Component {
             text1: `Se ha enviado un mensaje a la dirección de correo ${response?.data?.email} para continuar con el registro`,
           });
 
-          this.props.navigation.navigate('home');
+          this.props.navigation.navigate('login');
         } else {
           setErrors(response?.data?.errors);
 
