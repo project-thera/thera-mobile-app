@@ -6,8 +6,8 @@ buildscript {
         minSdkVersion = 21
         compileSdkVersion = 30
         targetSdkVersion = 30
-        versionCode = 3
-        versionName = "0.0.3"
+        versionCode = 4
+        versionName = "0.0.4"
         
         reactNativeFFmpegPackage = "min-gpl-lts"
         // https://stackoverflow.com/questions/70756506/minify-withr8-throws-java-lang-outofmemoryerror-java-heap-space
