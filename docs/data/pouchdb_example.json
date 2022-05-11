@@ -1,0 +1,67 @@
+{
+    "_id": "current",
+    "_rev": "18-8e2c8c0147a54f13963febe966de0c93",
+    "blowConfig": {
+        "sampleRate": 12
+    },
+    "cameraResolution": {
+        "height": 1080,
+        "width": 1920
+    },
+    "data": {
+        "created_at": "2022-04-28T19:54:54.607-03:00",
+        "discarded_at": null,
+        "email": "paciente@thera.com.ar",
+        "file": null,
+        "fullname": "María Elisa Galli",
+        "game_reward_id": 84,
+        "id": 84,
+        "supervisor_id": 63,
+        "updated_at": "2022-05-04T20:56:13.242-03:00",
+        "username": "paciente"
+    },
+    "gameReward": {
+        "credits": 20,
+        "current_robot": 0,
+        "id": "84",
+        "robots": 0
+    },
+    "routineIntents": [{
+        "finished_at": "2022-05-05T00:12:04.598Z",
+        "routine_id": "228",
+        "routine_intent_exercises_attributes": [{
+            "exercise_id": "27",
+            "status": 0
+        }],
+        "started_at": "2022-05-05T00:12:02.157Z"
+    }],
+    "routines": [{
+        "created_at": "2022-04-28T19:56:09.739-03:00",
+        "daily_limit": 3,
+        "discarded": false,
+        "id": "223",
+        "name": "número #84 #1",
+        "patient_id": "84",
+        "routine_exercises": [{
+                "created_at": "2022-04-28T19:56:09.741-03:00",
+                "exercise": {
+                    "created_at": "2022-04-28T19:54:54.791-03:00",
+                    "description": "Acerque el celular a su cara y sople durante 5 segundos.",
+                    "exercise_type": "blow",
+                    "id": "29",
+                    "name": "Soplido 5 segundos",
+                    "steps": "[{\"goal\":\"soplar\",\"time\":5000},{\"goal\":\"sin_soplar\",\"time\":5000}]",
+                    "updated_at": "2022-04-28T19:54:54.791-03:00"
+                },
+                "exercise_id": 29,
+                "id": "1691",
+                "repetitions": 1,
+                "routine_id": 223,
+                "updated_at": "2022-04-28T19:56:09.741-03:00"
+            }
+        ],
+        "supervisor_id": "63",
+        "updated_at": "2022-04-28T19:56:09.739-03:00"
+    }],
+    "token": "GIloXAufvdshFRFJtfrUBh3MiZNB2yHK/kmrKK+XbUlBf0xMFElOB77izdCGR1NDZPT0iEd6md71QxPtraIcdQ=="
+}

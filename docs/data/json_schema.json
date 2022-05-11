@@ -1,0 +1,284 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "properties": {
+      "_id": {
+        "type": "string"
+      },
+      "_rev": {
+        "type": "string"
+      },
+      "blowConfig": {
+        "type": "object",
+        "properties": {
+          "sampleRate": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "sampleRate"
+        ]
+      },
+      "cameraResolution": {
+        "type": "object",
+        "properties": {
+          "height": {
+            "type": "integer"
+          },
+          "width": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "height",
+          "width"
+        ]
+      },
+      "data": {
+        "type": "object",
+        "properties": {
+          "created_at": {
+            "type": "string"
+          },
+          "discarded_at": {
+            "type": "null"
+          },
+          "email": {
+            "type": "string"
+          },
+          "file": {
+            "type": "null"
+          },
+          "fullname": {
+            "type": "string"
+          },
+          "game_reward_id": {
+            "type": "integer"
+          },
+          "id": {
+            "type": "integer"
+          },
+          "supervisor_id": {
+            "type": "integer"
+          },
+          "updated_at": {
+            "type": "string"
+          },
+          "username": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "created_at",
+          "discarded_at",
+          "email",
+          "file",
+          "fullname",
+          "game_reward_id",
+          "id",
+          "supervisor_id",
+          "updated_at",
+          "username"
+        ]
+      },
+      "gameReward": {
+        "type": "object",
+        "properties": {
+          "credits": {
+            "type": "integer"
+          },
+          "current_robot": {
+            "type": "integer"
+          },
+          "id": {
+            "type": "string"
+          },
+          "robots": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "credits",
+          "current_robot",
+          "id",
+          "robots"
+        ]
+      },
+      "routineIntents": {
+        "type": "array",
+        "items": [
+          {
+            "type": "object",
+            "properties": {
+              "finished_at": {
+                "type": "string"
+              },
+              "routine_id": {
+                "type": "string"
+              },
+              "routine_intent_exercises_attributes": {
+                "type": "array",
+                "items": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "exercise_id": {
+                        "type": "string"
+                      },
+                      "status": {
+                        "type": "integer"
+                      }
+                    },
+                    "required": [
+                      "exercise_id",
+                      "status"
+                    ]
+                  }
+                ]
+              },
+              "started_at": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "finished_at",
+              "routine_id",
+              "routine_intent_exercises_attributes",
+              "started_at"
+            ]
+          }
+        ]
+      },
+      "routines": {
+        "type": "array",
+        "items": [
+          {
+            "type": "object",
+            "properties": {
+              "created_at": {
+                "type": "string"
+              },
+              "daily_limit": {
+                "type": "integer"
+              },
+              "discarded": {
+                "type": "boolean"
+              },
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "patient_id": {
+                "type": "string"
+              },
+              "routine_exercises": {
+                "type": "array",
+                "items": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "created_at": {
+                        "type": "string"
+                      },
+                      "exercise": {
+                        "type": "object",
+                        "properties": {
+                          "created_at": {
+                            "type": "string"
+                          },
+                          "description": {
+                            "type": "string"
+                          },
+                          "exercise_type": {
+                            "type": "string"
+                          },
+                          "id": {
+                            "type": "string"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "steps": {
+                            "type": "string"
+                          },
+                          "updated_at": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "created_at",
+                          "description",
+                          "exercise_type",
+                          "id",
+                          "name",
+                          "steps",
+                          "updated_at"
+                        ]
+                      },
+                      "exercise_id": {
+                        "type": "integer"
+                      },
+                      "id": {
+                        "type": "string"
+                      },
+                      "repetitions": {
+                        "type": "integer"
+                      },
+                      "routine_id": {
+                        "type": "integer"
+                      },
+                      "updated_at": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "created_at",
+                      "exercise",
+                      "exercise_id",
+                      "id",
+                      "repetitions",
+                      "routine_id",
+                      "updated_at"
+                    ]
+                  }
+                ]
+              },
+              "supervisor_id": {
+                "type": "string"
+              },
+              "updated_at": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "created_at",
+              "daily_limit",
+              "discarded",
+              "id",
+              "name",
+              "patient_id",
+              "routine_exercises",
+              "supervisor_id",
+              "updated_at"
+            ]
+          }
+        ]
+      },
+      "token": {
+        "type": "string"
+      }
+    },
+    "required": [
+      "_id",
+      "_rev",
+      "blowConfig",
+      "cameraResolution",
+      "data",
+      "gameReward",
+      "routineIntents",
+      "routines",
+      "token"
+    ]
+  }

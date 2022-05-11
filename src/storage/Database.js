@@ -192,6 +192,16 @@ export default class Database {
   }
 
   async sync() {
+    const currentUser = await this.getCurrentUser();
+
+    // output to generate schema.json
+    // console.log("SYNC");
+    // console.log(currentUser);
+    // console.log("ROUTINE INTENTS");
+    // console.log(currentUser.routineIntents[0].routine_intent_exercises_attributes);
+    // console.log("ROUTINE EXERCISES");
+    // console.log(currentUser.routines[0].routine_exercises)
+
     await this.syncRoutineIntents();
     await this.syncGameRewards();
 

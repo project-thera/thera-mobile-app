@@ -3,10 +3,30 @@ import {Image, StyleSheet} from 'react-native';
 import {Layout, Text} from '@ui-kitten/components';
 
 export default class Word extends React.Component {
+  constructor(props) {
+    super(props);
 
-  // FIXME
+    // interpolation doesn't work with require
+    this.state = {
+      images: {
+        'assets/images/animals/dog.png': require("../../assets/images/animals/dog.png"),
+        'assets/images/animals/cat.png': require("../../assets/images/animals/cat.png")
+      }
+    }
+  }
+
   renderImage = () => {
-    if (this.props.word) return (<Image style={styles.image} source={require("../../assets/images/animals/dog.png")} />);
+    if (this.props.word) return (<Image style={styles.image} source={this.getSource()} />);
+  }
+
+  getSource = () => {
+    if (this.isImageBase64()) return { uri: this.props.image };
+
+    return this.state.images[this.props.image];
+  }
+
+  isImageBase64 = () => {
+    return this.props.image.startsWith('data:image/');
   }
 
   renderText = () => {

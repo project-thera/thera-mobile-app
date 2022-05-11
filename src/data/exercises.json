@@ -5,7 +5,7 @@
     "exercise_type": "blow",
     "id": "20210501",
     "name": "Soplido 1 segundos",
-    "steps": "[{\"goal\":\"soplar\",\"time\":1000},{\"goal\":\"sin_soplar\",\"time\":1000}]",
+    "steps": "[{\"goal\":\"soplar\",\"time\":1000},{\"goal\":\"soplar\",\"time\":1000}]",
     "updated_at": "2021-04-23T02:30:18.007-03:00"
   },
   {
@@ -14,7 +14,7 @@
     "exercise_type": "speech",
     "id": "20210501",
     "name": "Palabras #1",
-    "steps": "[{\"goal\":\"perro\"},{\"goal\":\"gato\"}]",
+    "steps": "[{\"goal\":\"perro\", \"image\": \"assets/images/animals/dog.png\"},{\"goal\":\"gato\", \"image\": \"assets/images/animals/cat.png\"}]",
     "updated_at": "2021-04-23T02:30:18.007-03:00"
   },
   {
@@ -23,7 +23,7 @@
     "exercise_type": "classification",
     "id": "20210501",
     "name": "Reconocimiento de gestos #1",
-    "steps": "[{\"goal\":\"conejito\",\"time\":1000},{\"goal\":\"reposo\",\"time\":1000}]",
+    "steps": "[{\"goal\":\"conejito\",\"time\":1000}]",
     "updated_at": "2021-04-23T02:30:18.007-03:00"
   },
   {
@@ -77,7 +77,7 @@
     "exercise_type": "classification",
     "id": "20210501",
     "name": "Reconocimiento de gestos #7",
-    "steps": "[{\"goal\":\"protruir_boca_cerrada\",\"time\":1000},{\"goal\":\"reposo\",\"time\":1000},{\"goal\":\"protruir_boca_abierta\",\"time\":1000},{\"goal\":\"reposo\",\"time\":1000}]",
+    "steps": "[{\"goal\":\"protruir_boca_cerrada\",\"time\":1000},{\"goal\":\"protruir_boca_abierta\",\"time\":1000}]",
     "updated_at": "2021-04-23T02:30:18.007-03:00"
   },
   {
@@ -86,7 +86,7 @@
     "exercise_type": "classification",
     "id": "20210501",
     "name": "Reconocimiento de gestos #8",
-    "steps": "[{\"goal\":\"retruir_cerrada\",\"time\":1000},{\"goal\":\"reposo\",\"time\":1000},{\"goal\":\"retruir_abierta\",\"time\":1000},{\"goal\":\"reposo\",\"time\":1000}]",
+    "steps": "[{\"goal\":\"retruir_cerrada\",\"time\":1000},{\"goal\":\"retruir_abierta\",\"time\":1000}]",
     "updated_at": "2021-04-23T02:30:18.007-03:00"
   }
 ]
