@@ -1,0 +1,117 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "properties": {
+    "_id": "string",
+    "_rev": "string",
+    "blowConfig": {
+      "type": "object",
+      "properties": {
+        "sampleRate": "integer"
+      }
+    },
+    "cameraResolution": {
+      "type": "object",
+      "properties": {
+        "height": "integer",
+        "width": "integer"
+      }
+    },
+    "data": {
+      "type": "object",
+      "properties": {
+        "created_at": "string",
+        "discarded_at": "string",
+        "email": "string",
+        "file": "string",
+        "fullname": "string",
+        "game_reward_id": "integer",
+        "id": "integer",
+        "supervisor_id": "integer",
+        "updated_at": "string",
+        "username": "string"
+      }
+    },
+    "gameReward": {
+      "type": "object",
+      "properties": {
+        "credits": "integer",
+        "current_robot": "integer",
+        "id": "string",
+        "robots": "integer"
+      }
+    },
+    "routineIntents": {
+      "type": "array",
+      "items": [
+        {
+          "type": "object",
+          "properties": {
+            "finished_at": "string",
+            "routine_id": "string",
+            "routine_intent_exercises_attributes": {
+              "type": "array",
+              "items": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "exercise_id": "string",
+                    "status": "integer"
+                  }
+                }
+              ]
+            },
+            "started_at": "string"
+          }
+        }
+      ]
+    },
+    "routines": {
+      "type": "array",
+      "items": [
+        {
+          "type": "object",
+          "properties": {
+            "created_at": "string",
+            "daily_limit": "integer",
+            "discarded": "boolean",
+            "id": "string",
+            "name": "string",
+            "patient_id": "string",
+            "routine_exercises": {
+              "type": "array",
+              "items": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "created_at": "string",
+                    "exercise": {
+                      "type": "object",
+                      "properties": {
+                        "created_at": "string",
+                        "description": "string",
+                        "exercise_type": "string",
+                        "id": "string",
+                        "name": "string",
+                        "steps": "string",
+                        "updated_at": "string"
+                      }
+                    },
+                    "exercise_id": "integer",
+                    "id": "string",
+                    "repetitions": "integer",
+                    "routine_id": "integer",
+                    "updated_at": "string"
+                  }
+                }
+              ]
+            },
+            "supervisor_id": "string",
+            "updated_at": "string"
+          }
+        }
+      ]
+    },
+    "token": "string"
+  }
+}

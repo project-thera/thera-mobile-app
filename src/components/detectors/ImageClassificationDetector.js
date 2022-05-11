@@ -394,9 +394,6 @@ class ImageClassificationDetector extends React.Component {
 
     if (steps[this.props.currentStep.goal])
       instructions = steps[this.props.currentStep.goal]['instructions'];
-    else {
-      console.log(this.props.currentStep.goal);
-    }
 
     return <Text style={styles.description}>{instructions}</Text>;
   };

@@ -240,7 +240,7 @@ export default class SpeechRecognition extends React.Component {
         <Text category="h2" style={styles.title}>
           Pronunciá la palabra
         </Text>
-        <Word word={this.props.currentStep.goal} />
+        <Word word={this.props.currentStep.goal} image={this.props.currentStep.image} />
         <Layout style={styles.controlContainer}>
           {this.renderSpeakButton()}
         </Layout>

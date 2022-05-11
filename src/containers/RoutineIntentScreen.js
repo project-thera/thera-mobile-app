@@ -86,8 +86,6 @@ class RoutineIntentScreen extends React.Component {
 
     this.routineIntent.finished_at = new Date().toISOString();
 
-    console.log("COMPLETED");
-    console.log(this.routineIntent);
     if (this.shouldAddCredits) {
       let gameReward = await database.getGameReward();
 
@@ -99,8 +97,6 @@ class RoutineIntentScreen extends React.Component {
   };
 
   onExerciseSkipped = () => {
-    console.log("SKIPPED");
-    console.log(this.currentExercise());
     this.routineIntent.routine_intent_exercises_attributes.push({
       exercise_id: this.currentExercise().id,
       status: ROUTINE_INTENT_EXERCISE_SKIPPED,
